@@ -1,7 +1,6 @@
 #include "parser.h"
 #include <string>
 
-// 2
 // Parser
 namespace Parser {
 
