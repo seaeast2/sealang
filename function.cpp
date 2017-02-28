@@ -2,6 +2,7 @@
 #include <string>
 
 
+// Parser
 namespace Parser {
 
 bool SyntaxAnalyzer::DefFunc() {
