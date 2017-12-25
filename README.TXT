@@ -1,7 +1,6 @@
 
 Git command
 
-1. clone : 원격 저장소에 있는 파일을 다운로드
     git clone https//github.com/blarblar/ ~/test/dir
 2. commit : 로컬 파일에 있는 변경점을 로컬 저장소에 반영
     git commit -am "message"

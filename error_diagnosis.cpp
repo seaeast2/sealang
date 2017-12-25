@@ -1,6 +1,7 @@
 
 #include "error_diagnosis.h"
 
+// Error diagnosis system package
 namespace ErrorDiag {
 
 void LexerDiag::Print(ErrorKind ekind, int line, int col) {
