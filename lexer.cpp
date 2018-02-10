@@ -19,78 +19,78 @@ struct TokenInfo {
   int length;
 };
 TokenInfo TokInfo[] = {
-  { "eof",    "TokEof",     3 },
+  { "eof",    "TokEof",     3 }, // 0
 
-  { "import", "TokImport",  6 },
-  { "static", "TokStatic",  6 },
+  { "import", "TokImport",  6 }, // 1
+  { "static", "TokStatic",  6 }, // 2
 
-  { "if",     "TokIf",      2 },
-  { "else",   "TokElse",    4 },
-  { "while",  "TokWhile",   5 },
-  { "return", "TokReturn",  6 },
-  { "for",    "TokFor",     3 },
-  { "break",  "TokBreak",   5 },
+  { "if",     "TokIf",      2 }, // 3
+  { "else",   "TokElse",    4 }, // 4
+  { "while",  "TokWhile",   5 }, // 5
+  { "return", "TokReturn",  6 }, // 6
+  { "for",    "TokFor",     3 }, // 7
+  { "break",  "TokBreak",   5 }, // 8
 
-  { "byte",   "TokByte",    4 },
-  { "int",    "TokInt",     3 },
-  { "string", "TokString",  6 },
-  { "real",   "TokReal",    4 },
-  { "void",   "TokVoid",    4 },
-  { "struct", "TokStruct",  6 },
+  { "byte",   "TokByte",    4 }, // 9
+  { "int",    "TokInt",     3 }, // 10
+  { "string", "TokString",  6 }, // 11
+  { "real",   "TokReal",    4 }, // 12
+  { "void",   "TokVoid",    4 }, // 13
+  { "class", "TokClass",  6 }, // 14
 
-  { "<<=",    "TokComBitShiftL", 3 },
-  { ">>=",    "TokComBitShiftR", 3 },
+  { "<<=",    "TokComBitShiftL", 3 }, // 15
+  { ">>=",    "TokComBitShiftR", 3 }, // 16
 
-  { "<<",     "TokBitShiftL", 2 },
-  { ">>",     "TokBitShiftR", 2 },
-  { "++",     "TokUnaryInc",2 },
-  { "--",     "TokUnaryDec",2 },
-  { "+=",     "TokComAdd",  2 },
-  { "-=",     "TokComSub",  2 },
-  { "*=",     "TokComMul",  2 },
-  { "/=",     "TokComDiv",  2 },
-  { "&=",     "TokComBitAnd", 2 },
-  { "|=",     "TokComBitOr", 2 },
-  { "^=",     "TokComBitXor", 2 },
-  { "==",     "TokEqual",   2 },
-  { "!=",     "TokNotEqual", 2 },
-  { "<=",     "TokLessThanEqual", 2 },
-  { ">=",     "TokGreatorThenEqual", 2 },
-  { "&&",     "TokConAnd",  2 },
-  { "||",     "TokConOr",   2 },
+  { "<<",     "TokBitShiftL", 2 }, // 17
+  { ">>",     "TokBitShiftR", 2 }, // 18
+  { "++",     "TokUnaryInc",2 }, // 19
+  { "--",     "TokUnaryDec",2 }, // 20
+  { "+=",     "TokComAdd",  2 }, // 21
+  { "-=",     "TokComSub",  2 }, // 22
+  { "*=",     "TokComMul",  2 }, // 23
+  { "/=",     "TokComDiv",  2 }, // 24
+  { "&=",     "TokComBitAnd", 2 }, // 25
+  { "|=",     "TokComBitOr", 2 },  // 26
+  { "^=",     "TokComBitXor", 2 }, // 27
+  { "==",     "TokEqual",   2 },   // 28
+  { "!=",     "TokNotEqual", 2 },  // 29
+  { "<=",     "TokLessThanEqual", 2 }, // 30
+  { ">=",     "TokGreatorThenEqual", 2 }, // 31
+  { "&&",     "TokConAnd",  2 }, // 32
+  { "||",     "TokConOr",   2 }, // 33
 
-  { "+",      "TokAdd",     1 },
-  { "-",      "TokSub",     1 },
-  { "*",      "TokMul",     1 },
-  { "/",      "TokDiv",     1 },
-  { "%",      "TokMod",     1 },
-  { "=",      "TokAssign",  1 },
-  { "&",      "TokBitAnd",  1 },
-  { "|",      "TokBitOr",   1 },
-  { "^",      "TokBitXor",  1 },
-  { "~",      "TokBitNot",  1 },
-  { "<",      "TokLessThan",1 },
-  { ">",      "TokGreatorThan", 1 },
-  { "!",      "TokConNot",  1 },
-  { "?",      "TokQuestion", 1 },
+  { "+",      "TokAdd",     1 }, // 34
+  { "-",      "TokSub",     1 }, // 35
+  { "*",      "TokMul",     1 }, // 36
+  { "/",      "TokDiv",     1 }, // 37
+  { "%",      "TokMod",     1 }, // 38
+  { "=",      "TokAssign",  1 }, // 39
+  { "&",      "TokBitAnd",  1 }, // 40
+  { "|",      "TokBitOr",   1 }, // 41
+  { "^",      "TokBitXor",  1 }, // 42
+  { "~",      "TokBitNot",  1 }, // 43
+  { "<",      "TokLessThan",1 }, // 44
+  { ">",      "TokGreatorThan", 1 }, // 45
+  { "!",      "TokConNot",  1 }, // 46
+  { "?",      "TokQuestion", 1 }, // 47
 
-  { "(",      "TokParenOpen", 1 },
-  { ")",      "TokParenClose", 1 },
-  { "{",      "TokBraceOpen", 1 },
-  { "}",      "TokBraceClose", 1 },
-  { "[",      "TokBracketOpen", 1 },
-  { "]",      "TokBracketClose", 1 },
+  { "(",      "TokParenOpen", 1 }, // 48
+  { ")",      "TokParenClose", 1 }, // 49
+  { "{",      "TokBraceOpen", 1 }, // 50
+  { "}",      "TokBraceClose", 1 }, // 51
+  { "[",      "TokBracketOpen", 1 }, // 52
+  { "]",      "TokBracketClose", 1 }, // 53
   
-  { ",",      "TokComma",   1 },
-  { ".",      "TokDot",     1 },
-  { ";",      "TokSemiColon", 1 },
-  { "\"",     "TokDoubleQuot", 1 },
-  { "\'",     "TokSingleQuot", 1 },
-  
-  { "/*",     "TokStarRemark", 2 },
-  { "//",     "TokLineRemark", 2 },
+  { ",",      "TokComma",   1 }, // 54
+  { ".",      "TokDot",     1 }, // 55
+  { ";",      "TokSemiColon", 1 }, // 56
+  { "\"",     "TokDoubleQuot", 1 }, // 57
+  { "\'",     "TokSingleQuot", 1 }, // 58
+ 
+  { "/*",     "TokStarRemark", 2 }, // 59
+  { "//",     "TokLineRemark", 2 }, // 60
 
-  { "ID",     "TokIdentifier", 0 },
+  { "ID",     "TokIdentifier", 0 }, // 61
 };
 
 void PrintToken(Token& tok) {

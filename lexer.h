@@ -25,7 +25,7 @@ namespace Lexer {
     TokString,
     TokReal,
     TokVoid,
-    TokStruct,
+    TokClass,
 
     // Operators
     TokComBitShiftL,  // <<=
