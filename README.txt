@@ -16,7 +16,7 @@ Git command
   git push origin master
 
 5. Pull file. Update files with latest revision. (This is same as 'update' command in SVN.)
-  git pull
+  git pull origin master
 
 6. Delete file
   git rm filename
