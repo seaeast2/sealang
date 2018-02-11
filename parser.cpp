@@ -15,7 +15,7 @@ SyntaxAnalyzer::~SyntaxAnalyzer() {
   delete astctx_;
 }
 
-// compileation_unit : import_stmts | 
+// compilation_unit : import_stmts | 
 //                    top_defs | 
 //                    <EOF>
 bool SyntaxAnalyzer::CompilationUnit() {
