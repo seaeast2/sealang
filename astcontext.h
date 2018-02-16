@@ -1,30 +1,29 @@
 #ifndef _astcontext_h_
 #define _astcontext_h_
 
-#include <vector>
-#include <string>
+#include "common_typedef.h"
+
 using namespace std;
+using namespace CommonType;
 
-namespace Parser {
+namespace AST {
 
-class ASTContext {
-  public:
-    typedef vector<string> vstrings;
+  // AST context manager
+  class ASTContext {
+    private:
+      VecStr imports_;
 
-  private:
-    vstrings imports_;
+    public:
+      ASTContext() {}
+      ~ASTContext() {}
 
-  public:
-    ASTContext() {}
-    ~ASTContext() {}
+      void AddImport(const string &import);
+      VecStr::iterator import_begin();
+      VecStr::iterator import_end();
 
-    void AddImport(const string &import);
-    vstrings::iterator import_begin();
-    vstrings::iterator import_end();
-
-    // Debug functions
-    void PrintImports();
-};
+      // Debug functions
+      void PrintImports();
+  };
 
 };
 

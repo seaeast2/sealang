@@ -5,12 +5,14 @@ Sea lang specification.
 <IMPORT> : import 
 <VOID> : void 
 <UNSIGNED> : unsigned 
-<INT> : int 
+<BOOL> : bool
 <CHAR> : char 
 <SHORT> : short 
+<INT> : int 
 <LONG> : long 
 <CLASS> : class 
-<REAL> : real 
+<FLOAT> : float 
+<DOUBLE> : double
 <STATIC> : static 
 <IDENTIFIER> : [a-zA-Z][a-zA-Z0-9]* 
 <INTEGER> : [0-9]* 
@@ -39,7 +41,8 @@ typeref_base
     | <UNSIGNED> <SHORT> 
     | <UNSIGNED> <INT> 
     | <UNSIGNED> <LONG> 
-    | <REAL> 
+    | <FLOAT> 
+    | <DOUBLE>
     | <CLASS> <IDENTIFIER> 
 
 import_stmts  
@@ -255,4 +258,67 @@ primary
   |<STRING> 
   |<IDENTIFIER> 
   |"(" expr ")" 
+
+
+
+
+
+
+
+
+
+
+
+
+AST Node Tree
+Node
+  AST : Abstract Syntax tree root
+  ExprNode : Expression node
+    AbstractAssignNode : Assign
+      AssignNode : Assign (=)
+      OpAssignNode : Operation Assign (+=, -=, ...) 
+    AddressNode : Address expression (&x)
+    BinaryOpNode : Binary operaton (x+y, x-y, ...)
+      LogicalAndNode : &&
+      LogicalOrNode : ||
+    CastNode : type casting ( int(a), ...)
+    CondExprNode : Ternary Operation ( a? b : c)
+    FuncCallNode : Function call
+    LHSNode : Left side of assignment expression.
+      ArrayRefNode : Array reference (a[3]);
+      DereferenceNode : Pointer reference (*ptr)
+      MemberRefNode : Class member reference (s.a1)
+      PtrMemberRefNode : Pointer class member reference (s->a1)
+      VariableNode : Variable
+    LiteralNode : Literal
+      IntegerLiteralNode : Interger literal
+      RealLiteralNode : Real literal (1.4444)
+      StringLiteralNode : String literal
+    SizeofExprNode : for sizeof(expression)
+    SizeofTypeNode : for sizeof(type)
+    UnaryOpNode : Unary operation (+x, -x, ...)
+      UnaryArithmeticOpNode : ++, --
+        PrefixOpNode : Prefix operation (++x, --x)
+        SuffixOpNode : Suffix operation (x++, x--)
+    MemberNode : Class member
+    StmtNode : Statement node
+      BlockNode : Block ( { ... } )
+      BreakNode : break
+      CaseNode : case label
+      ContinueNode : continue
+      DoWhileNode : do-while
+      ExprStmtNode : Single statement expression
+      ForNode : for
+      GotoNode : goto
+      IfNode : if
+      LabelNode : goto label
+      ReturnNode : return
+      SwitchNode : switch 
+      WhileNode : while
+  TypeDefinition : Type definition
+    CompositeTypeDefinition : Composite type definition
+      ClassNode : class type definition
+    TypedefNode : typedef
+  TypeNode : Node for maintaining type
+
 

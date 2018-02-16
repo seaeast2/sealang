@@ -11,6 +11,3 @@ bool SyntaxAnalyzer::DefFunc() {
 
 }
 
-
-
-

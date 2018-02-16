@@ -5,7 +5,7 @@
 using namespace std;
 
 namespace ErrorDiag {
-  enum ErrorKind{
+  enum ErrorKind {
     Err_Lexer_UnexpectedEof,
 
     Err_Parser_NoIdentifier,

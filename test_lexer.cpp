@@ -15,7 +15,7 @@ int main() {
   while (true) {
     tok = tk.GetToken();
     PrintToken(tok);
-    if(tok.type == TokEof || tok.error == TokErr_UnexpectedEof)
+    if(tok.type == TokEof)
       break;
   }
   return 0;

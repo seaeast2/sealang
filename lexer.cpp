@@ -160,7 +160,7 @@ Token Tokenizer::MakeToken(const char*& read_pos, int& line, int& col) {
   }
 
   /* check whether it is keyword or type*/
-  for (int i = TokImport; i < TokStruct + 1; i++) {
+  for (int i = TokImport; i < TokClass + 1; i++) {
     char match = 0;
     for (int j = 0; j < TokInfo[i].length; j++) {
       match |= (*(read_pos + j) ^ TokInfo[i].str[j]);
@@ -374,7 +374,7 @@ bool WordChecker::isType(int look) {
     return true;
   else if (isToken(look, TokVoid))
     return true;
-  else if (isToken(look, TokStruct))
+  else if (isToken(look, TokClass))
     return true;
 
   return false;

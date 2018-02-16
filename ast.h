@@ -1,13 +1,14 @@
 #ifndef _ast_h_
 #define _ast_h_
 
-// Abstrat Syntax Tree Base and Nodes
-class AstNode {
+namespace AST {
+// Abstrat Syntax Tree Base Nodes
+  class BaseNode {
+    protected:
+      AstNode {}
+    public:
+      virtual ~AstNode {}
+  };
 
-  public:
-    AstNode {}
-    virtual ~AstNode {}
 };
-
-// astIfNode
 #endif
