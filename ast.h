@@ -3,11 +3,13 @@
 
 namespace AST {
 // Abstrat Syntax Tree Base Nodes
-  class BaseNode {
+  class Node {
     protected:
-      AstNode {}
+      Node() {}
     public:
-      virtual ~AstNode {}
+      virtual ~Node() {}
+
+      virtual void print();
   };
 
 };

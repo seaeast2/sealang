@@ -5,19 +5,18 @@ using namespace Lexer;
 namespace Parser {
 
 SyntaxAnalyzer::SyntaxAnalyzer(Tokenizer* tk) {
-  //tokenizer_ = tk;
-  wc_ = new WordChecker(tk);
-  astctx_ = new ASTContext();
+  tokenizer_ = tk;
+  astctx_ = new AST::ASTContext();
 }
 
 SyntaxAnalyzer::~SyntaxAnalyzer() {
-  delete wc_;
   delete astctx_;
 }
 
-// compilation_unit : import_stmts | 
-//                    top_defs | 
-//                    <EOF>
+
+// compilation_unit 
+//    : import_stmts top_defs <EOF> 
+
 bool SyntaxAnalyzer::CompilationUnit() {
 
   while(true) {
@@ -27,11 +26,11 @@ bool SyntaxAnalyzer::CompilationUnit() {
     if (!TopDefs())
       return false;
 
-    if (wc_->isToken(0, TokEof))
+    if (tokenizer_->isToken(0, TokEof))
       break;
   }
 
-  wc_->ConsumeToken(1);
+  tokenizer_->ConsumeToken(1);
   return true;
 }
 
@@ -43,8 +42,8 @@ bool SyntaxAnalyzer::ImportStmts() {
 bool SyntaxAnalyzer::TopDefs() {
   // check if function
   // static int Func (
-  if (wc_->isStorage(0) && wc_->isType(1) && wc_->isName(2) && 
-      wc_->isToken(3, Lexer::TokParenOpen)) {
+  if (tokenizer_->isStorage(0) && tokenizer_->isType(1) && tokenizer_->isName(2) && 
+      tokenizer_->isToken(3, Lexer::TokParenOpen)) {
     if (!DefFunc())
       return false;
   }

@@ -92,12 +92,14 @@ namespace Lexer {
 
   struct Token {
     TokenType type;
-    int line, col;
+    int line; // line at token.
+    int col; // colunm at token.
 
-    int len;
-    const char *c;
+    int len; // token length
+    const char *c; // token position in text stream
   };
 
+  // Produce text stream to token.
   class Tokenizer {
     const char* src_; // source file
     int src_len_;// source length
@@ -105,36 +107,26 @@ namespace Lexer {
     int cur_tok_; // last token position
     std::vector<Token> tokens_; // token made
 
-    ErrorDiag::LexerDiag* err_diag_;
+    ErrorDiag::LexerDiag* err_diag_; // error diagnosis
 
+    private:
     Token MakeToken(const char*& read_pos, int& line, int& col);
     Tokenizer() {}
     public:
-      Tokenizer(const char* src);
-      ~Tokenizer();
+    Tokenizer(const char* src);
+    ~Tokenizer();
 
-      bool CompileTokens();
-      Token GetToken(int look=0);
-      void ConsumeToken(int count=1);
-  };
+    bool CompileTokens();
+    Token GetToken(int look=0);
+    void ConsumeToken(int count=1);
 
-  void PrintToken(Token& tok);
-
-  class WordChecker {
-    Tokenizer* tk_;
-
-    WordChecker() {}
-    public:
-    WordChecker(Tokenizer* tk) : tk_(tk) {}
-    ~WordChecker() {}
-
+    // Token Checker
     bool isToken(int look, TokenType toktype);
     bool isName(int look);
     bool isStorage(int look);
     bool isType(int look);
-    Token GetToken(int look);
-    void ConsumeToken(int count);
   };
 
+  void PrintToken(Token& tok);
 };
 #endif

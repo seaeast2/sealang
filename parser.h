@@ -10,10 +10,9 @@ using namespace Lexer;
 namespace Parser {  
   class SyntaxAnalyzer {
 
-    //Tokenizer* tokenizer_;
-    WordChecker* wc_;
+    Tokenizer* tokenizer_;
 
-    ASTContext* astctx_;
+    AST::ASTContext* astctx_;
     ErrorDiag::ParserDiag err_diag_;
 
     

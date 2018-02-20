@@ -6,9 +6,9 @@ namespace AST {
   // Base type in AST
   class Type {
     protected:
-      AstType() {};
+      Type() {};
     public:
-      virtual ~AstType() {};
+      virtual ~Type() {};
 
       virtual void Print();
   };

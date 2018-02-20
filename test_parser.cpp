@@ -15,5 +15,7 @@ int main() {
 
   s.CompilationUnit();
   s.DebugPrint();
+
+  delete tk;
   return 0;
 }

@@ -12,35 +12,35 @@ bool SyntaxAnalyzer::ImportStmt() {
   Token tok;
 
   // 'import'
-  if (!wc_->isToken(0, Lexer::TokImport))
+  if (!tokenizer_->isToken(0, Lexer::TokImport))
     return true;
-  wc_->ConsumeToken(1); // Move next
+  tokenizer_->ConsumeToken(1); // Move next
 
   // name('.'name)*
-  if (!wc_->isName(0)) {
-    tok = wc_->GetToken(0);
+  if (!tokenizer_->isName(0)) {
+    tok = tokenizer_->GetToken(0);
     err_diag_.Print(ErrorDiag::Err_Parser_NoIdentifier, tok.line, tok.col);
     return false;
   }
 
-  Token tok_name = wc_->GetToken(0);
-  wc_->ConsumeToken(1); // move next
+  Token tok_name = tokenizer_->GetToken(0);
+  tokenizer_->ConsumeToken(1); // move next
   tmp.assign(tok_name.c, tok_name.len);
   import = tmp;
 
   while(true) {
     // .name
-    if (wc_->isToken(0, Lexer::TokDot) && wc_->isName(1)) {
+    if (tokenizer_->isToken(0, Lexer::TokDot) && tokenizer_->isName(1)) {
       import += "/";
-      tok_name = wc_->GetToken(1);
+      tok_name = tokenizer_->GetToken(1);
       tmp.assign(tok_name.c, tok_name.len);
       import += tmp;
-      wc_->ConsumeToken(2);
+      tokenizer_->ConsumeToken(2);
       continue;
     }
     // ';'
-    if (wc_->isToken(0, Lexer::TokSemiColon)) {
-      wc_->ConsumeToken(1);
+    if (tokenizer_->isToken(0, Lexer::TokSemiColon)) {
+      tokenizer_->ConsumeToken(1);
       break;
     }
     else {
