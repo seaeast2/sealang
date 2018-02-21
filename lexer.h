@@ -1,5 +1,5 @@
-#ifndef __lexer_h__
-#define __lexer_h__
+#ifndef _lexer_h_
+#define _lexer_h_
 
 #include <vector>
 #include "error_diagnosis.h"
@@ -110,6 +110,7 @@ namespace Lexer {
     ErrorDiag::LexerDiag* err_diag_; // error diagnosis
 
     private:
+    // Produce token from text stream.
     Token MakeToken(const char*& read_pos, int& line, int& col);
     Tokenizer() {}
     public:
@@ -120,7 +121,7 @@ namespace Lexer {
     Token GetToken(int look=0);
     void ConsumeToken(int count=1);
 
-    // Token Checker
+    // check if current token is 'toktype'.
     bool isToken(int look, TokenType toktype);
     bool isName(int look);
     bool isStorage(int look);

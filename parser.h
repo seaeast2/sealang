@@ -20,10 +20,10 @@ namespace Parser {
       SyntaxAnalyzer(Tokenizer* tk);
       ~SyntaxAnalyzer();
 
-      bool CompilationUnit();
-      // import
-      bool ImportStmts();
-      bool ImportStmt();
+      bool CompilationUnit(); // compilation_unit
+      
+      bool ImportStmts(); // import_stmts
+      bool ImportStmt(); // import_stmt
 
       bool TopDefs(); // Top defintions 
       bool DefFunc(); // Function definition

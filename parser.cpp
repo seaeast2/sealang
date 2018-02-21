@@ -19,31 +19,38 @@ SyntaxAnalyzer::~SyntaxAnalyzer() {
 
 bool SyntaxAnalyzer::CompilationUnit() {
 
-  while(true) {
-    if (!ImportStmts())
-      return false;
+  // compile import statement
+  if (!ImportStmts())
+    return false;
 
-    if (!TopDefs())
-      return false;
+  // compile global variables and functions.
+  if (!TopDefs())
+    return false;
 
-    if (tokenizer_->isToken(0, TokEof))
-      break;
-  }
+  // check EOF
+  if (!tokenizer_->isToken(0, TokEof))
+    return false;
 
   tokenizer_->ConsumeToken(1);
   return true;
 }
 
-// import_stmts : import_stmt*
+// import_stmts 
+//    : import_stmt*
 bool SyntaxAnalyzer::ImportStmts() {
-  return ImportStmt();
+  // check if token is 'import'.
+  while(tokenizer_->isToken(0, Lexer::TokImport)) {
+    if(!ImportStmt())
+      return false; // some error occured.
+  }
+  return true;
 }
 
 bool SyntaxAnalyzer::TopDefs() {
   // check if function
   // static int Func (
-  if (tokenizer_->isStorage(0) && tokenizer_->isType(1) && tokenizer_->isName(2) && 
-      tokenizer_->isToken(3, Lexer::TokParenOpen)) {
+  if (tokenizer_->isStorage(0) && tokenizer_->isType(1) && 
+      tokenizer_->isName(2) && tokenizer_->isToken(3, Lexer::TokParenOpen)) {
     if (!DefFunc())
       return false;
   }
