@@ -4,9 +4,6 @@
 // Parser
 namespace Parser {
 
-bool SyntaxAnalyzer::DefFunc() {
-  return true;
-}
 
 
 }

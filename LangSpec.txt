@@ -262,8 +262,8 @@ primary
 
 
 AST Node Tree =================================================================
-Node
-  ASTRoot : Abstract Syntax tree root
+BaseNode
+  RootNode : Abstract Syntax tree root
   ExprNode : Expression node
     AbstractAssignNode : Assign
       AssignNode : Assign (=)

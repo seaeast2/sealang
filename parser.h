@@ -2,6 +2,7 @@
 #define _parser_h_
 
 #include "lexer.h"
+#include "ast.h"
 #include "astcontext.h"
 #include "error_diagnosis.h"
 
@@ -25,13 +26,9 @@ namespace Parser {
       bool ImportStmts(); // import_stmts
       bool ImportStmt(); // import_stmt
 
-      bool TopDefs(); // Top defintions 
-      bool DefFunc(); // Function definition
-      bool DefVars(); // global Variable
-      bool DefConst(); // Constant ?
-      bool DefStruct(); // Struct
-      bool DefUnion(); // Union
-      bool DefTypedef();
+      bool TopDefs(AST::RootNode* pRND); // Top defintions 
+
+      bool Name(int look); // name : check if identifier
 
       void DebugPrint();
   };

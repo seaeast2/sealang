@@ -9,13 +9,16 @@ namespace ErrorDiag {
     Err_Lexer_UnexpectedEof,
 
     Err_Parser_NoIdentifier,
-    Err_Parser_NoSemicolon
+    Err_Parser_NoSemicolon,
+
   };
 
   class Diagnosis {
     public:
       Diagnosis() {}
       virtual ~Diagnosis() {}
+
+      void Print(ErrorKind ekind, int line, int col, char* errMsg = "");
   };
 
   class LexerDiag : public Diagnosis {
@@ -23,7 +26,7 @@ namespace ErrorDiag {
       LexerDiag() {}
       ~LexerDiag() {}
 
-      void Print(ErrorKind ekind, int line, int col);
+      void Print(ErrorKind ekind, int line, int col, char* errMsg = "");
   };
 
   class ParserDiag : public Diagnosis {
@@ -31,7 +34,7 @@ namespace ErrorDiag {
       ParserDiag() {}
       ~ParserDiag() {}
 
-      void Print(ErrorKind ekind, int line, int col);
+      void Print(ErrorKind ekind, int line, int col, char* errMsg = "");
   };
 };
 

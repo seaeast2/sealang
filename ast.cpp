@@ -6,7 +6,7 @@ using namespace std;
 
 namespace AST {
 
-  void Node::print() {
+  void BaseNode::print() {
   }
 };
 

@@ -16,15 +16,15 @@ SyntaxAnalyzer::~SyntaxAnalyzer() {
 
 // compilation_unit 
 //    : import_stmts top_defs <EOF> 
-
 bool SyntaxAnalyzer::CompilationUnit() {
 
-  // compile import statement
+  AST::RootNode* pRootND = astctx_->GetAstRoot();
+  // import statement
   if (!ImportStmts())
     return false;
 
   // compile global variables and functions.
-  if (!TopDefs())
+  if (!TopDefs(pRootND))
     return false;
 
   // check EOF
@@ -46,49 +46,21 @@ bool SyntaxAnalyzer::ImportStmts() {
   return true;
 }
 
-bool SyntaxAnalyzer::TopDefs() {
+bool SyntaxAnalyzer::TopDefs(AST::RootNode* pRND) {
   // check if function
-  // static int Func (
+  // ex) 'static int Func ('
   if (tokenizer_->isStorage(0) && tokenizer_->isType(1) && 
       tokenizer_->isName(2) && tokenizer_->isToken(3, Lexer::TokParenOpen)) {
-    if (!DefFunc())
-      return false;
+    /*if (!DefFunc())
+      return false;*/
   }
-  if (!DefVars())
-    return false;
-  if (!DefConst())
-    return false;
-  if (!DefStruct())
-    return false;
-  if (!DefUnion())
-    return false;
-  if (!DefTypedef())
-    return false;
 
   return true;
 }
 
-
-bool SyntaxAnalyzer::DefVars() {
-  return true;
+bool SyntaxAnalyzer::Name(int look) {
+  return tokenizer_->isName(look);
 }
-
-bool SyntaxAnalyzer::DefConst() {
-  return true;
-}
-
-bool SyntaxAnalyzer::DefStruct() {
-  return true;
-}
-
-bool SyntaxAnalyzer::DefUnion() {
-  return true;
-}
-
-bool SyntaxAnalyzer::DefTypedef() {
-  return true;
-}
-
 
 void SyntaxAnalyzer::DebugPrint() {
   astctx_->PrintImports();
