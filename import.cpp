@@ -8,6 +8,12 @@ namespace Parser {
   //    : <IMPORT> name ("." name)* ";" 
   // ex) import aaa.bbb.ccc;
   bool SyntaxAnalyzer::ImportStmt() {
+    int cur_tok_pos = tokenizer_->GetTokPos();
+    return true;
+  }
+
+
+  bool SyntaxAction::AcOnImport() {
     string import, tmp;
     Token tok;
 

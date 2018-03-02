@@ -121,10 +121,12 @@ namespace Lexer {
     Token GetToken(int look=0);
     void ConsumeToken(int count=1);
 
+    int GetTokPos() { return cur_tok_; }
+    void SetTokPos(int tokpos) { cur_tok_ = tokpos; }
+
     // check if current token is 'toktype'.
     bool isToken(int look, TokenType toktype);
-    bool isName(int look);
-    bool isStorage(int look);
+    bool isIdentifier(int look);
     bool isType(int look);
   };
 

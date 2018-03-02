@@ -4,27 +4,25 @@ using namespace Lexer;
 
 namespace Parser {
 
-SyntaxAnalyzer::SyntaxAnalyzer(Tokenizer* tk) {
+SyntaxAnalyzer::SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk) {
   tokenizer_ = tk;
-  astctx_ = new AST::ASTContext();
+  action_ = sa;
 }
 
 SyntaxAnalyzer::~SyntaxAnalyzer() {
-  delete astctx_;
 }
-
 
 // compilation_unit 
 //    : import_stmts top_defs <EOF> 
 bool SyntaxAnalyzer::CompilationUnit() {
 
-  AST::RootNode* pRootND = astctx_->GetAstRoot();
+  int cur_tok_pos = tokenizer_->GetTokPos();
   // import statement
   if (!ImportStmts())
     return false;
 
   // compile global variables and functions.
-  if (!TopDefs(pRootND))
+  if (!TopDefs())
     return false;
 
   // check EOF
@@ -38,6 +36,8 @@ bool SyntaxAnalyzer::CompilationUnit() {
 // import_stmts 
 //    : import_stmt*
 bool SyntaxAnalyzer::ImportStmts() {
+  int cur_tok_pos = tokenizer_->GetTokPos();
+
   // check if token is 'import'.
   while(tokenizer_->isToken(0, Lexer::TokImport)) {
     if(!ImportStmt())
@@ -46,20 +46,39 @@ bool SyntaxAnalyzer::ImportStmts() {
   return true;
 }
 
-bool SyntaxAnalyzer::TopDefs(AST::RootNode* pRND) {
-  // check if function
-  // ex) 'static int Func ('
-  if (tokenizer_->isStorage(0) && tokenizer_->isType(1) && 
-      tokenizer_->isName(2) && tokenizer_->isToken(3, Lexer::TokParenOpen)) {
-    /*if (!DefFunc())
-      return false;*/
-  }
 
+// top_defs
+//    : ( deffunc
+//    | defvars
+//    | defconst
+//    | defclass
+//    | typedef )*
+bool SyntaxAnalyzer::TopDefs() {
+
+  while(true) {
+    if(!DefFunc()) // function definition.
+      return false;
+
+    /* TODO : need to implement below list
+     * DefVars
+     * DefConst
+     * DefClass
+     * TypeDef
+     * */
+  }
   return true;
 }
 
-bool SyntaxAnalyzer::Name(int look) {
-  return tokenizer_->isName(look);
+// name 
+//    : <IDENTIFIER>
+bool SyntaxAnalyzer::Name(unsigned int lookahead) {
+  return tokenizer_->isIdentifier(lookahead);
+}
+
+// storage
+//    : [<STATIC>]
+bool SyntaxAnalyzer::Storage() {
+  return tokenizer_->isToken(0, TokStatic);
 }
 
 void SyntaxAnalyzer::DebugPrint() {

@@ -349,19 +349,13 @@ namespace Lexer {
     cur_tok_ += count;
   }
 
-  //=============================================================================
-  // Tokenizer
   bool Tokenizer::isToken(int look, TokenType toktype) {
     return (GetToken(look).type == toktype);
   }
 
   // name : id
-  bool Tokenizer::isName(int look) {
-    return isToken(look, Lexer::TokIdentifier);
-  }
-
-  bool Tokenizer::isStorage(int look) {
-    return isToken(look, Lexer::TokStatic);
+  bool Tokenizer::isIdentifier(int look) {
+    return isToken(look, TokIdentifier);
   }
 
   bool Tokenizer::isType(int look) {

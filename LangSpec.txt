@@ -55,7 +55,7 @@ name
   : <IDENTIFIER> 
 
 top_defs // top definitions 
-  : ( defun 
+  : ( deffunc 
     | defvars 
     | defconst 
     | defclass 
@@ -67,7 +67,7 @@ defvars // variable definition. ex) int a = 0, b=19;
 storage 
   : [<STATIC>] 
 
-defun // function definition 
+deffunc // function definition 
   : storage typeref name "(" params ")" block 
 
 params // parameter definition 
@@ -91,7 +91,7 @@ member_list //
 
 class_member // class member definition 
   : type name 
-  | defun 
+  | deffunc
 
 typedef // ex) typedef int i32; 
   : <TYPEDEF> typeref <IDENTIFIER> ";" 

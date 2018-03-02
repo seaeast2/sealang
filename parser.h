@@ -1,24 +1,25 @@
 #ifndef _parser_h_
 #define _parser_h_
 
+#include "common.h"
 #include "lexer.h"
-#include "ast.h"
-#include "astcontext.h"
 #include "error_diagnosis.h"
+#include "parser_actions.h"
+
 
 using namespace Lexer;
 
 namespace Parser {  
+  // check grammar
   class SyntaxAnalyzer {
-
     Tokenizer* tokenizer_;
+    SyntaxAction* action_;
 
-    AST::ASTContext* astctx_;
+
     ErrorDiag::ParserDiag err_diag_;
-
     
     public:
-      SyntaxAnalyzer(Tokenizer* tk);
+      SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk);
       ~SyntaxAnalyzer();
 
       bool CompilationUnit(); // compilation_unit
@@ -26,9 +27,11 @@ namespace Parser {
       bool ImportStmts(); // import_stmts
       bool ImportStmt(); // import_stmt
 
-      bool TopDefs(AST::RootNode* pRND); // Top defintions 
+      bool TopDefs(); // Top defintions 
+      bool DefFunc(); // function defintion
 
-      bool Name(int look); // name : check if identifier
+      bool Name(unsigned int look); // name : check if identifier
+      bool Storage(); // storage : check if storage keyword
 
       void DebugPrint();
   };

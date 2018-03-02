@@ -1,11 +1,11 @@
 #ifndef _astcontext_h_
 #define _astcontext_h_
 
-#include "common_typedef.h"
+#include "common.h"
 #include "ast.h"
 
 using namespace std;
-using namespace CommonType;
+using namespace Common;
 
 namespace AST {
 
