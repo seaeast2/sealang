@@ -10,7 +10,6 @@ namespace Lexer {
     // Keywords
     TokImport,
     TokStatic,
-
     // Conditions : if else while return for break
     TokIf,
     TokElse,
@@ -18,15 +17,16 @@ namespace Lexer {
     TokReturn,
     TokFor,
     TokBreak,
-
     // Types : byte int string double void struct
-    TokByte,
+    TokUnsigned,
+    TokChar,
+    TokShort,
     TokInt,
-    TokString,
-    TokReal,
+    TokLong,
+    TokFloat,
+    TokDouble,
     TokVoid,
     TokClass,
-
     // Operators
     TokComBitShiftL,  // <<=
     TokComBitShiftR,  // >>=
@@ -86,7 +86,10 @@ namespace Lexer {
     TokLineRemark,    // //
 
     /* Identifier */
-    TokIdentifier,
+    TokIdentifier,    // ex) abcd012
+    TokIntegerLiteral, // ex) 12345
+    TokStringLiteral, // ex) "test"
+    TokCharactorLiteral, // ex) 'A'
     TokUnknown
   };
 
@@ -126,8 +129,6 @@ namespace Lexer {
 
     // check if current token is 'toktype'.
     bool isToken(int look, TokenType toktype);
-    bool isIdentifier(int look);
-    bool isType(int look);
   };
 
   void PrintToken(Token& tok);

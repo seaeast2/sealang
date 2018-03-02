@@ -7,6 +7,7 @@ using namespace std;
 namespace ErrorDiag {
   enum ErrorKind {
     Err_Lexer_UnexpectedEof,
+    Err_Lexer_WrongCharLiteral,
 
     Err_Parser_NoIdentifier,
     Err_Parser_NoSemicolon,

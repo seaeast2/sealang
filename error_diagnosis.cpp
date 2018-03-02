@@ -12,6 +12,9 @@ namespace ErrorDiag {
     if (ekind == Err_Lexer_UnexpectedEof) {
       cout << "line:"<<line<<" col:"<<col<<" Lexer meet unexpected eof."<< endl;
     }
+    if (ekind == Err_Lexer_WrongCharLiteral) {
+      cout << "line:"<<line<<" col:"<<col<<" Lexer : Wrong Charactorliteral."<< endl;
+    }
   }
 
 

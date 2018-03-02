@@ -16,7 +16,7 @@ namespace Parser {
       SyntaxAction(AST::ASTContext* AC, Lexer::Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAction();
 
-      bool ActOnImport(); // get import path.
+      void ActOnImport(const string &import_path); // get import path.
 
   };
 }

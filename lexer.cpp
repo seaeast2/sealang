@@ -21,77 +21,83 @@ namespace Lexer {
 
   TokenInfo TokInfo[] = {
     { "eof",    "TokEof",     3 }, // 0
-
+    // Keywords
     { "import", "TokImport",  6 }, // 1
     { "static", "TokStatic",  6 }, // 2
-
+    // Conditions : if else while return for break
     { "if",     "TokIf",      2 }, // 3
     { "else",   "TokElse",    4 }, // 4
     { "while",  "TokWhile",   5 }, // 5
     { "return", "TokReturn",  6 }, // 6
     { "for",    "TokFor",     3 }, // 7
     { "break",  "TokBreak",   5 }, // 8
+    // Types : byte int string double void struct
+    { "unsigned","TokUnsigned", 8 }, // 9
+    { "char",   "TokChar",    4 }, // 10
+    { "short",  "TokShort",   5 }, // 11
+    { "int",    "TokInt",     3 }, // 12
+    { "long",   "TokLong",    4 }, // 13
+    { "float",  "TokFloat",   5 }, // 14
+    { "double", "TokDouble",  6 }, // 15
+    { "void",   "TokVoid",    4 }, // 16
+    { "class",  "TokClass",   5 }, // 17
+    // Operators
+    { "<<=",    "TokComBitShiftL", 3 }, // 18
+    { ">>=",    "TokComBitShiftR", 3 }, // 19
 
-    { "byte",   "TokByte",    4 }, // 9
-    { "int",    "TokInt",     3 }, // 10
-    { "string", "TokString",  6 }, // 11
-    { "real",   "TokReal",    4 }, // 12
-    { "void",   "TokVoid",    4 }, // 13
-    { "class", "TokClass",  6 }, // 14
+    { "<<",     "TokBitShiftL", 2 }, // 20
+    { ">>",     "TokBitShiftR", 2 }, // 21
+    { "++",     "TokUnaryInc",2 }, // 22
+    { "--",     "TokUnaryDec",2 }, // 23
+    { "+=",     "TokComAdd",  2 }, // 24
+    { "-=",     "TokComSub",  2 }, // 25
+    { "*=",     "TokComMul",  2 }, // 26
+    { "/=",     "TokComDiv",  2 }, // 27
+    { "&=",     "TokComBitAnd", 2 }, // 28
+    { "|=",     "TokComBitOr", 2 },  // 29
+    { "^=",     "TokComBitXor", 2 }, // 30
+    { "==",     "TokEqual",   2 },   // 31
+    { "!=",     "TokNotEqual", 2 },  // 32
+    { "<=",     "TokLessThanEqual", 2 }, // 33
+    { ">=",     "TokGreatorThenEqual", 2 }, // 34
+    { "&&",     "TokConAnd",  2 }, // 35
+    { "||",     "TokConOr",   2 }, // 36
 
-    { "<<=",    "TokComBitShiftL", 3 }, // 15
-    { ">>=",    "TokComBitShiftR", 3 }, // 16
+    { "+",      "TokAdd",     1 }, // 37
+    { "-",      "TokSub",     1 }, // 38
+    { "*",      "TokMul",     1 }, // 39
+    { "/",      "TokDiv",     1 }, // 40
+    { "%",      "TokMod",     1 }, // 41
+    { "=",      "TokAssign",  1 }, // 42
+    { "&",      "TokBitAnd",  1 }, // 43
+    { "|",      "TokBitOr",   1 }, // 44
+    { "^",      "TokBitXor",  1 }, // 45
+    { "~",      "TokBitNot",  1 }, // 46
+    { "<",      "TokLessThan",1 }, // 47
+    { ">",      "TokGreatorThan", 1 }, // 48
+    { "!",      "TokConNot",  1 }, // 49
+    { "?",      "TokQuestion", 1 }, // 50
 
-    { "<<",     "TokBitShiftL", 2 }, // 17
-    { ">>",     "TokBitShiftR", 2 }, // 18
-    { "++",     "TokUnaryInc",2 }, // 19
-    { "--",     "TokUnaryDec",2 }, // 20
-    { "+=",     "TokComAdd",  2 }, // 21
-    { "-=",     "TokComSub",  2 }, // 22
-    { "*=",     "TokComMul",  2 }, // 23
-    { "/=",     "TokComDiv",  2 }, // 24
-    { "&=",     "TokComBitAnd", 2 }, // 25
-    { "|=",     "TokComBitOr", 2 },  // 26
-    { "^=",     "TokComBitXor", 2 }, // 27
-    { "==",     "TokEqual",   2 },   // 28
-    { "!=",     "TokNotEqual", 2 },  // 29
-    { "<=",     "TokLessThanEqual", 2 }, // 30
-    { ">=",     "TokGreatorThenEqual", 2 }, // 31
-    { "&&",     "TokConAnd",  2 }, // 32
-    { "||",     "TokConOr",   2 }, // 33
-
-    { "+",      "TokAdd",     1 }, // 34
-    { "-",      "TokSub",     1 }, // 35
-    { "*",      "TokMul",     1 }, // 36
-    { "/",      "TokDiv",     1 }, // 37
-    { "%",      "TokMod",     1 }, // 38
-    { "=",      "TokAssign",  1 }, // 39
-    { "&",      "TokBitAnd",  1 }, // 40
-    { "|",      "TokBitOr",   1 }, // 41
-    { "^",      "TokBitXor",  1 }, // 42
-    { "~",      "TokBitNot",  1 }, // 43
-    { "<",      "TokLessThan",1 }, // 44
-    { ">",      "TokGreatorThan", 1 }, // 45
-    { "!",      "TokConNot",  1 }, // 46
-    { "?",      "TokQuestion", 1 }, // 47
-
-    { "(",      "TokParenOpen", 1 }, // 48
-    { ")",      "TokParenClose", 1 }, // 49
-    { "{",      "TokBraceOpen", 1 }, // 50
-    { "}",      "TokBraceClose", 1 }, // 51
-    { "[",      "TokBracketOpen", 1 }, // 52
-    { "]",      "TokBracketClose", 1 }, // 53
+    { "(",      "TokParenOpen", 1 }, // 51
+    { ")",      "TokParenClose", 1 }, // 52
+    { "{",      "TokBraceOpen", 1 }, // 53
+    { "}",      "TokBraceClose", 1 }, // 54
+    { "[",      "TokBracketOpen", 1 }, // 55
+    { "]",      "TokBracketClose", 1 }, // 56
     
-    { ",",      "TokComma",   1 }, // 54
-    { ".",      "TokDot",     1 }, // 55
-    { ";",      "TokSemiColon", 1 }, // 56
-    { "\"",     "TokDoubleQuot", 1 }, // 57
-    { "\'",     "TokSingleQuot", 1 }, // 58
+    { ",",      "TokComma",   1 }, // 57
+    { ".",      "TokDot",     1 }, // 58
+    { ";",      "TokSemiColon", 1 }, // 59
+    { "\"",     "TokDoubleQuot", 1 }, // 60
+    { "\'",     "TokSingleQuot", 1 }, // 61
    
-    { "/*",     "TokStarRemark", 2 }, // 59
-    { "//",     "TokLineRemark", 2 }, // 60
+    { "/*",     "TokStarRemark", 2 }, // 62
+    { "//",     "TokLineRemark", 2 }, // 63
 
-    { "ID",     "TokIdentifier", 0 }, // 61
+    { "ID",     "TokIdentifier", 0 }, // 64
+    { "IL",     "TokIntegerLiteral", 0}, // 65
+    { "SL",     "TokStringLiteral", 0}, // 66
+    { "CR",     "TokCharactorLiteral", 0}, // 67
   };
 
   void PrintToken(Token& tok) {
@@ -277,9 +283,9 @@ namespace Lexer {
       }
     }
 
-    /* Double quotation */
+    // Double quotation : StringLiteral ex) "abcd012" => abcd012
     if (*read_pos == *TokInfo[TokDoubleQuot].str) {
-      tok.type = (TokenType)TokDoubleQuot;
+      tok.type = (TokenType)TokStringLiteral; 
       tok.line = line;
       tok.col = col;
       tok.len = 0;
@@ -304,25 +310,30 @@ namespace Lexer {
       return tok;
     }
 
-    /* Single quotation */
+    // Single quotation : CharactorLiteral ex) 'A' => A
+    // Charactorliteral allow only 1 charactor.
     if (*read_pos == *TokInfo[TokSingleQuot].str) {
-      tok.type = (TokenType)TokSingleQuot;
+      tok.type = (TokenType)TokCharactorLiteral;
       tok.line = line;
       tok.col = col;
       tok.len = 0;
       tok.c = read_pos + TokInfo[TokSingleQuot].length;
-      MoveNext(read_pos, TokInfo[TokSingleQuot].length);
-      while(*read_pos != *TokInfo[TokSingleQuot].str) {
+      MoveNext(read_pos, 2);
+      col+=2;
+      tok.len = 1;
+      if (*read_pos != *TokInfo[TokSingleQuot].str) {
         if (*read_pos == '\0') {
           err_diag_->Print(ErrorDiag::Err_Lexer_UnexpectedEof, tok.line, tok.col);
           tok.type = TokUnknown;
           return tok;
         }
-
-        col++;
-        tok.len++;
-        read_pos++;
+        else {
+          err_diag_->Print(ErrorDiag::Err_Lexer_WrongCharLiteral, tok.line, tok.col);
+          tok.type = TokUnknown;
+          return tok;
+        }
       }
+
       MoveNext(read_pos, TokInfo[TokSingleQuot].length);
     }
 
@@ -332,10 +343,17 @@ namespace Lexer {
     tok.col = col;
     tok.len = 0;
     tok.c = read_pos;
+
+    bool have_alpha = false;
     while(isAlpha(*read_pos) || isNumber(*read_pos)) {
+      if (isAlpha(*read_pos)) 
+        have_alpha = true;
       col++;
       tok.len++;
       read_pos++;
+    }
+    if (!have_alpha) { // only number
+      tok.type = (TokenType)TokIntegerLiteral;
     }
 
     return tok;
@@ -351,28 +369,6 @@ namespace Lexer {
 
   bool Tokenizer::isToken(int look, TokenType toktype) {
     return (GetToken(look).type == toktype);
-  }
-
-  // name : id
-  bool Tokenizer::isIdentifier(int look) {
-    return isToken(look, TokIdentifier);
-  }
-
-  bool Tokenizer::isType(int look) {
-    if (isToken(look, TokByte))
-      return true;
-    else if (isToken(look, TokInt))
-      return true;
-    else if (isToken(look, TokString))
-      return true;
-    else if (isToken(look, TokReal))
-      return true;
-    else if (isToken(look, TokVoid))
-      return true;
-    else if (isToken(look, TokClass))
-      return true;
-
-    return false;
   }
 
 }; // end namespace Lexer

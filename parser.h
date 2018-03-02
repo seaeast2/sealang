@@ -23,13 +23,16 @@ namespace Parser {
       eResult CompilationUnit(); // compilation_unit
       
       eResult ImportStmts(); // import_stmts
-      bool ImportStmt(); // import_stmt
+      eResult ImportStmt(); // import_stmt
 
-      bool TopDefs(); // Top defintions 
-      bool DefFunc(); // function defintion
+      eResult TopDefs(); // Top defintions 
+      eResult DefFunc(); // function defintion
 
-      bool Name(unsigned int look); // name : check if identifier
-      bool Storage(); // storage : check if storage keyword
+      eResult Name(); // name : check if identifier
+      eResult Storage(); // storage : check if storage keyword
+      
+      eResult TypeRef(); // typeref
+      eResult TypeRefBase(); // typeref_base
 
       void DebugPrint();
   };

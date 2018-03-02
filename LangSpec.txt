@@ -16,8 +16,8 @@ Sea lang specification.
 <STATIC> : static 
 <IDENTIFIER> : [a-zA-Z][a-zA-Z0-9]* 
 <INTEGER> : [0-9]* 
-<CHARACTER> : [a-zA-Z0-9]* 
-<STRING> : "\""[a-zA-Z0-9]*"\"" 
+<CHARACTER> : [a-zA-Z0-9]  \\ 'A'
+<STRING> : "\""[a-zA-Z0-9]*"\""  \\ "test"
 <EOF> : End of file 
 <TYPEDEF> : typedef 
 <IF> : if 
@@ -100,7 +100,7 @@ type
   : typeref 
 
 typeref 
-  : typeref_base ( "[""]" | "["<INTEGER>"]")* 
+  : typeref_base ( "[""]" | "["<INTEGER>"]")*  // array
   | typeref_base ("*")*                    // pointer 
   | typeref_base "(" param_typerefs ")"   // function pointer 
 

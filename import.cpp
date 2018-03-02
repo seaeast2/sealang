@@ -7,61 +7,64 @@ namespace Parser {
   // import_stmt 
   //    : <IMPORT> name ("." name)* ";" 
   // ex) import aaa.bbb.ccc;
-  bool SyntaxAnalyzer::ImportStmt() {
-    int cur_tok_pos = tokenizer_->GetTokPos();
-    return true;
-  }
-
-
-  bool SyntaxAction::ActOnImport() {
-    string import, tmp;
+  eResult SyntaxAnalyzer::ImportStmt() {
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup start token position.
+    string import_path, tmp;
     Token tok;
 
-    // we've already confirmed that first token is 'import'.
+    // check if first token is 'import'.
     if (!tokenizer_->isToken(0, Lexer::TokImport))
-      return false;
+      return False;
     tokenizer_->ConsumeToken(1); // Move next
 
-    // name('.'name)*
+    // name("."name)* ";"
     // check if identifier.
-    if (!tokenizer_->isIdentifier(0)) {
+    if (Name() != True) { // something wrong in path
       tok = tokenizer_->GetToken(0);
-      err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, tok.line, tok.col, 
-          "Wrong import name");
-      return false;
+      err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
+          tok.line, tok.col, "Wrong import path");
+      return Error;
     }
 
-    // insert first import name to string.
+    // insert first import path to string.
     Token tok_name = tokenizer_->GetToken(0);
     tokenizer_->ConsumeToken(1); // move next
     tmp.assign(tok_name.c, tok_name.len);
-    import = tmp;
+    import_path = tmp;
 
     while(true) {
-      // .name
-      if (tokenizer_->isToken(0, Lexer::TokDot) && 
-          tokenizer_->isIdentifier(1)) {
-        import += "/";
-        tok_name = tokenizer_->GetToken(1);
+      // "."name)* ";"
+      if (tokenizer_->isToken(0, Lexer::TokDot)) {
+        tokenizer_->ConsumeToken(1); // move next
+        // name)* ";"
+        if (Name() != True) { // something wrong in path
+          tok = tokenizer_->GetToken(0);
+          err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
+              tok.line, tok.col, "Wrong import path");
+          return Error;
+        }
+
+        import_path += "/";
+        tok_name = tokenizer_->GetToken(0);
         tmp.assign(tok_name.c, tok_name.len);
-        import += tmp;
-        tokenizer_->ConsumeToken(2);
-        continue;
+        import_path += tmp;
+        tokenizer_->ConsumeToken(1);
       }
-      // ';'
-      if (tokenizer_->isToken(0, Lexer::TokSemiColon)) {
+      // ";"
+      else if (tokenizer_->isToken(0, Lexer::TokSemiColon)) {
         tokenizer_->ConsumeToken(1);
         break;
       }
-      else {
-        // some error on it
-        return false;
-      }
+      else
+        return Error;// some error on it
     }
 
-    // TODO : Need to check if import path is right.
-    astctx_->AddImport(import);
-    return true;
+    action_->ActOnImport(import_path);
+    return True;
   }
 
+  void SyntaxAction::ActOnImport(const string &ip) {
+    // TODO : Need to check if import path is right.
+    astctx_->AddImport(ip);
+  }
 }
