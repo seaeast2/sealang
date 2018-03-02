@@ -5,7 +5,6 @@
 #include "ast.h"
 
 using namespace std;
-using namespace Common;
 
 namespace AST {
 

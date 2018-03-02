@@ -13,7 +13,7 @@ namespace Parser {
   }
 
 
-  bool SyntaxAction::AcOnImport() {
+  bool SyntaxAction::ActOnImport() {
     string import, tmp;
     Token tok;
 
@@ -24,9 +24,9 @@ namespace Parser {
 
     // name('.'name)*
     // check if identifier.
-    if (!Name(0)) {
+    if (!tokenizer_->isIdentifier(0)) {
       tok = tokenizer_->GetToken(0);
-      err_diag_.Print(ErrorDiag::Err_Parser_NoIdentifier, tok.line, tok.col, 
+      err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, tok.line, tok.col, 
           "Wrong import name");
       return false;
     }
@@ -39,7 +39,8 @@ namespace Parser {
 
     while(true) {
       // .name
-      if (tokenizer_->isToken(0, Lexer::TokDot) && Name(1)) {
+      if (tokenizer_->isToken(0, Lexer::TokDot) && 
+          tokenizer_->isIdentifier(1)) {
         import += "/";
         tok_name = tokenizer_->GetToken(1);
         tmp.assign(tok_name.c, tok_name.len);

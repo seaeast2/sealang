@@ -11,10 +11,10 @@ void test() {\n\
 int main() {
   Tokenizer* tk = new Tokenizer(src);
   tk->CompileTokens();
-  Parser::SyntaxAnalyzer s(tk);
+  //Parser::SyntaxAnalyzer s(tk);
 
-  s.CompilationUnit();
-  s.DebugPrint();
+  //s.CompilationUnit();
+  //s.DebugPrint();
 
   delete tk;
   return 0;

@@ -4,9 +4,11 @@ using namespace Lexer;
 
 namespace Parser {
 
-SyntaxAnalyzer::SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk) {
+SyntaxAnalyzer::SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, 
+    ErrorDiag::Diagnosis* ed) {
   tokenizer_ = tk;
   action_ = sa;
+  err_diag_ = ed;
 }
 
 SyntaxAnalyzer::~SyntaxAnalyzer() {
@@ -14,36 +16,40 @@ SyntaxAnalyzer::~SyntaxAnalyzer() {
 
 // compilation_unit 
 //    : import_stmts top_defs <EOF> 
-bool SyntaxAnalyzer::CompilationUnit() {
+eResult SyntaxAnalyzer::CompilationUnit() {
 
   int cur_tok_pos = tokenizer_->GetTokPos();
+
   // import statement
-  if (!ImportStmts())
-    return false;
+  if (ImportStmts() == Error)
+    return Error;
 
   // compile global variables and functions.
-  if (!TopDefs())
-    return false;
+  if (TopDefs() == Error)
+    return Error;
 
   // check EOF
   if (!tokenizer_->isToken(0, TokEof))
-    return false;
+    return Error;
 
   tokenizer_->ConsumeToken(1);
-  return true;
+  return Error;
 }
 
 // import_stmts 
 //    : import_stmt*
-bool SyntaxAnalyzer::ImportStmts() {
+eResult SyntaxAnalyzer::ImportStmts() {
   int cur_tok_pos = tokenizer_->GetTokPos();
-
+/*
+  eResult res = True;
   // check if token is 'import'.
-  while(tokenizer_->isToken(0, Lexer::TokImport)) {
-    if(!ImportStmt())
-      return false; // some error occured.
+  while(res != True) {
+    res = ImportStmt();
   }
-  return true;
+  if(res == Error)
+    return Error;
+
+  return True;*/
 }
 
 
@@ -82,7 +88,7 @@ bool SyntaxAnalyzer::Storage() {
 }
 
 void SyntaxAnalyzer::DebugPrint() {
-  astctx_->PrintImports();
+  //astctx_->PrintImports();
 }
 
 }

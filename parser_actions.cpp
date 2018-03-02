@@ -1,12 +1,14 @@
 #include "parser_actions.h"
 
 namespace Parser {
-  SyntaxAction::Action(AST::ASTContext* ac, Tokenizer* tk) {
+  SyntaxAction::SyntaxAction(AST::ASTContext* ac, Lexer::Tokenizer* tk, 
+      ErrorDiag::Diagnosis* ed) {
     tokenizer_ = tk;
     astctx_ = ac;
+    err_diag_ = ed;
   };
 
-  SyntaxAction::~Action() {
+  SyntaxAction::~SyntaxAction() {
   }
 };
 

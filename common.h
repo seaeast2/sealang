@@ -6,14 +6,13 @@
 
 using namespace std;
 
-namespace Common {
-  typedef vector<string> VecStr;
+typedef vector<string> VecStr;
 
-  enum SAResult {
-    SA_FALSE = 0,
-    SA_TRUE,
-    SA_ERR
-  }
+// default 3 rusult.
+enum eResult {
+  False = 0,
+  True,
+  Error
 };
 
 #endif

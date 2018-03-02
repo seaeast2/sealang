@@ -14,17 +14,15 @@ namespace Parser {
   class SyntaxAnalyzer {
     Tokenizer* tokenizer_;
     SyntaxAction* action_;
-
-
-    ErrorDiag::ParserDiag err_diag_;
+    ErrorDiag::Diagnosis* err_diag_;
     
     public:
-      SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk);
+      SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAnalyzer();
 
-      bool CompilationUnit(); // compilation_unit
+      eResult CompilationUnit(); // compilation_unit
       
-      bool ImportStmts(); // import_stmts
+      eResult ImportStmts(); // import_stmts
       bool ImportStmt(); // import_stmt
 
       bool TopDefs(); // Top defintions 
