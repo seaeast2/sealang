@@ -2,7 +2,7 @@
 #define _astcontext_h_
 
 #include "common.h"
-#include "ast.h"
+#include "ast_node.h"
 
 using namespace std;
 

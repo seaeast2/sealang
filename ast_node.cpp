@@ -1,5 +1,5 @@
 #include <string>
-#include "ast.h"
+#include "ast_node.h"
 
 
 using namespace std;

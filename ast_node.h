@@ -1,5 +1,5 @@
-#ifndef _ast_h_
-#define _ast_h_
+#ifndef _ast_node_h_
+#define _ast_node_h_
 
 namespace AST {
 // Abstrat Syntax Tree Base Nodes

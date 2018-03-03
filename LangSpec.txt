@@ -64,6 +64,9 @@ top_defs // top definitions
 defvars // variable definition. ex) int a = 0, b=19; 
   : storage type name ["=" expr] [("," name ["=" expr])*] ";" 
 
+defconst
+  : <CONST> type name "=" expr ";"
+
 storage 
   : [<STATIC>] 
 
@@ -79,6 +82,9 @@ fixedparams // fixed parameter definition
 
 param 
   : type name 
+
+defvar_list 
+  : (defvars)*
 
 block 
   : "{" defvar_list stmts "}" 
