@@ -43,6 +43,8 @@ namespace Parser {
       eResult FixedParams(); // fixedparams
       eResult Param(); // param
 
+      eResult Block(); // block
+
       void DebugPrint();
   };
 }

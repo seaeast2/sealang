@@ -274,12 +274,19 @@ eResult SyntaxAnalyzer::ParamTypeRefs() {
     // TODO : For function which has no parameter (ex : test()), need to add something here.
     return Error;
   }
-  if (tokenizer_->isToken(0, TokDot) && tokenizer_->isToken(1, TokDot) && tokenizer_->isToken(2, TokDot)) {
+  if (tokenizer_->isToken(0, TokDot) && 
+      tokenizer_->isToken(1, TokDot) && 
+      tokenizer_->isToken(2, TokDot)) {
     // TODO : Create variable type
     tokenizer_->ConsumeToken(3);
     return True;
   }
 
+  return True;
+}
+
+
+eResult SyntaxAnalyzer::Block() {
   return True;
 }
 

@@ -55,14 +55,25 @@ namespace Parser {
   //   : <VOID> 
   //   | fixedparams ["," "..."] 
   eResult SyntaxAnalyzer::Params() {
+    //<VOID> 
     if (tokenizer_->isToken(0, TokVoid)) {
       tokenizer_->ConsumeToken(1);
       // TODO : create ast type
       return True;
     }
 
+    // fixedparams
     eResult res = FixedParams();
-    if (res == True) {
+    if (res != True)
+      return Error;
+
+    // ["..."] 
+    if (tokenizer_->isToken(0, TokDot) && 
+        tokenizer_->isToken(1, TokDot) && 
+        tokenizer_->isToken(2, TokDot)) {
+      // TODO : Create variable type
+      tokenizer_->ConsumeToken(3);
+      return True;
     }
 
     return True;
@@ -73,16 +84,69 @@ namespace Parser {
   //    : storage typeref name "(" params ")" block
   eResult SyntaxAnalyzer::DefFunc() {
     int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+    eResult res; 
 
-    // storage typeref name "(" params ")" block
+    // storage
     bool is_storage = false;
     if(Storage() == True) {
       is_storage = true;
     }
     
-    // typeref name "(" params ")" block
+    // typeref 
+    res = TypeRef();
+    if (res != True) {
+      if(res == False) {
+        tokenizer_->SetTokPos(cur_tok_pos); // restore token position.
+        return False; // This isn't function definition.
+      }
+      else {
+        // TODO : function return type is missing
+        return Error;
+      }
+    }
+
+    // name 
+    res = Name();
+    if (res != True) {
+      if(res == False) {
+        tokenizer_->SetTokPos(cur_tok_pos); // restore token position.
+        return False; // This isn't function definition.
+      }
+      else {
+        // TODO : function return type is missing
+        return Error;
+      }
+    }
+
+    // "("
+    if (!tokenizer_->isToken(0, TokParenOpen)) {
+      tokenizer_->SetTokPos(cur_tok_pos); // restore token position.
+      return False;
+    }
     
+    // params
+    res = Params();
+    if (res != True) {
+      if(res == False) {
+        tokenizer_->SetTokPos(cur_tok_pos); // restore token position.
+        return False;
+      }
+      else {
+        return Error;
+      }
+    }
     
+    // ")"
+    if (!tokenizer_->isToken(0, TokParenOpen)) {
+      tokenizer_->SetTokPos(cur_tok_pos); // restore token position.
+      return False;
+    }
+    // block
+    res = Block();
+    if (res != True) {
+      return Error;
+    }
+
     return True;
   }
 }
