@@ -18,15 +18,15 @@ namespace Lexer {
     TokFor,
     TokBreak,
     // Types : byte int string double void struct
-    TokUnsigned,
-    TokChar,
-    TokShort,
-    TokInt,
-    TokLong,
-    TokFloat,
-    TokDouble,
-    TokVoid,
-    TokClass,
+    TokUnsigned,      // unsigned
+    TokChar,          // char
+    TokShort,         // short
+    TokInt,           // int
+    TokLong,          // long
+    TokFloat,         // float
+    TokDouble,        // double
+    TokVoid,          // void
+    TokClass,         // class
     // Operators
     TokComBitShiftL,  // <<=
     TokComBitShiftR,  // >>=

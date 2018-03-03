@@ -72,7 +72,7 @@ deffunc // function definition
 
 params // parameter definition 
   : <VOID> 
-  | fixedparams ["," "…"] 
+  | fixedparams ["," "..."] 
 
 fixedparams // fixed parameter definition 
   : param ("," param)* 
@@ -100,13 +100,14 @@ type
   : typeref 
 
 typeref 
-  : typeref_base ( "[""]" | "["<INTEGER>"]")*  // array
-  | typeref_base ("*")*                    // pointer 
-  | typeref_base "(" param_typerefs ")"   // function pointer 
+  : typeref_base  ( "[""]"                    // unassigned array
+                  | "["<INTEGER>"]"           // assigned array
+                  | "*"                       // pointer 
+                  | "(" param_typerefs ")")*  // function pointer 
 
 param_typerefs // function pointer param type definition 
   : <VOID> 
-  | type ("," type)* ["," "…"] 
+  | type ("," type)* ["," "..."] 
  
 
 stmts 

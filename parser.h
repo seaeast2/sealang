@@ -11,6 +11,9 @@ using namespace Lexer;
 
 namespace Parser {  
   // check grammar
+  // eResult : True - matching
+  //           False - unmatching
+  //           Error - Syntax error
   class SyntaxAnalyzer {
     Tokenizer* tokenizer_;
     SyntaxAction* action_;
@@ -31,8 +34,14 @@ namespace Parser {
       eResult Name(); // name : check if identifier
       eResult Storage(); // storage : check if storage keyword
       
+      eResult Type(); // type
       eResult TypeRef(); // typeref
       eResult TypeRefBase(); // typeref_base
+      
+      eResult ParamTypeRefs(); // param_typerefs
+      eResult Params(); // params
+      eResult FixedParams(); // fixedparams
+      eResult Param(); // param
 
       void DebugPrint();
   };

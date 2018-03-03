@@ -88,6 +88,7 @@ namespace Lexer {
     { ",",      "TokComma",   1 }, // 57
     { ".",      "TokDot",     1 }, // 58
     { ";",      "TokSemiColon", 1 }, // 59
+
     { "\"",     "TokDoubleQuot", 1 }, // 60
     { "\'",     "TokSingleQuot", 1 }, // 61
    

@@ -32,7 +32,7 @@ eResult SyntaxAnalyzer::CompilationUnit() {
     return Error;
 
   tokenizer_->ConsumeToken(1);
-  return Error;
+  return True;
 }
 
 // import_stmts 
@@ -45,7 +45,7 @@ eResult SyntaxAnalyzer::ImportStmts() {
       return Error;
     }
     else if (res == False) // this is not import statment.
-      break;
+      return False;
   }
 
   return True;
@@ -87,8 +87,10 @@ eResult SyntaxAnalyzer::TopDefs() {
 // name 
 //    : <IDENTIFIER>
 eResult SyntaxAnalyzer::Name() {
-  if(tokenizer_->isToken(0, TokIdentifier))
+  if(tokenizer_->isToken(0, TokIdentifier)) {
+    tokenizer_->ConsumeToken(1);
     return True;
+  }
 
   return False;
 }
@@ -96,16 +98,25 @@ eResult SyntaxAnalyzer::Name() {
 // storage
 //    : [<STATIC>]
 eResult SyntaxAnalyzer::Storage() {
-  if (tokenizer_->isToken(0, TokStatic))
+  if (tokenizer_->isToken(0, TokStatic)) {
+    tokenizer_->ConsumeToken(1);
     return True;
+  }
 
   return False;
 }
 
-// typeref 
-//    : typeref_base ( "[""]" | "["<INTEGER>"]")*  // array
-//    | typeref_base ("*")*                    // pointer 
-//    | typeref_base "(" param_typerefs ")"   // function pointer 
+// type 
+//   : typeref 
+eResult SyntaxAnalyzer::Type() {
+  return TypeRef();
+}
+
+//  typeref 
+//    : typeref_base  ( "[""]"                     // undefined array
+//                    | "["<INTEGER>"]"           // array
+//                    | "*"                       // pointer 
+//                    | "(" param_typerefs ")")*  // function pointer 
 eResult SyntaxAnalyzer::TypeRef() {
   int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
 
@@ -113,15 +124,49 @@ eResult SyntaxAnalyzer::TypeRef() {
   if (TypeRefBase() != True)
     return Error;
   
-  //("[""]" | "["<INTEGER>"]")*  // array
-  if ((tokenizer_->isToken(0,TokBracketOpen) && tokenizer_->isToken(1, TokBracketClose)) || 
-      (tokenizer_->isToken(0, TokBracketOpen) && tokenizer_->isToken(1, TokIntegerLiteral) &&
-      tokenizer_->isToken(2, TokBracketClose))) {
-    // Found array type
-    return True;
-  }
+  bool found_type = false;
+  do {
+    // "[""]"
+    if (tokenizer_->isToken(0,TokBracketOpen) && tokenizer_->isToken(1, TokBracketClose)) {
+      found_type = true;
+      tokenizer_->ConsumeToken(2);
+      // TODO : create AST Type
+    }
+    // "["<INTEGER>"]"
+    else if (tokenizer_->isToken(0, TokBracketOpen) && tokenizer_->isToken(1, TokIntegerLiteral) && tokenizer_->isToken(2, TokBracketClose)) {
+      found_type = true;
+      tokenizer_->ConsumeToken(3);
+      // TODO : create AST Type
+    }
+    // "*" 
+    else if (tokenizer_->isToken(0, TokMul)) {
+      found_type = true;
+      tokenizer_->ConsumeToken(1);
+      // TODO : create AST Type
+    }
+    // "(" param_typerefs ")"  // function pointer 
+    else if (tokenizer_->isToken(0, TokParenOpen)) {
+      if (ParamTypeRefs() == True) {
+        if (tokenizer_->isToken(0, TokParenClose)) {
+          found_type = true;
+          tokenizer_->ConsumeToken(1);
+          // TODO : create function pointer type
+        }
+        else 
+          return Error;
+      }
+      else 
+        return Error;
+    }
+    else
+      break;
+    
+  } while(found_type);
 
-  return False;
+  if (found_type) 
+    return True;
+
+  return False; // can't find matching
 }
 
 //  typeref_base  
@@ -138,6 +183,7 @@ eResult SyntaxAnalyzer::TypeRef() {
 //      | <DOUBLE>
 //      | <CLASS> <IDENTIFIER> 
 eResult SyntaxAnalyzer::TypeRefBase() {
+  // TypeRefBase consumes token itself.
   if (tokenizer_->isToken(0, TokVoid)) {
     tokenizer_->ConsumeToken(1);
     return True;
@@ -190,6 +236,51 @@ eResult SyntaxAnalyzer::TypeRefBase() {
   // TODO : Creat AST Type here
 
   return False;
+}
+
+// param_typerefs // function pointer param type definition 
+//   : <VOID> 
+//   | type ("," type)* ["," "..."] 
+eResult SyntaxAnalyzer::ParamTypeRefs() {
+  int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+
+  // <VOID>
+  if(tokenizer_->isToken(0, TokVoid)) {
+    // TODO : create void type
+    return True;
+  }
+
+  // type ("," type)* ["," "..."] 
+  eResult res;
+  bool found_type = false;
+  while(true) {
+    res = Type();
+    if (res == True) {
+      found_type = true; // check if we found type.
+      // TODO : create ast type
+      if (tokenizer_->isToken(0, TokComma))
+        tokenizer_->ConsumeToken(1);
+      else
+        break;
+    }
+    else if (res == Error)
+      return Error;
+    else 
+      break;
+  }
+  
+  // ["..."] 
+  if (!found_type) {
+    // TODO : For function which has no parameter (ex : test()), need to add something here.
+    return Error;
+  }
+  if (tokenizer_->isToken(0, TokDot) && tokenizer_->isToken(1, TokDot) && tokenizer_->isToken(2, TokDot)) {
+    // TODO : Create variable type
+    tokenizer_->ConsumeToken(3);
+    return True;
+  }
+
+  return True;
 }
 
 void SyntaxAnalyzer::DebugPrint() {

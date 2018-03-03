@@ -20,7 +20,6 @@ namespace Parser {
     // name("."name)* ";"
     // check if identifier.
     if (Name() != True) { // something wrong in path
-      tok = tokenizer_->GetToken(0);
       err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
           tok.line, tok.col, "Wrong import path");
       return Error;
@@ -38,7 +37,6 @@ namespace Parser {
         tokenizer_->ConsumeToken(1); // move next
         // name)* ";"
         if (Name() != True) { // something wrong in path
-          tok = tokenizer_->GetToken(0);
           err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
               tok.line, tok.col, "Wrong import path");
           return Error;
