@@ -2,7 +2,7 @@
 #define _parser_actions_h_
 
 #include "lexer.h"
-#include "ast.h"
+#include "ast_node.h"
 #include "astcontext.h"
 #include "error_diagnosis.h"
 

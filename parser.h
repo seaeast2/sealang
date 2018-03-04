@@ -28,8 +28,9 @@ namespace Parser {
       eResult ImportStmts(); // import_stmts
       eResult ImportStmt(); // import_stmt
 
-      eResult TopDefs(); // Top defintions 
-      eResult DefFunc(); // function defintion
+      eResult TopDefs(); // top_defs : Top definitions 
+      eResult DefFunc(); // deffunc : function definition
+      eResult DefVars(); // defvars : variable definition <<== Working
 
       eResult Name(); // name : check if identifier
       eResult Storage(); // storage : check if storage keyword
@@ -43,7 +44,8 @@ namespace Parser {
       eResult FixedParams(); // fixedparams
       eResult Param(); // param
 
-      eResult Block(); // block
+      eResult Block(); // block <<== Working
+      eResult Expr(); // expr <<== Working
 
       void DebugPrint();
   };
