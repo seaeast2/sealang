@@ -462,17 +462,24 @@ namespace Parser {
     // type
     res = Type();
     if (res != True) {
-      // Can't find type.
-      return Error;
+      if (res == False) {
+        tokenizer_->SetTokPos(cur_tok_pos);
+        return False; // this is not variable definition.
+      }
+      else
+        return Error;
     }
 
-    // name
-    bool next_var = false;
-    do {
+    while(true) {
+      // name
       res = Name();
       if (res != True) {
-        // Can't find variable name
-        return Error;
+        if (res == False) {
+          tokenizer_->SetTokPos(cur_tok_pos);
+          return False;
+        }
+        else
+          return Error;
       }
 
       // ["=" expr]
@@ -487,12 +494,37 @@ namespace Parser {
       }
 
       // [("," name ["=" expr])*]
-      if (tokenizer_->isToken(0, TokComma)) {
+      if (!tokenizer_->isToken(0, TokComma)) {
+        tokenizer_->ConsumeToken(1);
+        break;
       }
+    };
 
-    } while(next_var);
+    // ";"
+    if(!tokenizer_->isToken(0, TokSemiColon))  {
+      tokenizer_->ConsumeToken(1);
+      return Error;
+    }
 
+    return True;
+  }
 
+  // defvar_list 
+  //   : (defvars)*
+  eResult SyntaxAnalyzer::DefVarList() {
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+    eResult res;
+
+    while(true) {
+      res = DefVars();
+      if (res != True) {
+        if (res == False) {
+          break;
+        }
+        else 
+          return Error;
+      }
+    }
     return True;
   }
 

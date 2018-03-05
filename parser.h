@@ -30,7 +30,8 @@ namespace Parser {
 
       eResult TopDefs(); // top_defs : Top definitions 
       eResult DefFunc(); // deffunc : function definition
-      eResult DefVars(); // defvars : variable definition <<== Working
+      eResult DefVars(); // defvars : variable definition
+      eResult DefVarList(); // defvar_list
 
       eResult Name(); // name : check if identifier
       eResult Storage(); // storage : check if storage keyword
