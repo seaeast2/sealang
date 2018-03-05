@@ -238,6 +238,13 @@ namespace Parser {
     return False;
   }
 
+  // typedef // ex) typedef int i32; 
+  //   : <TYPEDEF> typeref <IDENTIFIER> ";" 
+  eResult SyntaxAnalyzer::TypeDef() {
+    if (tokenizer_->isToken(0, TokType
+    return True;
+  }
+
   // param_typerefs // function pointer param type definition 
   //   : <VOID> 
   //   | type ("," type)* ["," "..."] 
@@ -545,7 +552,213 @@ namespace Parser {
     return True;
   }
 
+  // unary 
+  //   : "++" unary                 // pre ++ 
+  //   | "--" unary                 // pre -- 
+  //   | "+" term                   // unary +, positive 
+  //   | "-" term                   // unary -, negative 
+  //   | "!" term                   // Logical negation 
+  //   | "*" term                   // Pointer reference 
+  //   | "&" term                   // adress operator 
+  //   | <SIZEOF> "(" type ")"      // sizeof(type) 
+  //   | <SIZEOF> unary             // sizeof unary 
+  //   | postfix                    // postfix  
   eResult SyntaxAnalyzer::Unary() {
+    return True;
+  }
+
+
+  // postfix 
+  //   : primary ("++"              // post ++ 
+  //             |"--"               // post -- 
+  //             |"[" expr "]"       // array reference 
+  //             |"." name           // class member reference 
+  //             |"->" name          // class member pointer reference 
+  //             |"(" args ")"       // function call 
+  //             )* 
+  eResult SyntaxAnalyzer::Postfix() {
+    return True;
+  }
+
+  // primary 
+  //   : <INTEGER> 
+  //   |<CHARACTER> 
+  //   |<STRING> 
+  //   |<IDENTIFIER> 
+  //   |"(" expr ")" 
+  eResult SyntaxAnalyzer::Primary() {
+    return True;
+  }
+
+  // args 
+  //   : [expr ("," expr)*] 
+  eResult SyntaxAnalyzer::Args() {
+    return True;
+  }
+
+  // opassign_op 
+  //   : "+=" 
+  //   | "-=" 
+  //   | "*=" 
+  //   | "/=" 
+  //   | "%=" 
+  //   | "&=" 
+  //   | "|=" 
+  //   | "^=" 
+  //   | "<<=" 
+  //   | ">>=" 
+  eResult SyntaxAnalyzer::OpAssignOp() {
+    return True;
+  }
+
+
+  // expr10 
+  //   : expr9 ["?" expr() ":" expr10] 
+  eResult SyntaxAnalyzer::Expr10() {
+    return True;
+  }
+
+  // expr9 
+  //   : expr8 ("||" expr8)* 
+  eResult SyntaxAnalyzer::Expr9() {
+    return True;
+  }
+
+  // expr8 
+  //   : expr7 ("&&" expr7)* 
+  eResult SyntaxAnalyzer::Expr8() {
+    return True;
+  }
+
+  // expr7  
+  //   : expr7 (   ">" expr6  
+  //              | "<" expr6 
+  //              | ">=" expr6 
+  //              | "<=" expr6 
+  //              | "==" expr6 
+  //              | "!=" expr6 
+  //              )* 
+  eResult SyntaxAnalyzer::Expr7() {
+    return True;
+  }
+
+  // expr6 
+  //   : expr5 ("|" expr5)* 
+  eResult SyntaxAnalyzer::Expr6() {
+    return True;
+  }
+
+  // expr5 
+  //   : expr4 ("^" expr4)* 
+  eResult SyntaxAnalyzer::Expr5() {
+    return True;
+  }
+
+  // expr4 
+  //   : expr3 ("&" expr3)* 
+  eResult SyntaxAnalyzer::Expr4() {
+    return True;
+  }
+
+  // expr3 
+  //   : expr2 ( ">>" expr2 | "<<" expr2)* 
+  eResult SyntaxAnalyzer::Expr3() {
+    return True;
+  }
+
+  // expr2 
+  //   : expr1 ( "+" expr1 | "-" expr1)* 
+  eResult SyntaxAnalyzer::Expr2() {
+    return True;
+  }
+
+  // expr1 
+  //   : term (  "*" term  
+  //           | "/" term 
+  //           | "%" term 
+  //           )* 
+  eResult SyntaxAnalyzer::Expr1() {
+    return True;
+  }
+
+  // stmts 
+  //   : (stmt)* 
+  eResult SyntaxAnalyzer::Stmts() {
+    return True;
+  }
+
+
+  // stmt 
+  //   :";" 
+  //   | labeled_stmt 
+  //   | expr ";" 
+  //   | block 
+  //   | if_stmt 
+  //   | while_stmt 
+  //   | dowhile_stmt 
+  //   | for_stmt 
+  //   | switch_stmt 
+  //   | break_stmt 
+  //   | continue_stmt 
+  //   | goto_stmt 
+  //   | return_stmt 
+  eResult SyntaxAnalyzer::Stmt() {
+    return True;
+  }
+
+
+  // labeled_stmt
+  //   : <IDENTIFIER> ":" stmt
+  eResult SyntaxAnalyzer::LabeledStmt() {
+    return True;
+  }
+
+  // if_stmt  
+  //   : <IF> "(" expr ")" stmt [<ELSE> stmt] 
+  eResult SyntaxAnalyzer::IfStmt() {
+    return True;
+  }
+
+  // while_stmt 
+  //   : <WHILE> "(" expr ")" stmt 
+  eResult SyntaxAnalyzer::WhileStmt() {
+    return True;
+  }
+
+  // dowhile_stmt
+  //   : <DO> stmt <WHILE> "(" expr ")" ";"
+  eResult SyntaxAnalyzer::DoWhileStmt() {
+    return True;
+  }
+
+  // for_stmt 
+  //   : <FOR> "(" [expr] ";" [expr] ";" [expr] ")" stmt 
+  eResult SyntaxAnalyzer::ForStmt() {
+    return True;
+  }
+
+  // break_stmt 
+  //   : <BREAK> ";" 
+  eResult SyntaxAnalyzer::BreakStmt() {
+    return True;
+  }
+
+  // continue_stmt
+  //   : <CONTINUE> ";"
+  eResult SyntaxAnalyzer::ContinueStmt() {
+    return True;
+  }
+
+  // goto_stmt
+  //   : <GOTO> <IDENTIFIER> ";"
+  eResult SyntaxAnalyzer::GotoStmt() {
+    return True;
+  }
+
+  // return_stmt 
+  //   : <RETURN> ";" 
+  //   | <RETURN> expr ";" 
+  eResult SyntaxAnalyzer::ReturnStmt() {
     return True;
   }
 

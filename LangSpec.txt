@@ -134,11 +134,17 @@ stmt
   | goto_stmt 
   | return_stmt 
 
+labeled_stmt
+  : <IDENTIFIER> ":" stmt
+
 if_stmt  
   : <IF> "(" expr ")" stmt [<ELSE> stmt] 
 
 while_stmt 
   : <WHILE> "(" expr ")" stmt 
+
+dowhile_stmt
+  : <DO> stmt <WHILE> "(" expr ")" ";"
 
 for_stmt 
   : <FOR> "(" [expr] ";" [expr] ";" [expr] ")" stmt 
@@ -146,12 +152,18 @@ for_stmt
 break_stmt 
   : <BREAK> ";" 
 
+continue_stmt
+  : <CONTINUE> ";"
+
+goto_stmt
+  : <GOTO> <IDENTIFIER> ";"
+
 return_stmt 
   : <RETURN> ";" 
   | <RETURN> expr ";" 
 
 expr 
-  : term "=" rhs_expr 
+  : term "=" expr 
   | term opassign_op expr 
   | expr10 
 
@@ -226,10 +238,10 @@ expr2
   : expr1 ( "+" expr1 | "-" expr1)* 
 
 expr1 
-  : term ( "*" term  
-  | "/" term 
-  | "%" term 
-  )* 
+  : term (  "*" term  
+          | "/" term 
+          | "%" term 
+          )* 
 
 term 
   : "(" type ")" term          // type casting 

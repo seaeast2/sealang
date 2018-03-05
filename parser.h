@@ -39,6 +39,7 @@ namespace Parser {
       eResult Type(); // type
       eResult TypeRef(); // typeref
       eResult TypeRefBase(); // typeref_base
+      eResult TypeDef(); // typedef <<== Working
       
       eResult ParamTypeRefs(); // param_typerefs
       eResult Params(); // params
@@ -49,6 +50,33 @@ namespace Parser {
       eResult Expr(); // expr <<== Working
       eResult Term(); // term <<== Working
       eResult Unary(); // unary <<== Working
+      eResult Postfix(); // postfix <<== Working
+      eResult Primary(); // primary <<== Working
+      eResult Args(); // args <<== Working
+      eResult OpAssignOp(); // opassign_op <<== Working
+      eResult Expr10(); // expr10 <<== Working
+      eResult Expr9(); // expr9 <<== Working
+      eResult Expr8(); // expr8 <<== Working
+      eResult Expr7(); // expr7 <<== Working
+      eResult Expr6(); // expr6 <<== Working
+      eResult Expr5(); // expr5 <<== Working
+      eResult Expr4(); // expr4 <<== Working
+      eResult Expr3(); // expr3 <<== Working
+      eResult Expr2(); // expr2 <<== Working
+      eResult Expr1(); // expr1 <<== Working
+
+      eResult Stmts(); // stmts <<== Working
+      eResult Stmt(); // stmt <<== Working
+      eResult LabeledStmt(); // labeled_stmt <<== Working
+      eResult IfStmt(); // if_stmt <<== Working
+      eResult WhileStmt(); // while_stmt <<== Working
+      eResult DoWhileStmt(); // dowhile_stmt <<== Working
+      eResult ForStmt(); // for_stmt <<== Working
+      eResult BreakStmt(); // break_stmt <<== Working
+      eResult ContinueStmt(); // continue_stmt <<==Working
+      eResult GotoStmt(); // goto_stmt <<==Working
+      eResult ReturnStmt(); // return_stmt <<==Working
+
 
       void DebugPrint();
   };

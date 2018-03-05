@@ -13,10 +13,12 @@ namespace Lexer {
     // Conditions : if else while return for break
     TokIf,
     TokElse,
+    TokDo,
     TokWhile,
     TokReturn,
     TokFor,
     TokBreak,
+    TokTypeDef,
     // Types : byte int string double void struct
     TokUnsigned,      // unsigned
     TokChar,          // char
