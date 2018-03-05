@@ -529,7 +529,23 @@ namespace Parser {
   }
 
 
+  // expr 
+  //   : term "=" rhs_expr 
+  //   | term opassign_op expr 
+  //   | expr10 
   eResult SyntaxAnalyzer::Expr() {
+    return True;
+  }
+
+
+  // term 
+  //   : "(" type ")" term          // type casting 
+  //   | unary 
+  eResult SyntaxAnalyzer::Term() {
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Unary() {
     return True;
   }
 

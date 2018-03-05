@@ -47,6 +47,8 @@ namespace Parser {
 
       eResult Block(); // block <<== Working
       eResult Expr(); // expr <<== Working
+      eResult Term(); // term <<== Working
+      eResult Unary(); // unary <<== Working
 
       void DebugPrint();
   };
