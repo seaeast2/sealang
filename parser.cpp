@@ -241,7 +241,32 @@ namespace Parser {
   // typedef // ex) typedef int i32; 
   //   : <TYPEDEF> typeref <IDENTIFIER> ";" 
   eResult SyntaxAnalyzer::TypeDef() {
-    if (tokenizer_->isToken(0, TokType
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+    eResult res;
+    // <TYPEDEF>
+    if (!tokenizer_->isToken(0, TokTypeDef)) {
+      tokenizer_->SetTokPos(cur_tok_pos);
+      return False;
+    }
+
+    // typeref
+    res = TypeRef();
+    if(rew != True) {
+      return Error;
+    }
+
+    // <IDENTIFIER>
+    if(!tokenizer_->isToken(0, TokIdentifier)) {
+      return Error;
+    }
+
+    // ";"
+    if (!tokenizer_->isToken(0, TokSemiColon)) {
+      return Error;
+    }
+
+    // TODO : create typedef node
+
     return True;
   }
 

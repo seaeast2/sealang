@@ -39,7 +39,7 @@ namespace Parser {
       eResult Type(); // type
       eResult TypeRef(); // typeref
       eResult TypeRefBase(); // typeref_base
-      eResult TypeDef(); // typedef <<== Working
+      eResult TypeDef(); // typedef
       
       eResult ParamTypeRefs(); // param_typerefs
       eResult Params(); // params
