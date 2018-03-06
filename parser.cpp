@@ -251,7 +251,7 @@ namespace Parser {
 
     // typeref
     res = TypeRef();
-    if(rew != True) {
+    if(res != True) {
       return Error;
     }
 
