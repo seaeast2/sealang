@@ -50,9 +50,9 @@ namespace Parser {
       eResult Expr(); // expr <<== Working
       eResult Term(); // term <<== Working
       eResult Unary(); // unary <<== Working
-      eResult Postfix(); // postfix <<== Working
-      eResult Primary(); // primary <<== Working
-      eResult Args(); // args <<== Working
+      eResult Postfix(); // postfix
+      eResult Primary(); // primary
+      eResult Args(); // args
       eResult OpAssignOp(); // opassign_op <<== Working
       eResult Expr10(); // expr10 <<== Working
       eResult Expr9(); // expr9 <<== Working

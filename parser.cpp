@@ -589,6 +589,82 @@ namespace Parser {
   //   | <SIZEOF> unary             // sizeof unary 
   //   | postfix                    // postfix  
   eResult SyntaxAnalyzer::Unary() {
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+    eResult res;
+    // "++"
+    if (tokenizer_->isToken(0, TokUnaryInc)) {
+      tokenizer_->ConsumeToken(1);
+      // "unary"
+      if (Unary() != True)
+        return Error;
+      return True;
+    }
+    // "--"
+    else if (tokenizer_->isToken(0, TokUnaryDec)) {
+      tokenizer_->ConsumeToken(1);
+      // unary
+      if (Unary() != True)
+        return Error;
+      return True;
+    }
+    // "+"
+    else if (tokenizer_->isToken(0, TokAdd)) {
+      tokenizer_->ConsumeToken(1);
+      // term
+      if (Term() != True)
+        return Error;
+      return True;
+    }
+    // "-"
+    else if (tokenizer_->isToken(0, TokSub)) {
+      tokenizer_->ConsumeToken(1);
+      // term
+      if (Term() != True)
+        return Error;
+      return True;
+    }
+    // "!"
+    else if (tokenizer_->isToken(0, TokQuestion)) {
+      tokenizer_->ConsumeToken(1);
+      // term
+      if (Term() != True)
+        return Error;
+      return True;
+    }
+    // "*"
+    else if (tokenizer_->isToken(0, TokMul)) {
+      tokenizer_->ConsumeToken(1);
+      // term
+      if (Term() != True)
+        return Error;
+      return True;
+    }
+    // "&"
+    else if (tokenizer_->isToken(0, TokBitAnd)) {
+      tokenizer_->ConsumeToken(1);
+      // term
+      if (Term() != True)
+        return Error;
+      return True;
+    }
+    if (tokenizer_->isToken(0, TokUnaryDec)) {
+      tokenizer_->ConsumeToken(1);
+      if (Unary() != True)
+        return Error;
+      return True;
+    }
+    if (tokenizer_->isToken(0, TokUnaryDec)) {
+      tokenizer_->ConsumeToken(1);
+      if (Unary() != True)
+        return Error;
+      return True;
+    }
+    if (tokenizer_->isToken(0, TokUnaryDec)) {
+      tokenizer_->ConsumeToken(1);
+      if (Unary() != True)
+        return Error;
+      return True;
+    }
     return True;
   }
 
@@ -602,7 +678,90 @@ namespace Parser {
   //             |"(" args ")"       // function call 
   //             )* 
   eResult SyntaxAnalyzer::Postfix() {
-    return True;
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+
+    // primary
+    bool found_postfix = false;
+    eResult res;
+    res = Primary();
+    if (res == True) {
+      while(true) {
+        // "++"
+        if (tokenizer_->isToken(0, TokUnaryInc)) {
+          tokenizer_->ConsumeToken(1);
+          found_postfix = true;
+        }
+        // "--"
+        else if (tokenizer_->isToken(0, TokUnaryDec)) {
+          tokenizer_->ConsumeToken(1);
+          found_postfix = true;
+        }
+        // "[" expr "]"
+        else if (tokenizer_->isToken(0, TokBracketOpen)) {
+          tokenizer_->ConsumeToken(1);
+          // expr
+          res = Expr();
+          if (res != True) {
+            if (res == Error)
+              return Error;
+            else 
+              break;
+          }
+          // "]"
+          if (tokenizer_->isToken(0, TokBracketClose)) {
+            tokenizer_->ConsumeToken(1);
+            found_postfix = true;
+          }
+          else 
+            return Error;
+        }
+        // "." name
+        else if (tokenizer_->isToken(0, TokDot)) {
+          tokenizer_->ConsumeToken(1);
+          // name
+          res = Name();
+          if (res != True)
+            return Error;
+
+          found_postfix = true;
+        }
+        // "->" name
+        else if (tokenizer_->isToken(0, TokRightArrow)) {
+          tokenizer_->ConsumeToken(1);
+          // name
+          res = Name();
+          if (res != True)
+            return Error;
+
+          found_postfix = true;
+        }
+        // "(" args ")"
+        else if (tokenizer_->isToken(0, TokParenOpen)) {
+          tokenizer_->ConsumeToken(1);
+          // args 
+          res = Args();
+          if (res != True)
+            return Error;
+          // ")"
+          if (tokenizer_->isToken(0, TokParenClose)) {
+            tokenizer_->ConsumeToken(1);
+            found_postfix = true;
+          }
+          else 
+            return Error;
+        }
+        else 
+          break;
+      } // end while
+    } // end primary
+    else if (res == Error)
+        return Error;
+
+    if (found_postfix)
+      return True;
+
+    tokenizer_->SetTokPos(cur_tok_pos);
+    return False;
   }
 
   // primary 
@@ -612,12 +771,80 @@ namespace Parser {
   //   |<IDENTIFIER> 
   //   |"(" expr ")" 
   eResult SyntaxAnalyzer::Primary() {
-    return True;
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+
+    // <INTEGER>
+    if (tokenizer_->isToken(0, TokIntegerLiteral)) {
+      tokenizer_->ConsumeToken(1);
+      return True;
+    }
+    // <CHARACTER>
+    if (tokenizer_->isToken(0, TokCharactorLiteral)) {
+      tokenizer_->ConsumeToken(1);
+      return True;
+    }
+    // <STRING>
+    if (tokenizer_->isToken(0, TokStringLiteral)) {
+      tokenizer_->ConsumeToken(1);
+      return True;
+    }
+    // <IDENTIFIER>
+    if (tokenizer_->isToken(0, TokIdentifier)) {
+      tokenizer_->ConsumeToken(1);
+      return True;
+    }
+    
+    // "("
+    if (tokenizer_->isToken(0,TokParenOpen)) {
+      tokenizer_->ConsumeToken(1);
+      // expr
+      eResult res = Expr();
+      if (res == True) {
+        // ")"
+        if(tokenizer_->isToken(0, TokParenClose)) {
+          tokenizer_->ConsumeToken(1);
+          return True;
+        }
+      }
+      else if (res == Error) {
+        return Error;
+      }
+    }
+    
+    tokenizer_->SetTokPos(cur_tok_pos);
+    return False;
   }
 
   // args 
   //   : [expr ("," expr)*] 
   eResult SyntaxAnalyzer::Args() {
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+
+    bool found_expr = false;
+    while(true) {
+      // expr
+      eResult res = Expr();
+      if (res != True) {
+        if (res == Error)
+          return Error;
+        else {
+          if (found_expr) {
+            return Error;
+          }
+          tokenizer_->SetTokPos(cur_tok_pos);
+          return False;
+        }
+      }
+      found_expr = true;
+
+      // ","
+      if (!tokenizer_->isToken(0, TokComma)) {
+        if (found_expr) 
+          break;
+      }
+      tokenizer_->ConsumeToken(1);
+    } // end while
+
     return True;
   }
 

@@ -10,7 +10,6 @@ namespace Lexer {
     // Keywords
     TokImport,
     TokStatic,
-    // Conditions : if else while return for break
     TokIf,
     TokElse,
     TokDo,
@@ -19,8 +18,16 @@ namespace Lexer {
     TokFor,
     TokBreak,
     TokTypeDef,
+    TokConst,
+    TokSwitch,
+    TokCase,
+    TokDefault,
+    TokContinue,
+    TokGoto,
+    TokSizeOf,
     // Types : byte int string double void struct
-    TokUnsigned,      // unsigned
+    TokSigned,      // unsigned
+    TokUnsigned,        // signed
     TokChar,          // char
     TokShort,         // short
     TokInt,           // int
@@ -50,6 +57,7 @@ namespace Lexer {
     TokGreatorThenEqual, // >=
     TokConAnd,        // &&
     TokConOr,         // ||
+    TokRightArrow,    // ->
 
     TokAdd,           // +
     TokSub,           // -
