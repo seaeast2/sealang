@@ -260,9 +260,9 @@ unary
   | postfix                    // postfix  
 
 postfix 
-  : primary ("++"              // post ++ 
-            |"--"               // post -- 
-            |"[" expr "]"       // array reference 
+  : primary ("++"               // post ++ 
+            |"--")              // post -- 
+  | primary ("[" expr "]"       // array reference 
             |"." name           // class member reference 
             |"->" name          // class member pointer reference 
             |"(" args ")"       // function call 

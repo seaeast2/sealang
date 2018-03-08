@@ -6,7 +6,7 @@
 
 namespace Lexer {
   enum TokenType {
-    TokEof,
+    TokEof = 0,
     // Keywords
     TokImport,
     TokStatic,
@@ -100,7 +100,8 @@ namespace Lexer {
     TokIntegerLiteral, // ex) 12345
     TokStringLiteral, // ex) "test"
     TokCharactorLiteral, // ex) 'A'
-    TokUnknown
+    TokUnknown,
+    TokEnd
   };
 
   struct Token {

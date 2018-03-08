@@ -3,6 +3,130 @@
 using namespace Lexer;
 
 namespace Parser {
+  void SyntaxAnalyzer::InitBasicRule() {
+    for (int i = TokEof; i < TokEnd; i++) {
+      rules_[i] = {Terminal, {i}};
+    }
+    // compilation_unit 
+    //    : import_stmts top_defs <EOF> 
+    rules_[compilation_unit] = {Sequence, {import_stmts, top_defs, TokEof}};
+
+    //  typeref_base  
+    //    : <VOID> 
+    //      | <CHAR> 
+    //      | <SHORT> 
+    //      | <INT> 
+    //      | <LONG> 
+    //      | <UNSIGNED> <CHAR> 
+    //      | <UNSIGNED> <SHORT> 
+    //      | <UNSIGNED> <INT> 
+    //      | <UNSIGNED> <LONG> 
+    //      | <FLOAT> 
+    //      | <DOUBLE>
+    //      | <CLASS> <IDENTIFIER> 
+    rules_[typeref_base] = {Select, { TokVoid, 
+                                      TokChar,
+                                      TokShort, 
+                                      TokInt, 
+                                      TokLong, 
+                                      seq_unsigned_char,
+                                      seq_unsigned_short,
+                                      seq_unsigned_int,
+                                      seq_unsigned_long,
+                                      TokFloat,
+                                      TokDouble,
+                                      seq_class_identifier,
+                                      }};
+    rules_[seq_unsigned_char] = {Sequence, {TokUnsigned, TokChar}};
+    rules_[seq_unsigned_short] = {Sequence, {TokUnsigned, TokShort}};
+    rules_[seq_unsigned_int] = {Sequence, {TokUnsigned, TokInt}};
+    rules_[seq_unsigned_long] = {Sequence, {TokUnsigned, TokLong}};
+    rules_[seq_class_identifier] = {Sequence, {TokClass, TokIdentifier}};
+    
+    // import_stmts  
+    //   : (import_stmt)* 
+    rules_[import_stmts] = {Repeat, {import_stmt}};
+
+    // import_stmt 
+    //   : <IMPORT> name ("." name)* ";" 
+    rules_[import_stmt] = {Sequence, {TokImport, name, rep_dot_name, TokSemiColon}};
+      // ("." name)*
+      rules_[rep_dot_name] = {Repeat, {TokDot, name}};
+
+    // name 
+    //   : <IDENTIFIER> 
+    rules_[name] = {Sequence, {TokIdentifier}};
+  }
+
+  eResult SyntaxAnalyzer::TraverseRule(int entry) {
+    Rule rule = rules_[entry];
+    eResult res;
+    while(true) {
+      switch(rule.action_) {
+        case Repeat:
+          {
+            bool found_matching = false;
+            while(true) {
+              int matching_count = 0;
+              int i = 0;
+              for (; rule.sub_rules_[i] > -1; i++) {
+                res = TraverseRule(rule.sub_rules_[i]);
+                if (res == True) {
+                  matching_count++;
+                }
+                else if (res == Error) {
+                  return Error;
+                }
+              }
+              if (matching_count != i)
+                break;
+              found_matching = true;
+            };
+            if (found_matching)
+              return True;
+            return False;
+          }
+          break;
+
+        case Select:
+          {
+            for (int i = 0; rule.sub_rules_[i] > -1; i++) {
+              res = TraverseRule(rule.sub_rules_[i]);
+              if (res == True)
+                return True; // found matching
+              else if (res == Error)
+                return Error;
+            }
+            return False;
+          }
+          break;
+
+        case Sequence:
+          {
+            int matching_count = 0;
+            int i = 0;
+            for (; rule.sub_rules_[i] > -1; i++) {
+              res = TraverseRule(rule.sub_rules_[i]);
+              if (res == True) {
+                matching_count++;
+              }
+              else if (res == Error)
+                return Error;
+            }
+            if (matching_count == i) {
+              // TODO : run matching action here
+              // Action[entry].Run();
+              return True;
+            }
+            return False; // unmatching
+          }
+        case Terminal:
+          break;
+        case Nonterminal:
+          break;
+      }
+    }
+  }
 
   SyntaxAnalyzer::SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, 
       ErrorDiag::Diagnosis* ed) {
@@ -590,172 +714,155 @@ namespace Parser {
   //   | postfix                    // postfix  
   eResult SyntaxAnalyzer::Unary() {
     int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
+
     eResult res;
     // "++"
     if (tokenizer_->isToken(0, TokUnaryInc)) {
       tokenizer_->ConsumeToken(1);
-      // "unary"
-      if (Unary() != True)
-        return Error;
-      return True;
+      // unary
+      if (Unary() == True)
+        return True;
     }
     // "--"
     else if (tokenizer_->isToken(0, TokUnaryDec)) {
       tokenizer_->ConsumeToken(1);
       // unary
-      if (Unary() != True)
-        return Error;
-      return True;
+      if (Unary() == True)
+        return True;
     }
     // "+"
     else if (tokenizer_->isToken(0, TokAdd)) {
       tokenizer_->ConsumeToken(1);
       // term
-      if (Term() != True)
-        return Error;
-      return True;
+      if (Term() == True)
+        return True;
     }
     // "-"
     else if (tokenizer_->isToken(0, TokSub)) {
       tokenizer_->ConsumeToken(1);
       // term
-      if (Term() != True)
-        return Error;
-      return True;
+      if (Term() == True)
+        return True;
     }
     // "!"
     else if (tokenizer_->isToken(0, TokQuestion)) {
       tokenizer_->ConsumeToken(1);
       // term
-      if (Term() != True)
-        return Error;
-      return True;
+      if (Term() == True)
+        return True;
     }
     // "*"
     else if (tokenizer_->isToken(0, TokMul)) {
       tokenizer_->ConsumeToken(1);
       // term
-      if (Term() != True)
-        return Error;
-      return True;
+      if (Term() == True)
+        return True;
     }
     // "&"
     else if (tokenizer_->isToken(0, TokBitAnd)) {
       tokenizer_->ConsumeToken(1);
       // term
-      if (Term() != True)
-        return Error;
-      return True;
+      if (Term() == True)
+        return True;
     }
-    if (tokenizer_->isToken(0, TokUnaryDec)) {
+    // <SIZEOF> "("
+    else if (tokenizer_->isToken(0, TokSizeOf) &&
+        tokenizer_->isToken(1, TokParenOpen)) {
+      tokenizer_->ConsumeToken(2);
+      // type
+      if (Type() == True) {
+        // ")"
+        if (tokenizer_->isToken(0, TokParenClose)) 
+          return True;
+      }
+    }
+    // <SIZEOF>
+    else if (tokenizer_->isToken(0, TokSizeOf)) {
       tokenizer_->ConsumeToken(1);
-      if (Unary() != True)
-        return Error;
-      return True;
+      if (Unary() == True)
+        return True;
     }
-    if (tokenizer_->isToken(0, TokUnaryDec)) {
-      tokenizer_->ConsumeToken(1);
-      if (Unary() != True)
-        return Error;
+    // postfix
+    else if (Postfix() == True)
       return True;
-    }
-    if (tokenizer_->isToken(0, TokUnaryDec)) {
-      tokenizer_->ConsumeToken(1);
-      if (Unary() != True)
-        return Error;
-      return True;
-    }
-    return True;
+
+    tokenizer_->SetTokPos(cur_tok_pos);
+    return False;
   }
 
 
   // postfix 
-  //   : primary ("++"              // post ++ 
-  //             |"--"               // post -- 
-  //             |"[" expr "]"       // array reference 
+  //   : primary ("++"               // post ++ 
+  //             |"--")              // post -- 
+  //   | primary ("[" expr "]"       // array reference 
   //             |"." name           // class member reference 
   //             |"->" name          // class member pointer reference 
-  //             |"(" args ")"       // function call 
+  //             |"(" args ")"      // function call 
   //             )* 
   eResult SyntaxAnalyzer::Postfix() {
     int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
 
-    // primary
     bool found_postfix = false;
     eResult res;
-    res = Primary();
-    if (res == True) {
+
+    // primary
+    if (Primary() == True) {
+      // "++"
+      if (tokenizer_->isToken(0, TokUnaryInc)) {
+        tokenizer_->ConsumeToken(1);
+        return True;
+      }
+      // "--"
+      if (tokenizer_->isToken(0, TokUnaryDec)) {
+        tokenizer_->ConsumeToken(1);
+        return True;
+      }
+
       while(true) {
-        // "++"
-        if (tokenizer_->isToken(0, TokUnaryInc)) {
-          tokenizer_->ConsumeToken(1);
-          found_postfix = true;
-        }
-        // "--"
-        else if (tokenizer_->isToken(0, TokUnaryDec)) {
-          tokenizer_->ConsumeToken(1);
-          found_postfix = true;
-        }
-        // "[" expr "]"
-        else if (tokenizer_->isToken(0, TokBracketOpen)) {
+        // "["
+        if (tokenizer_->isToken(0, TokBracketOpen)) {
           tokenizer_->ConsumeToken(1);
           // expr
-          res = Expr();
-          if (res != True) {
-            if (res == Error)
-              return Error;
-            else 
-              break;
+          if (Expr() == True) {
+            // "]"
+            if (tokenizer_->isToken(0, TokBracketClose)) {
+              tokenizer_->ConsumeToken(1);
+              found_postfix = true;
+            }
           }
-          // "]"
-          if (tokenizer_->isToken(0, TokBracketClose)) {
-            tokenizer_->ConsumeToken(1);
+        }
+        // "."
+        if (tokenizer_->isToken(0, TokDot)) {
+          tokenizer_->ConsumeToken(1);
+          // name
+          if (Name() == True) {
             found_postfix = true;
           }
-          else 
-            return Error;
         }
-        // "." name
-        else if (tokenizer_->isToken(0, TokDot)) {
+        // "->"
+        if (tokenizer_->isToken(0, TokRightArrow)) {
           tokenizer_->ConsumeToken(1);
           // name
-          res = Name();
-          if (res != True)
-            return Error;
-
-          found_postfix = true;
+          if (Name() == True) {
+            found_postfix = true;
+          }
         }
-        // "->" name
-        else if (tokenizer_->isToken(0, TokRightArrow)) {
-          tokenizer_->ConsumeToken(1);
-          // name
-          res = Name();
-          if (res != True)
-            return Error;
-
-          found_postfix = true;
-        }
-        // "(" args ")"
-        else if (tokenizer_->isToken(0, TokParenOpen)) {
+        // "("
+        if (tokenizer_->isToken(0, TokParenOpen)) {
           tokenizer_->ConsumeToken(1);
           // args 
-          res = Args();
-          if (res != True)
-            return Error;
-          // ")"
-          if (tokenizer_->isToken(0, TokParenClose)) {
-            tokenizer_->ConsumeToken(1);
-            found_postfix = true;
+          if (Args() == True) {
+            // ")"
+            if (tokenizer_->isToken(0, TokParenClose)) {
+              tokenizer_->ConsumeToken(1);
+              found_postfix = true;
+            }
           }
-          else 
-            return Error;
         }
-        else 
+        else
           break;
       } // end while
     } // end primary
-    else if (res == Error)
-        return Error;
 
     if (found_postfix)
       return True;
@@ -793,7 +900,6 @@ namespace Parser {
       tokenizer_->ConsumeToken(1);
       return True;
     }
-    
     // "("
     if (tokenizer_->isToken(0,TokParenOpen)) {
       tokenizer_->ConsumeToken(1);
@@ -806,11 +912,8 @@ namespace Parser {
           return True;
         }
       }
-      else if (res == Error) {
-        return Error;
-      }
     }
-    
+
     tokenizer_->SetTokPos(cur_tok_pos);
     return False;
   }
@@ -820,28 +923,17 @@ namespace Parser {
   eResult SyntaxAnalyzer::Args() {
     int cur_tok_pos = tokenizer_->GetTokPos(); // backup current token position
 
-    bool found_expr = false;
     while(true) {
       // expr
       eResult res = Expr();
       if (res != True) {
-        if (res == Error)
-          return Error;
-        else {
-          if (found_expr) {
-            return Error;
-          }
-          tokenizer_->SetTokPos(cur_tok_pos);
-          return False;
-        }
+        tokenizer_->SetTokPos(cur_tok_pos);
+        return False;
       }
-      found_expr = true;
 
       // ","
-      if (!tokenizer_->isToken(0, TokComma)) {
-        if (found_expr) 
-          break;
-      }
+      if (!tokenizer_->isToken(0, TokComma))
+        break;
       tokenizer_->ConsumeToken(1);
     } // end while
 

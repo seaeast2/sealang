@@ -10,6 +10,37 @@
 using namespace Lexer;
 
 namespace Parser {  
+  enum RuleName {
+    // Token
+    
+    // Rule
+    compilation_unit = TokEnd,
+    import_stmts,
+    import_stmt,
+    rep_dot_name, // ("," name)*
+    name,
+    top_defs,
+    typeref_base,
+
+    seq_unsigned_char, // <UNSIGNED> <CHAR>
+    seq_unsigned_short, // <UNSIGNED> <SHORT>
+    seq_unsigned_int, // <UNSIGNED> <INT>
+    seq_unsigned_long, // <UNSIGNED> <LONG>
+    seq_class_identifier, // <CLASS> <IDENTIFIER>
+    // Action
+    Repeat,
+    Select,
+    Sequence,
+    Terminal,
+    Nonterminal
+  };
+
+  struct Rule {
+    int action_; // repeat, select, sequence, terminal, nonterminal
+    int sub_rules_[20];
+  };
+
+
   // check grammar
   // eResult : True - matching
   //           False - unmatching
@@ -18,10 +49,16 @@ namespace Parser {
     Tokenizer* tokenizer_;
     SyntaxAction* action_;
     ErrorDiag::Diagnosis* err_diag_;
+
+    Rule rules_[200];
+
     
     public:
       SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAnalyzer();
+
+      void InitBasicRule();
+      eResult TraverseRule(int entry);
 
       eResult CompilationUnit(); // compilation_unit
       
@@ -76,6 +113,7 @@ namespace Parser {
       eResult ContinueStmt(); // continue_stmt <<==Working
       eResult GotoStmt(); // goto_stmt <<==Working
       eResult ReturnStmt(); // return_stmt <<==Working
+
 
 
       void DebugPrint();
