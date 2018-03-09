@@ -5,6 +5,10 @@ using namespace Lexer;
 namespace Parser {
   void SyntaxAnalyzer::InitBasicRule() {
 
+    for (int i = 0; i < 200; i++) {
+      memset(rules_[i].sub_rules_, -1, sizeof(rules_[i].sub_rules_));
+    }
+
     for (int i = TokEof; i < TokEnd; i++) {
       rules_[i] = {Terminal, {i}};
     }
@@ -112,6 +116,9 @@ namespace Parser {
             int matching_count = 0;
             int i = 0;
             for (; rule.sub_rules_[i] > -1; i++) {
+              bool is_option_rule = false;
+              if (rules_[rule.sub_rules_[i]].action_ == Options)
+                is_option_rule = true;
               res = TraverseRule(rule.sub_rules_[i]);
               if (res == True) {
                 matching_count++;
@@ -126,6 +133,28 @@ namespace Parser {
             }
             return False; // unmatching
           }
+          break;
+
+        case Options:
+          {
+            int matching_count = 0;
+            int i = 0;
+            for (; rule.sub_rules_[i] > -1; i++) {
+              res = TraverseRule(rule.sub_rules_[i]);
+              if (res == True) {
+                matching_count++;
+              }
+              else if (res == Error)
+                return Error;
+            }
+            if (matching_count == i) {
+              // TODO : run matching action here
+              // Action[entry].Run();
+              return True;
+            }
+            return False; // unmatching
+          }
+          break;
         case Terminal:
           break;
         case Nonterminal:

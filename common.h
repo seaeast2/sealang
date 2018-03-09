@@ -8,11 +8,5 @@ using namespace std;
 
 typedef vector<string> VecStr;
 
-// default 3 rusult.
-enum eResult {
-  False = 0,
-  True,
-  Error
-};
 
 #endif

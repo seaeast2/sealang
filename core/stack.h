@@ -2,9 +2,9 @@
 #define _stack_h_
 
 
-template <class T, class S = 100>
+template <class T, unsigned int STACK_SIZE = 100> 
 class SimpleArrayStack {
-  T data_[S];
+  T data_[STACK_SIZE];
 
   int top_;
 

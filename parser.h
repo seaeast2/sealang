@@ -1,15 +1,26 @@
 #ifndef _parser_h_
 #define _parser_h_
 
+#include <string.h>
 #include "common.h"
+#include "core/stack.h"
 #include "lexer.h"
 #include "error_diagnosis.h"
 #include "parser_actions.h"
+#include "ast_node.h"
+
 
 
 using namespace Lexer;
 
 namespace Parser {  
+  // default 3 rusult.
+  enum eResult {
+    False = 0,
+    True,
+    Error
+  };
+
   enum RuleName {
     // Token
     
@@ -27,10 +38,12 @@ namespace Parser {
     seq_unsigned_int, // <UNSIGNED> <INT>
     seq_unsigned_long, // <UNSIGNED> <LONG>
     seq_class_identifier, // <CLASS> <IDENTIFIER>
-    // Action
-    Repeat,
-    Select,
-    Sequence,
+
+    // BNF Action
+    Repeat, // ()*
+    Select, // |
+    Sequence, // rule1 rule2
+    Options, // []
     Terminal,
     Nonterminal
   };
@@ -51,8 +64,9 @@ namespace Parser {
     ErrorDiag::Diagnosis* err_diag_;
 
     Rule rules_[200];
+    SimpleArrayStack<AST::BaseNode*> node_stack_;
 
-    typedef void (SyntaxAnalyzer::*fnRuleAction) (void);
+    typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
     fnRuleAction rule_actions_[200];
     
     public:
