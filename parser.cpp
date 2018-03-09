@@ -4,6 +4,7 @@ using namespace Lexer;
 
 namespace Parser {
   void SyntaxAnalyzer::InitBasicRule() {
+
     for (int i = TokEof; i < TokEnd; i++) {
       rules_[i] = {Terminal, {i}};
     }
@@ -56,6 +57,11 @@ namespace Parser {
     // name 
     //   : <IDENTIFIER> 
     rules_[name] = {Sequence, {TokIdentifier}};
+  }
+  
+  void InitRuleAction() {
+    //actions_[0] = &SyntaxAnalyzer::test;
+    //(this->*actions_[0])();
   }
 
   eResult SyntaxAnalyzer::TraverseRule(int entry) {

@@ -52,14 +52,18 @@ namespace Parser {
 
     Rule rules_[200];
 
+    typedef void (SyntaxAnalyzer::*fnRuleAction) (void);
+    fnRuleAction rule_actions_[200];
     
     public:
       SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAnalyzer();
 
       void InitBasicRule();
+      void InitRuleAction();
       eResult TraverseRule(int entry);
 
+      //void DoNothing(void) {} // Dummy function for function pointer array
       eResult CompilationUnit(); // compilation_unit
       
       eResult ImportStmts(); // import_stmts
