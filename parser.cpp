@@ -84,14 +84,19 @@ namespace Parser {
                 if (res == True) {
                   matching_count++;
                 }
-                else if (res == Error) {
-                  return Error;
+                else if (res == False) {
+                  if (rules_[rule.sub_rules_[i]].action_ == Options) {
+                    matching_count++;
+                  }
                 }
+                else
+                  return Error;
               }
               if (matching_count != i)
                 break;
               found_matching = true;
             };
+
             if (found_matching)
               return True;
             return False;
@@ -116,14 +121,16 @@ namespace Parser {
             int matching_count = 0;
             int i = 0;
             for (; rule.sub_rules_[i] > -1; i++) {
-              bool is_option_rule = false;
-              if (rules_[rule.sub_rules_[i]].action_ == Options)
-                is_option_rule = true;
               res = TraverseRule(rule.sub_rules_[i]);
               if (res == True) {
                 matching_count++;
               }
-              else if (res == Error)
+              else if (res == False) { // False
+                if (rules_[rule.sub_rules_[i]].action_ == Options) {
+                  matching_count++;
+                }
+              }
+              else
                 return Error;
             }
             if (matching_count == i) {
@@ -144,7 +151,12 @@ namespace Parser {
               if (res == True) {
                 matching_count++;
               }
-              else if (res == Error)
+              else if (res == False) {
+                if (rules_[rule.sub_rules_[i]].action_ == Options) {
+                  matching_count++;
+                }
+              }
+              else
                 return Error;
             }
             if (matching_count == i) {
@@ -156,8 +168,16 @@ namespace Parser {
           }
           break;
         case Terminal:
+          {
+            if(tokenizer_->isToken(0, rule.sub_rules_[0]))
+              return True;
+            return False;
+          }
           break;
         case Nonterminal:
+          break;
+        case default:
+          assert(0 "Error wrong rule action.");
           break;
       }
     }
