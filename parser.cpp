@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "parser.h"
 
 using namespace Lexer;
@@ -5,7 +6,7 @@ using namespace Lexer;
 namespace Parser {
   void SyntaxAnalyzer::InitBasicRule() {
 
-    for (int i = 0; i < 200; i++) {
+    for (int i = 0; i < MAX_RULES; i++) {
       memset(rules_[i].sub_rules_, -1, sizeof(rules_[i].sub_rules_));
     }
 
@@ -169,15 +170,18 @@ namespace Parser {
           break;
         case Terminal:
           {
-            if(tokenizer_->isToken(0, rule.sub_rules_[0]))
+            if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0])))
               return True;
             return False;
           }
           break;
         case Nonterminal:
+          {
+            return TraverseRule(rule.sub_rules_[0]);
+          }
           break;
-        case default:
-          assert(0 "Error wrong rule action.");
+        default:
+          assert("Error wrong rule action.");
           break;
       }
     }

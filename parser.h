@@ -21,6 +21,7 @@ namespace Parser {
     Error
   };
 
+#define MAX_RULES 200
   enum RuleName {
     // Token
     
@@ -63,11 +64,12 @@ namespace Parser {
     SyntaxAction* action_;
     ErrorDiag::Diagnosis* err_diag_;
 
-    Rule rules_[200];
+    Rule rules_[MAX_RULES];
     SimpleArrayStack<AST::BaseNode*> node_stack_;
 
     typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
-    fnRuleAction rule_actions_[200];
+    fnRuleAction rule_actions_[MAX_RULES];
+
     
     public:
       SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
