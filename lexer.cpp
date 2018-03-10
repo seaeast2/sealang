@@ -53,6 +53,7 @@ namespace Lexer {
     // Operators
     { "<<=",      "TokComBitShiftL",  3 },
     { ">>=",      "TokComBitShiftR",  3 },
+    { "...",      "TokDotDotDot",     3 },
     
     { "<<",       "TokBitShiftL",     2 },
     { ">>",       "TokBitShiftR",     2 },
@@ -97,6 +98,7 @@ namespace Lexer {
     
     { ",",        "TokComma",   1 },
     { ".",        "TokDot",     1 },
+    { ":",        "TokColon",   1 },
     { ";",        "TokSemiColon", 1 },
 
     { "\"",       "TokDoubleQuot", 1 },

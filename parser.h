@@ -29,16 +29,93 @@ namespace Parser {
     compilation_unit = TokEnd,
     import_stmts,
     import_stmt,
-    rep_dot_name, // ("," name)*
     name,
     top_defs,
     typeref_base,
+    defvars,
+    storage,
+    type,
+    defconst,
+    deffunc,
+    params,
+    fixedparams,
+    param,
+    defvar_list,
+    block,
+    defclass,
+    member_list,
+    class_member,
+    typedef_, // to avoid type crash, '_' is added.
+    typeref,
+    param_typerefs,
+    stmts,
+    stmt,
+    labeled_stmt,
+    if_stmt,
+    while_stmt,
+    dowhile_stmt,
+    for_stmt,
+    break_stmt,
+    continue_stmt,
+    return_stmt,
+    expr,
+    opassign_op,
+    expr10,
+    expr9,
+    expr8,
+    expr7,
+    expr6,
+    expr5,
+    expr4,
+    expr3,
 
+    // sub rule
     seq_unsigned_char, // <UNSIGNED> <CHAR>
     seq_unsigned_short, // <UNSIGNED> <SHORT>
     seq_unsigned_int, // <UNSIGNED> <INT>
     seq_unsigned_long, // <UNSIGNED> <LONG>
     seq_class_identifier, // <CLASS> <IDENTIFIER>
+    rep_dot_name, // ("," name)*
+    sel_fun_var_const_class_typedef, // deffunc | defvars | defconst | defclass | typedef
+    opt_eq_expr, // ["=" expr]
+    opt_rep_cm_name_dot_eq_expr, // [("," name ["=" expr])*]
+    rep_cm_name_dot_eq_expr, // ("," name ["=" expr])
+    seq_fixparms_dot_dotdotdot, // fixedparams ["," "..."] 
+    opt_dot_dotdotdot, // ["," "..."] 
+    rep_dot_param, // ("," param)* 
+    rep_class_member_semicolon, // (class_member ";")
+    seq_type_name, // type name
+    rep_sel_arry_ptr_fnptr,
+    sel_arry_ptr_fnptr,
+    seq_brckopn_brckcls, // "[""]
+    seq_brckopn_int_brckcls, // "["<INTEGER>"]"
+    seq_prenopn_paramty_prencls, // "(" param_typerefs ")"
+    seq_type_rep_type_dot, // type ("," type)* ["," "..."] 
+    rep_dot_type, // ("," type)*
+    seq_expr_semicolon, // expr ";"
+    opt_else_stmt, // [<ELSE> stmt]
+    opt_expr, // [expr]
+    seq_return_semicolon, // <RETURN> ";"
+    seq_return_expr_semicolon, // <RETURN> expr ";"
+    seq_term_eq_expr, // term "=" expr  
+    seq_term_ops_expr, // term opassign_op expr 
+    opt_ternaryop,// ["?" expr ":" expr10] 
+    rep_or_expr8, //("||" expr8)* 
+    rep_and_expr7,// ("&&" expr7)* 
+    rep_op_expr6,
+    sel_op_expr6,
+    seq_gr_expr6, // ">" expr6  
+    seq_ls_expr6, // "<" expr6 
+    seq_geq_expr6,// ">=" expr6 
+    seq_leq_expr6,// "<=" expr6 
+    seq_eq_expr6, // "==" expr6 
+    seq_neq_expr6,// "!=" expr6 
+    rep_bitor_expr5, // ("|" expr5)* 
+    rep_bitxor_expr4,// ("^" expr4)* 
+    rep_bitand_expr3,// ("&" expr3)* 
+    rep_shift_expr2,// ( ">>" expr2 | "<<" expr2)*
+    seq_rshft_expr2,// ">>" expr2
+    seq_lshft_expr2,// "<<" expr2
 
     // BNF Action
     Repeat, // ()*

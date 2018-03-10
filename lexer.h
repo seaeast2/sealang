@@ -36,9 +36,11 @@ namespace Lexer {
     TokDouble,        // double
     TokVoid,          // void
     TokClass,         // class
+
     // Operators
     TokComBitShiftL,  // <<=
     TokComBitShiftR,  // >>=
+    TokDotDotDot,     // ...
 
     TokBitShiftL,     // <<
     TokBitShiftR,     // >>
@@ -48,6 +50,7 @@ namespace Lexer {
     TokComSub,        // -= 
     TokComMul,        // *=
     TokComDiv,        // /=
+    TokComMod,        // %=
     TokComBitAnd,     // &=
     TokComBitOr,      // |=
     TokComBitXor,     // ^=
@@ -85,6 +88,7 @@ namespace Lexer {
     /* Etc : , . ; */
     TokComma,         // ,
     TokDot,           // .
+    TokColon,         // :
     TokSemiColon,     // ;
 
     // Quoto
