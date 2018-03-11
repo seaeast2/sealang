@@ -31,6 +31,10 @@ class SimpleArrayStack {
         return true;
       return false;
     }
+
+    void Clear() {
+      top_ = -1;
+    }
 };
 
 #endif

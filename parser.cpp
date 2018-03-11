@@ -162,13 +162,13 @@ namespace Parser {
         //   | "["<INTEGER>"]"           // assigned array
         //   | "*"                       // pointer 
         //   | "(" param_typerefs ")"  // function pointer 
-        rules_[sel_arry_ptr_fnptr] = {Select, {seq_brckopn_brckcls, seq_brckopn_int_brckcls, TokMul, seq_prenopn_paramty_prencls}};
+        rules_[sel_arry_ptr_fnptr] = {Select, {seq_bo_bc, seq_bo_int_bc, TokMul, seq_po_paramty_pc}};
           // "[""]
-          rules_[seq_brckopn_brckcls] = {Sequence, {TokBracketOpen, TokBracketClose}};
+          rules_[seq_bo_bc] = {Sequence, {TokBracketOpen, TokBracketClose}};
           // "["<INTEGER>"]"
-          rules_[seq_brckopn_int_brckcls] = {Sequence, {TokBracketOpen, TokIntegerLiteral, TokBracketClose}};
+          rules_[seq_bo_int_bc] = {Sequence, {TokBracketOpen, TokIntegerLiteral, TokBracketClose}};
           // "(" param_typerefs ")"
-          rules_[seq_prenopn_paramty_prencls] = {Sequence, {TokParenOpen, param_typerefs, TokParenClose}};
+          rules_[seq_po_paramty_pc] = {Sequence, {TokParenOpen, param_typerefs, TokParenClose}};
 
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
@@ -234,7 +234,35 @@ namespace Parser {
     rules_[for_stmt] = {Sequence, {TokFor, TokParenOpen, opt_expr, TokSemiColon, opt_expr, TokSemiColon, opt_expr, TokParenClose, stmt }};
       // [expr]
       rules_[opt_expr] = {Options, {expr}};
+
+    // switch_stmt
+    //   : <SWITCH> "(" expr ")" "{" case_clauses "}"
+    rules_[switch_stmt] = {Sequence, {TokSwitch, TokParenOpen, expr, TokParenClose, TokBraceOpen, case_clauses, TokBraceClose}};
+
+    // case_clauses
+    //   : (case_clause)* [default_clause]
+    rules_[case_clauses] = {Sequence, {rep_case_clause, opt_default_clause}};
+      // (case_clause)*
+      rules_[rep_case_clause] = {Repeat, {case_clause}};
+      // [default_clause]
+      rules_[opt_default_clause] = {Options, {default_clause}};
+    
+    // case_clause
+    //   : cases case_body
+    rules_[case_clause] = {Sequence, {cases, case_body}};
      
+    // cases
+    //   : <CASE> primary ":"
+    rules_[cases] = {Sequence, {TokCase, primary, TokColon}};
+    
+    // default_clause
+    //   : <DEFAULT> ":" case_body
+    rules_[default_clause] = {Sequence, {TokDefault, TokColon, case_body}};
+   
+    // case_body
+    //   : stmt
+    rules_[case_body] = {Sequence, {stmt}};
+
     // break_stmt 
     //   : <BREAK> ";" 
     rules_[break_stmt] = {Sequence, {TokBreak, TokSemiColon}};
@@ -364,7 +392,9 @@ namespace Parser {
     //   : expr2 ( ">>" expr2 | "<<" expr2)* 
     rules_[expr3] = {Sequence, {expr2, rep_shift_expr2}};
       // ( ">>" expr2 | "<<" expr2)*
-      rules_[rep_shift_expr2] = {Repeat, {seq_rshft_expr2, seq_lshft_expr2}};
+      rules_[rep_shift_expr2] = {Repeat, {sel_shift_expr2}};
+      // ">>" expr2 | "<<" expr2
+      rules_[sel_shift_expr2] = {Select, {seq_rshft_expr2, seq_lshft_expr2}};
         // ">>" expr2
         rules_[seq_rshft_expr2] = {Sequence, {TokBitShiftR, expr2}};
         // "<<" expr2
@@ -372,16 +402,43 @@ namespace Parser {
      
     // expr2 
     //   : expr1 ( "+" expr1 | "-" expr1)* 
+    rules_[expr2] = {Sequence, {expr1, rep_sumsub_expr1}};
+      // ( "+" expr1 | "-" expr1)* 
+      rules_[rep_sumsub_expr1] = {Repeat, {sel_sumsub_expr1}};
+      // "+" expr1 | "-" expr1 
+      rules_[sel_sumsub_expr1] = {Repeat, {seq_sum_expr1, seq_sub_expr1}};
+        // "+" expr1
+        rules_[seq_sum_expr1] = {Sequence, {TokAdd, expr1}};
+        // "-" expr1
+        rules_[seq_sub_expr1] = {Sequence, {TokSub, expr1}};
      
     // expr1 
     //   : term (  "*" term  
     //           | "/" term 
     //           | "%" term 
     //           )* 
+    rules_[expr1] = {Sequence, {term, rep_muldivmod_term}};
+      //("*" term 
+      //| "/" term 
+      //| "%" term)* 
+      rules_[rep_muldivmod_term] = {Repeat, {sel_muldivmod_term}};
+        //"*" term  
+        //| "/" term 
+        //| "%" term
+        rules_[sel_muldivmod_term] = {Select, {seq_mul_term, seq_div_term, seq_mod_term}};
+          // "*" term  
+          rules_[seq_mul_term] = {Sequence, {TokMul, term}};
+          // "/" term 
+          rules_[seq_div_term] = {Sequence, {TokDiv, term}};
+          // "%" term
+          rules_[seq_mod_term] = {Sequence, {TokMod, term}};
      
     // term 
     //   : "(" type ")" term          // type casting 
     //   | unary 
+    rules_[term] = {Select, {seq_type_term, unary}};
+      //"(" type ")" term
+      rules_[seq_type_term] = {Sequence, {TokParenOpen, type, TokParenClose, term}};
      
     // unary 
     //   : "++" unary                 // pre ++ 
@@ -394,6 +451,33 @@ namespace Parser {
     //   | <SIZEOF> "(" type ")"      // sizeof(type) 
     //   | <SIZEOF> unary             // sizeof unary 
     //   | postfix                    // postfix  
+    rules_[unary] = {Select, {seq_preinc_unary, 
+                              seq_predec_unary,
+                              seq_pos_term,
+                              seq_neg_term,
+                              seq_not_term,
+                              seq_ptr_term,
+                              seq_adr_term,
+                              seq_sizeof_type,
+                              seq_sizeof_unary}};
+      // "++" unary
+      rules_[seq_preinc_unary] = {Sequence, {TokUnaryInc, unary}};
+      // "--" unary
+      rules_[seq_predec_unary] = {Sequence, {TokUnaryDec, unary}};
+      // "+" term 
+      rules_[seq_pos_term] = {Sequence, {TokAdd, term}};
+      // "-" term
+      rules_[seq_neg_term] = {Sequence, {TokSub, term}};
+      // "!" term 
+      rules_[seq_not_term] = {Sequence, {TokConNot, term}};
+      // "*" term
+      rules_[seq_ptr_term] = {Sequence, {TokMul, term}};
+      // "&" term 
+      rules_[seq_adr_term] = {Sequence, {TokBitAnd, term}};
+      // <SIZEOF> "(" type ")"
+      rules_[seq_sizeof_type] = {Sequence, {TokSizeOf, TokParenOpen, type, TokParenClose}};
+      // <SIZEOF> unary
+      rules_[seq_sizeof_unary] = {Sequence, {TokSizeOf, unary}};
      
     // postfix 
     //   : primary ("++"               // post ++ 
@@ -403,9 +487,31 @@ namespace Parser {
     //             |"->" name          // class member pointer reference 
     //             |"(" args ")"       // function call 
     //             )* 
+    rules_[postfix] = {Select, {seq_primary_incdec, seq_primary_reffunc}};
+      // primary ("++"|"--")
+      rules_[seq_primary_incdec] = {Sequence, {primary, sel_incdec}};
+        // "++"|"--"
+        rules_[sel_incdec] = {Select, {TokUnaryInc, TokUnaryDec}};
+      // primary ("[" expr "]" | "." name | "->" name | "(" args ")")*
+      rules_[seq_primary_reffunc] = {Sequence, {primary, rep_reffunc}};
+        //("[" expr "]" | "." name | "->" name | "(" args ")")*
+        rules_[rep_reffunc] = {Repeat, {sel_reffunc}};
+          //"[" expr "]" | "." name | "->" name | "(" args ")"
+          rules_[sel_reffunc] = {Select, {seq_bo_expr_bc, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
+            //"[" expr "]"
+            rules_[seq_bo_expr_bc] = {Sequence, {TokBracketOpen, expr, TokBracketClose}};
+            //"." name
+            rules_[seq_dot_name] = {Sequence, {TokDot, name}};
+            //"->" name
+            rules_[seq_arrow_name] = {Sequence, {TokRightArrow, name}};
+            //"(" args ")"
+            rules_[seq_po_args_pc] = {Sequence, {TokParenOpen, args, TokParenClose}};
      
     // args 
     //   : [expr ("," expr)*] 
+    rules_[args] = {Options, {expr, rep_dot_expr}};
+      // ("," expr)*
+      rules_[rep_dot_expr] = {Repeat, {TokDot, expr}};
      
     // primary 
     //   : <INTEGER> 
@@ -413,6 +519,9 @@ namespace Parser {
     //   |<STRING> 
     //   |<IDENTIFIER> 
     //   |"(" expr ")" 
+    rules_[primary] = {Select, {TokIntegerLiteral, TokCharactorLiteral, TokStringLiteral, TokIdentifier, seq_po_expr_pc}};
+      // "(" expr ")" 
+      rules_[seq_po_expr_pc] = {Sequence, {TokParenOpen, expr, TokParenClose}};
   }
   
   void InitRuleAction() {

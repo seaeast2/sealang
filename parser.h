@@ -21,7 +21,7 @@ namespace Parser {
     Error
   };
 
-#define MAX_RULES 200
+#define MAX_RULES 300
   enum RuleName {
     // Token
     
@@ -55,8 +55,15 @@ namespace Parser {
     while_stmt,
     dowhile_stmt,
     for_stmt,
+    switch_stmt,
+    case_clauses,
+    case_clause,
+    case_body,
+    default_clause,
+    cases,
     break_stmt,
     continue_stmt,
+    goto_stmt,
     return_stmt,
     expr,
     opassign_op,
@@ -68,6 +75,13 @@ namespace Parser {
     expr5,
     expr4,
     expr3,
+    expr2,
+    expr1,
+    term,
+    unary,
+    postfix,
+    args,
+    primary,
 
     // sub rule
     seq_unsigned_char, // <UNSIGNED> <CHAR>
@@ -87,9 +101,9 @@ namespace Parser {
     seq_type_name, // type name
     rep_sel_arry_ptr_fnptr,
     sel_arry_ptr_fnptr,
-    seq_brckopn_brckcls, // "[""]
-    seq_brckopn_int_brckcls, // "["<INTEGER>"]"
-    seq_prenopn_paramty_prencls, // "(" param_typerefs ")"
+    seq_bo_bc, // "[""]
+    seq_bo_int_bc, // "["<INTEGER>"]"
+    seq_po_paramty_pc, // "(" param_typerefs ")"
     seq_type_rep_type_dot, // type ("," type)* ["," "..."] 
     rep_dot_type, // ("," type)*
     seq_expr_semicolon, // expr ";"
@@ -114,8 +128,41 @@ namespace Parser {
     rep_bitxor_expr4,// ("^" expr4)* 
     rep_bitand_expr3,// ("&" expr3)* 
     rep_shift_expr2,// ( ">>" expr2 | "<<" expr2)*
+    sel_shift_expr2,// ">>" expr2 | "<<" expr2
     seq_rshft_expr2,// ">>" expr2
-    seq_lshft_expr2,// "<<" expr2
+    seq_lshft_expr2, // "<<" expr2
+    rep_sumsub_expr1,// ( "+" expr1 | "-" expr1)* 
+    sel_sumsub_expr1,// "+" expr1 | "-" expr1 
+    seq_sum_expr1,// "+" expr1   
+    seq_sub_expr1,// "-" expr1
+    rep_muldivmod_term,
+    sel_muldivmod_term,
+    seq_mul_term,// "*" term  
+    seq_div_term,// "/" term 
+    seq_mod_term,// "%" term
+    seq_type_term, //"(" type ")" term
+    seq_preinc_unary,// "++" unary
+    seq_predec_unary,// "--" unary
+    seq_pos_term,// "+" term 
+    seq_neg_term,// "-" term
+    seq_not_term,// "!" term 
+    seq_ptr_term,// "*" term
+    seq_adr_term,// "&" term 
+    seq_sizeof_type,// <SIZEOF> "(" type ")"
+    seq_sizeof_unary,// <SIZEOF> unary
+    seq_primary_incdec,// primary ("++"|"--")
+    sel_incdec,// "++"|"--"
+    seq_primary_reffunc, // primary ("[" expr "]" | "." name | "->" name | "(" args ")")*
+    rep_reffunc, //("[" expr "]" | "." name | "->" name | "(" args ")")*
+    sel_reffunc, //"[" expr "]" | "." name | "->" name | "(" args ")"
+    seq_bo_expr_bc, //"[" expr "]"
+    seq_dot_name, //"." name
+    seq_arrow_name, //"->" name
+    seq_po_args_pc, //"(" args ")"
+    rep_dot_expr, // ("," expr)*
+    seq_po_expr_pc,// "(" expr ")" 
+    rep_case_clause,// (case_clause)*
+    opt_default_clause,// [default_clause]
 
     // BNF Action
     Repeat, // ()*

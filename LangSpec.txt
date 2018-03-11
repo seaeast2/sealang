@@ -149,6 +149,24 @@ dowhile_stmt
 for_stmt 
   : <FOR> "(" [expr] ";" [expr] ";" [expr] ")" stmt 
 
+switch_stmt
+  : <SWITCH> "(" expr ")" "{" case_clauses "}"
+
+case_clauses
+  : (case_clause)* [default_clause]
+
+case_clause
+  : cases case_body
+ 
+cases
+  : <CASE> primary ":"
+
+default_clause
+  : <DEFAULT> ":" case_body
+
+case_body
+  : stmt
+
 break_stmt 
   : <BREAK> ";" 
 
