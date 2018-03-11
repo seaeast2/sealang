@@ -175,7 +175,7 @@ namespace Parser {
 
   struct Rule {
     int action_; // repeat, select, sequence, terminal, nonterminal
-    int sub_rules_[20];
+    int sub_rules_[15];
   };
 
 

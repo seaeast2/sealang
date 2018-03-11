@@ -532,115 +532,108 @@ namespace Parser {
   eResult SyntaxAnalyzer::TraverseRule(int entry) {
     Rule rule = rules_[entry];
     eResult res;
-    while(true) {
-      switch(rule.action_) {
-        case Repeat:
-          {
-            bool found_matching = false;
-            while(true) {
-              int matching_count = 0;
-              int i = 0;
-              for (; rule.sub_rules_[i] > -1; i++) {
-                res = TraverseRule(rule.sub_rules_[i]);
-                if (res == True) {
-                  matching_count++;
-                }
-                else if (res == False) {
-                  if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                    matching_count++;
-                  }
-                }
-                else
-                  return Error;
-              }
-              if (matching_count != i)
-                break;
-              found_matching = true;
-            };
+    int tok_pos;
 
-            if (found_matching)
-              return True;
-            return False;
-          }
-          break;
-
-        case Select:
-          {
+    switch(rule.action_) {
+      case Repeat:
+        {
+          while(true) {
+            tok_pos = tokenizer_->GetTokPos(); // backup token position
             for (int i = 0; rule.sub_rules_[i] > -1; i++) {
               res = TraverseRule(rule.sub_rules_[i]);
-              if (res == True)
-                return True; // found matching
-              else if (res == False) {
-                if (rules_[rule.sub_rules_[i]].action_ == Options) {
+              if (res == False)
+                if (rules_[rule.sub_rules_[i]].action_ != Options) {
+                  tokenizer_->SetTokPos(tok_pos); // restore token position.
                   return True;
                 }
-              }
               else if (res == Error)
                 return Error;
             }
-            return False;
-          }
-          break;
+          };
+        }
+        break;
 
-        case Sequence:
-          {
-            int matching_count = 0;
-            int i = 0;
-            for (; rule.sub_rules_[i] > -1; i++) {
-              res = TraverseRule(rule.sub_rules_[i]);
-              if (res == True) {
+      case Select:
+        {
+          tok_pos = tokenizer_->GetTokPos(); // backup token position
+          for (int i = 0; rule.sub_rules_[i] > -1; i++) {
+            res = TraverseRule(rule.sub_rules_[i]);
+            if (res == True)
+              return True; // found matching
+            else if (res == False) {
+              tokenizer_->SetTokPos(tok_pos); // restore token position.
+              return False;
+            }
+            else if (res == Error)
+              return Error;
+          }
+          return False;
+        }
+        break;
+
+      case Sequence:
+        {
+          int matching_count = 0;
+          int i = 0;
+          tok_pos = tokenizer_->GetTokPos(); // backup token position
+          for (; rule.sub_rules_[i] > -1; i++) {
+            res = TraverseRule(rule.sub_rules_[i]);
+            if (res == True) {
+              matching_count++;
+            }
+            else if (res == False) { // False
+              if (rules_[rule.sub_rules_[i]].action_ == Options) {
                 matching_count++;
               }
-              else if (res == False) { // False
-                if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                  matching_count++;
-                }
-              }
-              else
-                return Error;
             }
-            if (matching_count == i) {
-              // TODO : run matching action here
-              // Action[entry].Run();
-              return True;
-            }
-            return False; // unmatching
+            else
+              return Error;
           }
-          break;
+          if (matching_count == i) {
+            // TODO : run matching action here
+            // Action[entry].Run();
+            return True;
+          }
+          tokenizer_->SetTokPos(tok_pos); // restore token position.
+          return False; // unmatching
+        }
+        break;
 
-        case Options:
-          {
-            int matching_count = 0;
-            int i = 0;
-            for (; rule.sub_rules_[i] > -1; i++) {
-              res = TraverseRule(rule.sub_rules_[i]);
-              if (res == True) {
-                matching_count++;
-              }
-              else
-                return Error;
+      case Options:
+        {
+          int matching_count = 0;
+          int i = 0;
+          tok_pos = tokenizer_->GetTokPos(); // backup token position
+          for (; rule.sub_rules_[i] > -1; i++) {
+            res = TraverseRule(rule.sub_rules_[i]);
+            if (res == True) {
+              matching_count++;
             }
-            if (matching_count == i)
-              return True;
-            return False; // unmatching
+            else
+              return Error;
           }
-          break;
-        case Terminal:
-          {
-            if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0])))
-              return True;
-            return False;
-          }
-          break;
-        case Nonterminal:
-          {
-            return TraverseRule(rule.sub_rules_[0]);
-          }
-          break;
-        default:
-          assert("Error wrong rule action.");
-          break;
-      }
+          if (matching_count == i)
+            return True;
+
+          tokenizer_->SetTokPos(tok_pos); // restore token position.
+          return False; // unmatching
+        }
+        break;
+      case Terminal:
+        {
+          if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0])))
+            return True;
+          return False;
+        }
+        break;
+      case Nonterminal:
+        {
+          return TraverseRule(rule.sub_rules_[0]);
+        }
+        break;
+      default:
+        assert("Error wrong rule action.");
+        break;
     }
   }
 
