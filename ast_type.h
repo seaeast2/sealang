@@ -5,9 +5,8 @@ namespace AST {
   // These types are all AST Types.
   // Base type in AST
   class Type {
-    protected:
-      Type() {};
     public:
+      Type() {};
       virtual ~Type() {};
 
       virtual void Print();
@@ -35,53 +34,11 @@ namespace AST {
       virtual ~IntegerType() {}
   };
 
-  // Char type
-  class CharType : public IntegerType {
-    public:
-      CharType() {}
-      virtual ~CharType() {}
-  };
-
-  // Short type
-  class ShortType : public IntegerType {
-    public:
-      ShortType() {}
-      virtual ~ShortType() {}
-  };
-
-  // Int type
-  class IntType : public IntegerType {
-    public:
-      IntType() {}
-      virtual ~IntType() {}
-  };
-
-  // Long type
-  class LongType : public IntegerType {
-    public:
-      LongType() {}
-      virtual ~LongType() {}
-  };
-
   // Real type base
   class RealType : public Type {
     public:
       RealType() {}
       virtual ~RealType() {}
-  };
-
-  // flaot type base
-  class FloatType : public RealType {
-    public:
-      FloatType() {}
-      virtual ~FloatType() {}
-  };
-
-  // double type base
-  class DoubleType : public RealType {
-    public:
-      DoubleType() {}
-      virtual ~DoubleType() {}
   };
 
   // Aggregation type 

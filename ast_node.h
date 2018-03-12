@@ -2,6 +2,7 @@
 #define _ast_node_h_
 
 #include "ast_type.h"
+#include "lexer.h"
 
 struct Lexer::Token;
 
@@ -70,8 +71,8 @@ namespace AST {
       Location loc_;
       AST::Type type_;
 
-      BaseNode() {}
     public:
+      BaseNode() {}
       virtual ~BaseNode() {}
 
       NodeKind GetNodeKind() { return kind_; }
