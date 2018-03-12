@@ -179,6 +179,39 @@ namespace Parser {
   };
 
 
+  struct ChildData {
+    enum RawDataType {
+      Integer,
+      Character,
+      String,
+      ASTNode,
+      TokenType
+    };
+
+    union RawData {
+      long integer_;
+      char character_;
+      char* cstr_;
+      AST::BaseNode* node_;
+      Lexer::TokenType tok_type_;
+    };
+
+    RawDataType type_;
+    RawData data_;
+    int cstr_len_; // string length;
+    int token_idx_; // token index
+
+    ChildData() {
+      memset(&data_, 0, sizeof(data_));
+    }
+    ~ChildData() {
+      if (type_ == Character) {
+        if (data_.cstr_)
+          delete data_.cstr_;
+      }
+    }
+  };
+
   // check grammar
   // eResult : True - matching
   //           False - unmatching
@@ -189,7 +222,7 @@ namespace Parser {
     ErrorDiag::Diagnosis* err_diag_;
 
     Rule rules_[MAX_RULES];
-    SimpleArrayStack<AST::BaseNode*> node_stack_;
+    SimpleArrayStack<ChildData> data_stack_;
 
     typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
     fnRuleAction rule_actions_[MAX_RULES];
@@ -203,61 +236,64 @@ namespace Parser {
       void InitRuleAction();
       eResult TraverseRule(int entry);
 
-      //void DoNothing(void) {} // Dummy function for function pointer array
-      eResult CompilationUnit(); // compilation_unit
+      eResult DoNothing(void) {} // Dummy function for function pointer array
+      eResult CompilationUnit(void); // compilation_unit
       
-      eResult ImportStmts(); // import_stmts
-      eResult ImportStmt(); // import_stmt
+      eResult ImportStmts(void); // import_stmts
+      eResult ImportStmt(void); // import_stmt
 
-      eResult TopDefs(); // top_defs : Top definitions 
-      eResult DefFunc(); // deffunc : function definition
-      eResult DefVars(); // defvars : variable definition
-      eResult DefVarList(); // defvar_list
+      eResult TopDefs(void); // top_defs : Top definitions 
+      eResult DefFunc(void); // deffunc : function definition
+      eResult DefVars(void); // defvars : variable definition
+      eResult DefVarList(void); // defvar_list
 
-      eResult Name(); // name : check if identifier
-      eResult Storage(); // storage : check if storage keyword
+      eResult Name(void); // name : check if identifier
+      eResult Storage(void); // storage : check if storage keyword
       
-      eResult Type(); // type
-      eResult TypeRef(); // typeref
-      eResult TypeRefBase(); // typeref_base
-      eResult TypeDef(); // typedef
+      eResult Type(void); // type
+      eResult TypeRef(void); // typeref
+      eResult TypeRefBase(void); // typeref_base
+      eResult TypeDef(void); // typedef
       
-      eResult ParamTypeRefs(); // param_typerefs
-      eResult Params(); // params
-      eResult FixedParams(); // fixedparams
-      eResult Param(); // param
+      eResult ParamTypeRefs(void); // param_typerefs
+      eResult Params(void); // params
+      eResult FixedParams(void); // fixedparams
+      eResult Param(void); // param
 
-      eResult Block(); // block <<== Working
-      eResult Expr(); // expr <<== Working
-      eResult Term(); // term <<== Working
-      eResult Unary(); // unary <<== Working
-      eResult Postfix(); // postfix
-      eResult Primary(); // primary
-      eResult Args(); // args
-      eResult OpAssignOp(); // opassign_op <<== Working
-      eResult Expr10(); // expr10 <<== Working
-      eResult Expr9(); // expr9 <<== Working
-      eResult Expr8(); // expr8 <<== Working
-      eResult Expr7(); // expr7 <<== Working
-      eResult Expr6(); // expr6 <<== Working
-      eResult Expr5(); // expr5 <<== Working
-      eResult Expr4(); // expr4 <<== Working
-      eResult Expr3(); // expr3 <<== Working
-      eResult Expr2(); // expr2 <<== Working
-      eResult Expr1(); // expr1 <<== Working
+      eResult Block(void); // block
+      eResult Expr(void); // expr
+      eResult Term(void); // term
+      eResult Unary(void); // unary
+      eResult Postfix(void); // postfix
+      eResult Primary(void); // primary
+      eResult Args(void); // args
+      eResult OpAssignOp(void); // opassign_op
+      eResult Expr10(void); // expr10
+      eResult Expr9(void); // expr9
+      eResult Expr8(void); // expr8
+      eResult Expr7(void); // expr7
+      eResult Expr6(void); // expr6
+      eResult Expr5(void); // expr5
+      eResult Expr4(void); // expr4
+      eResult Expr3(void); // expr3
+      eResult Expr2(void); // expr2
+      eResult Expr1(void); // expr1
 
-      eResult Stmts(); // stmts <<== Working
-      eResult Stmt(); // stmt <<== Working
-      eResult LabeledStmt(); // labeled_stmt <<== Working
-      eResult IfStmt(); // if_stmt <<== Working
-      eResult WhileStmt(); // while_stmt <<== Working
-      eResult DoWhileStmt(); // dowhile_stmt <<== Working
-      eResult ForStmt(); // for_stmt <<== Working
-      eResult BreakStmt(); // break_stmt <<== Working
-      eResult ContinueStmt(); // continue_stmt <<==Working
-      eResult GotoStmt(); // goto_stmt <<==Working
-      eResult ReturnStmt(); // return_stmt <<==Working
+      eResult Stmts(void); // stmts
+      eResult Stmt(void); // stmt
+      eResult LabeledStmt(void); // labeled_stmt
+      eResult IfStmt(void); // if_stmt
+      eResult WhileStmt(void); // while_stmt
+      eResult DoWhileStmt(void); // dowhile_stmt 
+      eResult ForStmt(void); // for_stmt 
+      eResult BreakStmt(void); // break_stmt 
+      eResult ContinueStmt(void); // continue_stmt 
+      eResult GotoStmt(void); // goto_stmt 
+      eResult ReturnStmt(void); // return_stmt 
 
+      // Token Actions
+      eResult ActTokIntegerLiteral(void);
+      eResult ActTokCharacterLiteral(void);
 
 
       void DebugPrint();

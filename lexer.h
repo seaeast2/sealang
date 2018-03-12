@@ -136,7 +136,8 @@ namespace Lexer {
     ~Tokenizer();
 
     bool CompileTokens();
-    Token GetToken(int look=0);
+    Token GetToken(int pos);
+    Token GetCurToken(int look=0);
     void ConsumeToken(int count=1);
 
     int GetTokPos() { return cur_tok_; }

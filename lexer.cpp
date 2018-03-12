@@ -349,6 +349,19 @@ namespace Lexer {
 
       MoveNext(read_pos, TokInfo[TokSingleQuot].length);
     }
+    /* Numbers */
+    if (isNumber(*read_pos)) {
+      tok.type = (TokenType)TokIntegerLiteral;
+      tok.line = line;
+      tok.col = col;
+      tok.len = 0;
+      tok.c = read_pos;
+      while(isAlpha(*read_pos) || isNumber(*read_pos)) {
+        col++;
+        tok.len++;
+        read_pos++;
+      }
+    }
 
     /* Identifier */
     tok.type = (TokenType)TokIdentifier;
@@ -357,22 +370,20 @@ namespace Lexer {
     tok.len = 0;
     tok.c = read_pos;
 
-    bool have_alpha = false;
     while(isAlpha(*read_pos) || isNumber(*read_pos)) {
-      if (isAlpha(*read_pos)) 
-        have_alpha = true;
       col++;
       tok.len++;
       read_pos++;
-    }
-    if (!have_alpha) { // only number
-      tok.type = (TokenType)TokIntegerLiteral;
     }
 
     return tok;
   }
 
-  Token Tokenizer::GetToken(int look) {
+  Token Tokenizer::GetToken(int pos) {
+    return tokens_[pos];
+  }
+
+  Token Tokenizer::GetCurToken(int look) {
     return tokens_[cur_tok_+look];
   }
 
@@ -381,7 +392,7 @@ namespace Lexer {
   }
 
   bool Tokenizer::isToken(int look, TokenType toktype) {
-    return (GetToken(look).type == toktype);
+    return (GetCurToken(look).type == toktype);
   }
 
 }; // end namespace Lexer

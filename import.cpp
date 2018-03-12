@@ -26,7 +26,7 @@ namespace Parser {
     }
 
     // insert first import path to string.
-    Token tok_name = tokenizer_->GetToken(0);
+    Token tok_name = tokenizer_->GetCurToken(0);
     tokenizer_->ConsumeToken(1); // move next
     tmp.assign(tok_name.c, tok_name.len);
     import_path = tmp;
@@ -43,7 +43,7 @@ namespace Parser {
         }
 
         import_path += "/";
-        tok_name = tokenizer_->GetToken(0);
+        tok_name = tokenizer_->GetCurToken(0);
         tmp.assign(tok_name.c, tok_name.len);
         import_path += tmp;
         tokenizer_->ConsumeToken(1);

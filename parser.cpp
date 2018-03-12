@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "parser.h"
+#include <stdlib.h>
 
 using namespace Lexer;
 
@@ -515,18 +516,21 @@ namespace Parser {
      
     // primary 
     //   : <INTEGER> 
-    //   |<CHARACTER> 
-    //   |<STRING> 
-    //   |<IDENTIFIER> 
-    //   |"(" expr ")" 
+    //   | <CHARACTER> 
+    //   | <STRING> 
+    //   | <IDENTIFIER> 
+    //   | "(" expr ")" 
     rules_[primary] = {Select, {TokIntegerLiteral, TokCharactorLiteral, TokStringLiteral, TokIdentifier, seq_po_expr_pc}};
       // "(" expr ")" 
       rules_[seq_po_expr_pc] = {Sequence, {TokParenOpen, expr, TokParenClose}};
   }
   
-  void InitRuleAction() {
-    //actions_[0] = &SyntaxAnalyzer::test;
-    //(this->*actions_[0])();
+  void SyntaxAnalyzer::InitRuleAction() {
+    for (int i = 0; i < MAX_RULES; i++) {
+      rule_actions_[i] = &SyntaxAnalyzer::DoNothing;
+    }
+    
+    rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
   }
 
   eResult SyntaxAnalyzer::TraverseRule(int entry) {
@@ -544,6 +548,8 @@ namespace Parser {
               if (res == False)
                 if (rules_[rule.sub_rules_[i]].action_ != Options) {
                   tokenizer_->SetTokPos(tok_pos); // restore token position.
+                  // Run action
+                  (this->*rule_actions_[entry])();
                   return True;
                 }
               else if (res == Error)
@@ -558,8 +564,11 @@ namespace Parser {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
           for (int i = 0; rule.sub_rules_[i] > -1; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
-            if (res == True)
+            if (res == True) {
+              // Run action
+              (this->*rule_actions_[entry])();
               return True; // found matching
+            }
             else if (res == False) {
               tokenizer_->SetTokPos(tok_pos); // restore token position.
               return False;
@@ -589,9 +598,12 @@ namespace Parser {
             else
               return Error;
           }
+
+          // Run action
+          //(this->*rule_actions_[rule.sub_rules_[i]])();
           if (matching_count == i) {
-            // TODO : run matching action here
-            // Action[entry].Run();
+            // Run action
+            (this->*rule_actions_[entry])();
             return True;
           }
           tokenizer_->SetTokPos(tok_pos); // restore token position.
@@ -612,25 +624,41 @@ namespace Parser {
             else
               return Error;
           }
-          if (matching_count == i)
+
+          if (matching_count == i) {
+            // Run action
+            (this->*rule_actions_[entry])();
             return True;
+          }
 
           tokenizer_->SetTokPos(tok_pos); // restore token position.
           return False; // unmatching
         }
         break;
+
       case Terminal:
         {
-          if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0])))
+          if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
+            // Run action
+            (this->*rule_actions_[rule.sub_rules_[0]])();
+            tokenizer_->ConsumeToken(1);
             return True;
+          }
           return False;
         }
         break;
+
       case Nonterminal:
         {
-          return TraverseRule(rule.sub_rules_[0]);
+          if (TraverseRule(rule.sub_rules_[0]) == True) {
+            // Run action
+            (this->*rule_actions_[entry])();
+            return True;
+          }
+          return False;
         }
         break;
+
       default:
         assert("Error wrong rule action.");
         break;
@@ -647,187 +675,210 @@ namespace Parser {
   SyntaxAnalyzer::~SyntaxAnalyzer() {
   }
 
-  eResult SyntaxAnalyzer::CompilationUnit() {
+  eResult SyntaxAnalyzer::CompilationUnit(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::ImportStmts() {
+  eResult SyntaxAnalyzer::ImportStmts(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::TopDefs() {
+  eResult SyntaxAnalyzer::TopDefs(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Name() {
+  eResult SyntaxAnalyzer::Name(void) {
     return False;
   }
 
-  eResult SyntaxAnalyzer::Storage() {
+  eResult SyntaxAnalyzer::Storage(void) {
     return False;
   }
 
-  eResult SyntaxAnalyzer::Type() {
+  eResult SyntaxAnalyzer::Type(void) {
     return TypeRef();
   }
 
-  eResult SyntaxAnalyzer::TypeRef() {
+  eResult SyntaxAnalyzer::TypeRef(void) {
     return False; // can't find matching
   }
 
-  eResult SyntaxAnalyzer::TypeRefBase() {
+  eResult SyntaxAnalyzer::TypeRefBase(void) {
     return False;
   }
 
-  eResult SyntaxAnalyzer::TypeDef() {
+  eResult SyntaxAnalyzer::TypeDef(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::ParamTypeRefs() {
+  eResult SyntaxAnalyzer::ParamTypeRefs(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Block() {
+  eResult SyntaxAnalyzer::Block(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Param() {
+  eResult SyntaxAnalyzer::Param(void) {
     return False;
   }
 
-  eResult SyntaxAnalyzer::FixedParams() {
+  eResult SyntaxAnalyzer::FixedParams(void) {
     return False;
   }
 
-  eResult SyntaxAnalyzer::Params() {
+  eResult SyntaxAnalyzer::Params(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::DefFunc() {
+  eResult SyntaxAnalyzer::DefFunc(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::DefVars() {
+  eResult SyntaxAnalyzer::DefVars(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::DefVarList() {
+  eResult SyntaxAnalyzer::DefVarList(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr() {
+  eResult SyntaxAnalyzer::Expr(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Term() {
+  eResult SyntaxAnalyzer::Term(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Unary() {
+  eResult SyntaxAnalyzer::Unary(void) {
     return False;
   }
 
-  eResult SyntaxAnalyzer::Postfix() {
+  eResult SyntaxAnalyzer::Postfix(void) {
     return False;
   }
 
-  eResult SyntaxAnalyzer::Primary() {
+  eResult SyntaxAnalyzer::Primary(void) {
+    if (data_stack_.IsEmpty())  {
+      assert("Error on Primary() : Need to child data!");
+      return Error;
+    }
+    
+    ChildData newcd, cd = data_stack_.Pop();
+    if (cd.type_ == ChildData::Integer) {
+      AST::IntegerLiteralNode * node = new AST::IntegerLiteralNode(cd.data_.integer_);
+      newcd.type_ = ChildData::ASTNode;
+      newcd.data_.node_ = node;
+      data_stack_.Push(newcd);
+    }
     return False;
   }
 
-  eResult SyntaxAnalyzer::Args() {
+  eResult SyntaxAnalyzer::Args(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::OpAssignOp() {
+  eResult SyntaxAnalyzer::OpAssignOp(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr10() {
+  eResult SyntaxAnalyzer::Expr10(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr9() {
+  eResult SyntaxAnalyzer::Expr9(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr8() {
+  eResult SyntaxAnalyzer::Expr8(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr7() {
+  eResult SyntaxAnalyzer::Expr7(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr6() {
+  eResult SyntaxAnalyzer::Expr6(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr5() {
+  eResult SyntaxAnalyzer::Expr5(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr4() {
+  eResult SyntaxAnalyzer::Expr4(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr3() {
+  eResult SyntaxAnalyzer::Expr3(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr2() {
+  eResult SyntaxAnalyzer::Expr2(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr1() {
+  eResult SyntaxAnalyzer::Expr1(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Stmts() {
+  eResult SyntaxAnalyzer::Stmts(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Stmt() {
+  eResult SyntaxAnalyzer::Stmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::LabeledStmt() {
+  eResult SyntaxAnalyzer::LabeledStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::IfStmt() {
+  eResult SyntaxAnalyzer::IfStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::WhileStmt() {
+  eResult SyntaxAnalyzer::WhileStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::DoWhileStmt() {
+  eResult SyntaxAnalyzer::DoWhileStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::ForStmt() {
+  eResult SyntaxAnalyzer::ForStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::BreakStmt() {
+  eResult SyntaxAnalyzer::BreakStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::ContinueStmt() {
+  eResult SyntaxAnalyzer::ContinueStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::GotoStmt() {
+  eResult SyntaxAnalyzer::GotoStmt(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::ReturnStmt() {
+  eResult SyntaxAnalyzer::ReturnStmt(void) {
     return True;
   }
 
-  void SyntaxAnalyzer::DebugPrint() {
+  eResult SyntaxAnalyzer::ActTokIntegerLiteral(void) {
+    ChildData cd;
+    Token tok = tokenizer_->GetCurToken(0);
+
+    cd.type_ = ChildData::Integer;
+    cd.data_.integer_ = atol(tok.c);
+    cd.token_idx_ = tokenizer_->GetTokPos();
+    data_stack_.Push(cd);
+    return True;
+  }
+
+  void SyntaxAnalyzer::DebugPrint(void) {
   }
 
 }

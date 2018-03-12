@@ -19,6 +19,8 @@ class SimpleArrayStack {
     }
 
     T Pop() {
+      if (top_ < 0)
+        return data_[0];
       return data_[top_--];
     }
 
