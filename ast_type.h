@@ -13,49 +13,48 @@ namespace AST {
   };
 
   // Primitive types =================================================
-  // void type
   class VoidType : public Type {
     public:
       VoidType() {}
       virtual ~VoidType() {}
   };
 
-  // bool type
   class BoolType : public Type {
     public:
       BoolType() {}
       virtual ~BoolType() {}
   };
 
-  // Integer base type
   class IntegerType : public Type {
     public:
       IntegerType() {}
       virtual ~IntegerType() {}
   };
 
-  // Real type base
   class RealType : public Type {
     public:
       RealType() {}
       virtual ~RealType() {}
   };
 
-  // Aggregation type 
-  class AggregationType : public Type {
+  class NamedType : public Type {
     public:
-      AggregationType() {}
-      virtual ~AggregationType() {}
+      NamedType() {}
+      virtual ~NamedType() {}
   };
 
-  // Class type
-  class ClassType : public AggregationType {
+  class CompositeType : public Type {
+    public:
+      CompositeType() {}
+      virtual ~CompositeType() {}
+  };
+
+  class ClassType : public CompositeType {
     public:
       ClassType() {}
       virtual ~ClassType() {}
   };
 
-  // Pointer type
   class PointerType : public Type {
     public:
       PointerType() {}

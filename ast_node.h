@@ -2,15 +2,13 @@
 #define _ast_node_h_
 
 #include "ast_type.h"
-#include "lexer.h"
 
-struct Lexer::Token;
 
 namespace AST {
 // Abstrat Syntax Tree Base Nodes
   struct Location {
     string source_name_;
-    Lexer::Token tok_;
+    int token_idx_;
   };
 
   class BaseNode {
