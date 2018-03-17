@@ -12,13 +12,19 @@ class SimpleArrayStack {
     SimpleArrayStack() {
       top_ = -1;
     }
+    // Copy constructor
+    SimpleArrayStack(const SimpleArrayStack &arrstk) {
+      for (int i = 0; i < STACK_SIZE; i++) {
+        Push(arrstk.GetAt(i));
+      }
+    }
     ~SimpleArrayStack() {}
 
-    void Push(T t) {
+    void Push(const T &t) {
       data_[++top_] = t;
     }
 
-    T Pop() {
+    T& Pop() {
       if (top_ < 0)
         return data_[0];
       return data_[top_--];
@@ -36,6 +42,15 @@ class SimpleArrayStack {
 
     void Clear() {
       top_ = -1;
+    }
+
+    int GetMaxStackSize() {
+      return STACK_SIZE;
+    }
+
+    T& GetAt(unsigned int index) {
+      if (index < STACK_SIZE) 
+        return data_[index];
     }
 };
 

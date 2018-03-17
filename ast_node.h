@@ -1,8 +1,10 @@
 #ifndef _ast_node_h_
 #define _ast_node_h_
 
+#include <string>
 #include "ast_type.h"
 
+using namespace std;
 
 namespace AST {
 // Abstrat Syntax Tree Base Nodes
