@@ -55,9 +55,10 @@ class SimpleList {
         return NULL;
 
       Item* itr = first_;
-      for (int cnt = 0; cnt < idx; cnt++,itr = itr->next_) {
+      for (int cnt = 0; cnt < idx; cnt++, itr = itr->next_) {
       }
 
+      return itr;
     }
 
     // insert at index position.
@@ -66,8 +67,19 @@ class SimpleList {
         return NULL;
 
       Item* new_item = CreateNewItem(value);
+      Item* idx_item = GetAt(idx);
 
-      return NULL;
+      new_item->next_ = idx_item;
+      new_item->prev_ = idx_item->prev_;
+      idx_item->prev_->next_ = new_item;
+      idx_item->prev_ = new_item;
+
+      count_++;
+      return new_item;
+    }
+
+    bool RemoveAt(int idx, const T& value) {
+      return true;
     }
 
     Item* Front() {
