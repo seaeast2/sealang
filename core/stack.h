@@ -24,13 +24,18 @@ class SimpleArrayStack {
       data_[++top_] = t;
     }
 
-    T& Pop() {
+    int Pop() {
       if (top_ < 0)
-        return data_[0];
-      return data_[top_--];
+        return top_;
+
+      return top_--;
     }
 
-    int Top() { 
+    T& Top() { 
+      return data_[top_];
+    }
+
+    int TopIndex() {
       return top_;
     }
 
@@ -42,6 +47,11 @@ class SimpleArrayStack {
 
     void Clear() {
       top_ = -1;
+    }
+
+    // get stack size
+    int GetSize() {
+      return top_+1;
     }
 
     int GetMaxStackSize() {
