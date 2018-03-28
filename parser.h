@@ -179,8 +179,9 @@ namespace Parser {
   };
 
 
-  struct ChildData {
+  struct ParseInfo {
     enum RawDataType {
+      Identifier,
       Integer,
       Character,
       String,
@@ -191,7 +192,7 @@ namespace Parser {
     union RawData {
       long integer_;
       char character_;
-      char* cstr_;
+      const char* cstr_;
       AST::BaseNode* node_;
       Lexer::TokenType tok_type_;
     };
@@ -201,10 +202,10 @@ namespace Parser {
     int cstr_len_; // string length;
     int token_idx_; // token index
 
-    ChildData() {
+    ParseInfo() {
       memset(&data_, 0, sizeof(data_));
     }
-    ~ChildData() {
+    ~ParseInfo() {
       if (type_ == Character) {
         if (data_.cstr_)
           delete data_.cstr_;
@@ -222,7 +223,7 @@ namespace Parser {
     ErrorDiag::Diagnosis* err_diag_;
 
     Rule rules_[MAX_RULES];
-    SimpleArrayStack<ChildData> data_stack_;
+    SimpleArrayStack<ParseInfo> parse_stack_;
 
     typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
     fnRuleAction rule_actions_[MAX_RULES];
@@ -294,6 +295,7 @@ namespace Parser {
       // Token Actions
       eResult ActTokIntegerLiteral(void);
       eResult ActTokCharacterLiteral(void);
+      eResult ActTokStringLiteral(void);
 
 
       void DebugPrint();

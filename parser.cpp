@@ -531,6 +531,8 @@ namespace Parser {
     }
     
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
+    rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
+    rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
   }
 
   eResult SyntaxAnalyzer::TraverseRule(int entry) {
@@ -760,17 +762,17 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Primary(void) {
-    if (data_stack_.IsEmpty())  {
+    if (parse_stack_.IsEmpty())  {
       assert("Error on Primary() : Need to child data!");
       return Error;
     }
     
-    ChildData newcd, cd = data_stack_.Pop();
-    if (cd.type_ == ChildData::Integer) {
+    ParseInfo newcd, cd = parse_stack_.Top();
+    if (cd.type_ == ParseInfo::Integer) {
       AST::IntegerLiteralNode * node = new AST::IntegerLiteralNode(cd.data_.integer_);
-      newcd.type_ = ChildData::ASTNode;
+      newcd.type_ = ParseInfo::ASTNode;
       newcd.data_.node_ = node;
-      data_stack_.Push(newcd);
+      parse_stack_.Push(newcd);
     }
     return False;
   }
@@ -868,13 +870,35 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::ActTokIntegerLiteral(void) {
-    ChildData cd;
+    ParseInfo pi;
     Token tok = tokenizer_->GetCurToken(0);
 
-    cd.type_ = ChildData::Integer;
-    cd.data_.integer_ = atol(tok.c);
-    cd.token_idx_ = tokenizer_->GetTokPos();
-    data_stack_.Push(cd);
+    pi.type_ = ParseInfo::Integer;
+    pi.data_.integer_ = atol(tok.c);
+    pi.token_idx_ = tokenizer_->GetTokPos();
+    parse_stack_.Push(pi);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::ActTokCharacterLiteral(void) {
+    ParseInfo pi;
+    Token tok = tokenizer_->GetCurToken(0);
+
+    pi.type_ = ParseInfo::Character;
+    pi.data_.character_ = *tok.c;
+    pi.token_idx_ = tokenizer_->GetTokPos();
+    parse_stack_.Push(pi);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::ActTokStringLiteral(void) {
+    ParseInfo pi;
+    Token tok = tokenizer_->GetCurToken(0);
+
+    pi.type_ = ParseInfo::String;
+    pi.data_.cstr_ = tok.c;
+    pi.token_idx_ = tokenizer_->GetTokPos();
+    parse_stack_.Push(pi);
     return True;
   }
 
