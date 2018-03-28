@@ -530,9 +530,21 @@ namespace Parser {
       rule_actions_[i] = &SyntaxAnalyzer::DoNothing;
     }
     
+    rule_actions_[postfix] = &SyntaxAnalyzer::Postfix;
+      rule_actions_[seq_primary_incdec] = &SyntaxAnalyzer::Act_seq_primary_incdec;
+        rule_actions_[sel_incdec] = &SyntaxAnalyzer::Act_sel_incdec;
+        rule_actions_[seq_bo_expr_bc] = &SyntaxAnalyzer::Act_seq_bo_expr_bc;
+
+
+    rule_actions_[primary] = &SyntaxAnalyzer::Primary;
+      rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
+
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
-    rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
+    rule_actions_[TokStringLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
+    rule_actions_[TokIdentifier] = &SyntaxAnalyzer::ActIdentifier;
+    rule_actions_[TokUnaryInc] = &SyntaxAnalyzer::PushToken;
+    rule_actions_[TokUnaryDec] = &SyntaxAnalyzer::PushToken;
   }
 
   eResult SyntaxAnalyzer::TraverseRule(int entry) {
@@ -677,6 +689,16 @@ namespace Parser {
   SyntaxAnalyzer::~SyntaxAnalyzer() {
   }
 
+  eResult SyntaxAnalyzer::PushToken(void) {
+    ParseInfo pi;
+    Token tok = tokenizer_->GetCurToken(0);
+
+    pi.type_ = ParseInfo::TokenType;
+    pi.data_.tok_type_ = tok.type;
+    parse_stack_.Push(pi);
+    return True;
+  }
+
   eResult SyntaxAnalyzer::CompilationUnit(void) {
     return True;
   }
@@ -758,7 +780,56 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Postfix(void) {
-    return False;
+    if (parse_stack_.IsEmpty())  {
+      assert("Error on Postfix() : Needed parsing info!");
+      return Error;
+    }
+
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ != ParseInfo::ASTNode) {
+      assert("Error on Postfix() : Needed ASTNode in stack!")
+      return Error;
+    }
+
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_primary_incdec(void) {
+    ParseInfo pi_suf, pi_pri, pi_new;
+    pi_suf = parse_stack_.Top(); // suffix
+    parse_stack_.Pop();
+    pi_pri = parse_stack_.Top(); // primary
+    parse_stack_.Pop();
+
+    AST::SuffixOpNode* node = new AST::SuffixOpNode((AST::ExprNode*)pi_pri.data_.node_, 
+        pi_suf.data_.tok_type_ == TokenType::TokUnaryInc ? AST::UnaryOpNode::Inc : AST::UnaryOpNode::Dec);
+
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "++"|"--"
+  eResult SyntaxAnalyzer::Act_sel_incdec(void) {
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ != ParseInfo::TokenType) 
+      return Error;
+
+    return True;
+  }
+
+  //"[" expr "]"
+  eResult SyntaxAnalyzer::Act_seq_bo_expr_bc(void) {
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ != ParseInfo::ASTNode)
+      return Error;
+
+    // <<== Working here
+    //pi.data_.node_->
+
+    return True;
   }
 
   eResult SyntaxAnalyzer::Primary(void) {
@@ -767,13 +838,51 @@ namespace Parser {
       return Error;
     }
     
-    ParseInfo newcd, cd = parse_stack_.Top();
-    if (cd.type_ == ParseInfo::Integer) {
-      AST::IntegerLiteralNode * node = new AST::IntegerLiteralNode(cd.data_.integer_);
-      newcd.type_ = ParseInfo::ASTNode;
-      newcd.data_.node_ = node;
-      parse_stack_.Push(newcd);
+    ParseInfo new_pi, top_pi = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (top_pi.type_ == ParseInfo::Integer) {
+      AST::IntegerLiteralNode * node = 
+        new AST::IntegerLiteralNode(AST::IntegerLiteralNode::Int, top_pi.data_.integer_);
+      new_pi.type_ = ParseInfo::ASTNode;
+      new_pi.data_.node_ = node;
+      parse_stack_.Push(new_pi);
     }
+    else if (top_pi.type_ == ParseInfo::Character) {
+      AST::IntegerLiteralNode * node = 
+        new AST::IntegerLiteralNode(AST::IntegerLiteralNode::Char, top_pi.data_.integer_);
+      new_pi.type_ = ParseInfo::ASTNode;
+      new_pi.data_.node_ = node;
+      parse_stack_.Push(new_pi);
+    }
+    else if (top_pi.type_ == ParseInfo::String) {
+      AST::StringLiteralNode* node = 
+        new AST::StringLiteralNode(top_pi.data_.cstr_, top_pi.cstr_len_);
+      new_pi.type_ = ParseInfo::ASTNode;
+      new_pi.data_.node_ = node;
+      parse_stack_.Push(new_pi);
+    }
+    else if (top_pi.type_ == ParseInfo::Identifier) {
+      AST::VariableNode* node = 
+        new AST::VariableNode(top_pi.data_.cstr_, top_pi.cstr_len_);
+      new_pi.type_ = ParseInfo::ASTNode;
+      new_pi.data_.node_ = node;
+      parse_stack_.Push(new_pi);
+    }
+    else if (top_pi.type_ == ParseInfo::ASTNode) {
+      // do nothing
+    }
+    else
+      return Error;
+
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_po_expr_pc(void) {
+    ParseInfo pi = parse_stack_.Top();
+    // Check if top has expr ASTNode
+    if(pi.type_ == ParseInfo::ASTNode && 
+        pi.data_.node_->GetNodeKind() == AST::BaseNode::ExprNodeTy) 
+      return True;
     return False;
   }
 
@@ -897,10 +1006,24 @@ namespace Parser {
 
     pi.type_ = ParseInfo::String;
     pi.data_.cstr_ = tok.c;
+    pi.cstr_len_ = tok.len; // string length
     pi.token_idx_ = tokenizer_->GetTokPos();
     parse_stack_.Push(pi);
     return True;
   }
+
+  eResult SyntaxAnalyzer::ActIdentifier(void) {
+    ParseInfo pi;
+    Token tok = tokenizer_->GetCurToken(0);
+
+    pi.type_ = ParseInfo::Identifier;
+    pi.data_.cstr_ = tok.c;
+    pi.token_idx_ = tokenizer_->GetTokPos();
+    pi.cstr_len_ = tok.len; // string length
+    parse_stack_.Push(pi);
+    return True;
+  }
+
 
   void SyntaxAnalyzer::DebugPrint(void) {
   }

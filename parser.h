@@ -237,7 +237,8 @@ namespace Parser {
       void InitRuleAction();
       eResult TraverseRule(int entry);
 
-      eResult DoNothing(void) {} // Dummy function for function pointer array
+      eResult DoNothing(void) { return True; } // Dummy function for function pointer array
+      eResult PushToken(void); // Push Token to ParseInfo stack.
       eResult CompilationUnit(void); // compilation_unit
       
       eResult ImportStmts(void); // import_stmts
@@ -266,7 +267,11 @@ namespace Parser {
       eResult Term(void); // term
       eResult Unary(void); // unary
       eResult Postfix(void); // postfix
+        eResult Act_seq_primary_incdec(void);
+          eResult Act_sel_incdec(void);
+          eResult Act_seq_bo_expr_bc(void);
       eResult Primary(void); // primary
+        eResult Act_seq_po_expr_pc(void);
       eResult Args(void); // args
       eResult OpAssignOp(void); // opassign_op
       eResult Expr10(void); // expr10
@@ -296,7 +301,7 @@ namespace Parser {
       eResult ActTokIntegerLiteral(void);
       eResult ActTokCharacterLiteral(void);
       eResult ActTokStringLiteral(void);
-
+      eResult ActIdentifier(void);
 
       void DebugPrint();
   };
