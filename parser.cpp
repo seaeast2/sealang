@@ -534,7 +534,7 @@ namespace Parser {
       rule_actions_[seq_primary_incdec] = &SyntaxAnalyzer::Act_seq_primary_incdec;
         rule_actions_[sel_incdec] = &SyntaxAnalyzer::Act_sel_incdec;
         rule_actions_[seq_bo_expr_bc] = &SyntaxAnalyzer::Act_seq_bo_expr_bc;
-
+        rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
 
     rule_actions_[primary] = &SyntaxAnalyzer::Primary;
       rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
@@ -712,6 +712,10 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Name(void) {
+    // check if stack top is Identifier.
+    ParseInfo pi = parse_stack_.Top();
+    if(pi.type_ == ParseInfo::Identifier)
+      return True;
     return False;
   }
 
@@ -787,7 +791,7 @@ namespace Parser {
 
     ParseInfo pi = parse_stack_.Top();
     if (pi.type_ != ParseInfo::ASTNode) {
-      assert("Error on Postfix() : Needed ASTNode in stack!")
+      assert("Error on Postfix() : Needed ASTNode in stack!");
       return Error;
     }
 
@@ -822,13 +826,25 @@ namespace Parser {
 
   //"[" expr "]"
   eResult SyntaxAnalyzer::Act_seq_bo_expr_bc(void) {
-    ParseInfo pi = parse_stack_.Top();
+    ParseInfo pi = parse_stack_.Top(), new_pi;
     if (pi.type_ != ParseInfo::ASTNode)
       return Error;
 
-    // <<== Working here
-    //pi.data_.node_->
+    // Check if node is ExprNode
+    if(!pi.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy))
+      return Error;
 
+    parse_stack_.Pop();
+
+    AST::ArrayRefNode * arnode = new AST::ArrayRefNode((AST::ExprNode*)pi.data_.node_);
+    new_pi.type_ = ParseInfo::ASTNode;
+    new_pi.data_.node_ = (AST::BaseNode*)arnode;
+
+    return True;
+  }
+  
+  eResult SyntaxAnalyzer::Act_seq_dot_name(void) {
+    // <<== working here
     return True;
   }
 

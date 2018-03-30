@@ -76,6 +76,7 @@ namespace AST {
       virtual ~BaseNode() {}
 
       NodeKind GetNodeKind() { return kind_; }
+      virtual bool IsKindOf(NodeKind kind) = 0;
 
       virtual void print();
   };
@@ -87,12 +88,23 @@ namespace AST {
     public:
       RootNode() {}
       virtual ~RootNode() {}
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == RootNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class ExprNode : public BaseNode {
     public:
       ExprNode() {}
       virtual ~ExprNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ExprNodeTy|| kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class LHSNode : public ExprNode {
@@ -101,7 +113,39 @@ namespace AST {
         kind_ = LHSNodeTy;
       }
       virtual ~LHSNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
+
+  class ArrayRefNode : public LHSNode {
+    ExprNode * array_size_expr_;
+    int array_size_;
+    public:
+      ArrayRefNode() {
+        kind_ = ArrayRefNodeTy;
+        array_size_ = 0;
+      }
+      ArrayRefNode(ExprNode* arr_size_) {
+        kind_ = ArrayRefNodeTy;
+        array_size_ = 0;
+        array_size_expr_ = arr_size_;
+      }
+      virtual ~ArrayRefNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ArrayRefNodeTy ||
+            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
 
   class VariableNode : public LHSNode {
     char* name_;
@@ -117,6 +161,14 @@ namespace AST {
         str_len_ = str_len;
       }
       virtual ~VariableNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == VariableNodeTy ||
+            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class UnaryOpNode : public ExprNode {
@@ -141,6 +193,13 @@ namespace AST {
       }
       virtual ~UnaryOpNode() {}
       ExprNode* GetExpr() { return expr_; }
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == UnaryOpNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class UnaryArithmeticOpNode : public UnaryOpNode{
@@ -149,6 +208,14 @@ namespace AST {
         kind_ = UnaryArithmeticOpNodeTy;
       }
       virtual ~UnaryArithmeticOpNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == UnaryArithmeticOpNodeTy ||
+            kind == UnaryOpNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class PrefixOpNode : public UnaryArithmeticOpNode{
@@ -157,6 +224,15 @@ namespace AST {
         kind_ = PrefixOpNodeTy;
       }
       virtual ~PrefixOpNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == PrefixOpNodeTy ||
+            kind == UnaryArithmeticOpNodeTy ||
+            kind == UnaryOpNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class SuffixOpNode : public UnaryArithmeticOpNode{
@@ -167,6 +243,15 @@ namespace AST {
         op_ = op;
       }
       virtual ~SuffixOpNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == SuffixOpNodeTy ||
+            kind == UnaryArithmeticOpNodeTy ||
+            kind == UnaryOpNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class LiteralNode : public ExprNode {
@@ -175,6 +260,12 @@ namespace AST {
         kind_ = LiteralNodeTy;
       }
       virtual ~LiteralNode() {}
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == LiteralNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class IntegerLiteralNode : public LiteralNode {
@@ -196,6 +287,14 @@ namespace AST {
       }
       virtual ~IntegerLiteralNode() {}
       long GetValue() { return value_; }
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == IntegerLiteralNodeTy ||
+            kind == LiteralNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
   class StringLiteralNode : public LiteralNode {
@@ -212,6 +311,14 @@ namespace AST {
       }
       virtual ~StringLiteralNode() {}
       const char* GetStr() { return str_; }
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == StringLiteralNodeTy ||
+            kind == LiteralNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
   };
 
 };

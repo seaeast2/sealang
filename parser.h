@@ -270,6 +270,7 @@ namespace Parser {
         eResult Act_seq_primary_incdec(void);
           eResult Act_sel_incdec(void);
           eResult Act_seq_bo_expr_bc(void);
+          eResult Act_seq_dot_name(void);
       eResult Primary(void); // primary
         eResult Act_seq_po_expr_pc(void);
       eResult Args(void); // args
