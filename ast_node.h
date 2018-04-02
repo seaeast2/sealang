@@ -123,6 +123,7 @@ namespace AST {
   };
 
   class ArrayRefNode : public LHSNode {
+    // TODO : need to add base type
     ExprNode * array_size_expr_;
     int array_size_;
     public:
@@ -146,6 +147,25 @@ namespace AST {
       }
   };
 
+  class MemberRefNode : public LHSNode {
+    string member_name_;
+    public:
+      MemberRefNode() {
+        kind_ = MemberRefNodeTy;
+      }
+      MemberRefNode(const string& mbname) { kind_ = MemberRefNodeTy;
+        member_name_ = mbname;
+      }
+      virtual ~MemberRefNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == MemberRefNodeTy ||
+            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
 
   class VariableNode : public LHSNode {
     char* name_;

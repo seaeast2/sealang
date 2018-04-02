@@ -16,7 +16,7 @@ namespace Parser {
     }
     // compilation_unit 
     //    : import_stmts top_defs <EOF> 
-    rules_[compilation_unit] = {Sequence, {import_stmts, top_defs, TokEof}};
+    rules_[compilation_unit] = {Sequence, {import_stmts, top_defs, TokEof,}};
 
     //  typeref_base  
     //    : <VOID> 
@@ -522,7 +522,7 @@ namespace Parser {
     //   | "(" expr ")" 
     rules_[primary] = {Select, {TokIntegerLiteral, TokCharactorLiteral, TokStringLiteral, TokIdentifier, seq_po_expr_pc}};
       // "(" expr ")" 
-      rules_[seq_po_expr_pc] = {Sequence, {TokParenOpen, expr, TokParenClose}};
+      rules_[seq_po_expr_pc] = {Sequence, {TokParenOpen, expr, TokParenClose,}};
   }
   
   void SyntaxAnalyzer::InitRuleAction() {
@@ -530,6 +530,8 @@ namespace Parser {
       rule_actions_[i] = &SyntaxAnalyzer::DoNothing;
     }
     
+    rule_actions_[name] = &SyntaxAnalyzer::Name;
+
     rule_actions_[postfix] = &SyntaxAnalyzer::Postfix;
       rule_actions_[seq_primary_incdec] = &SyntaxAnalyzer::Act_seq_primary_incdec;
         rule_actions_[sel_incdec] = &SyntaxAnalyzer::Act_sel_incdec;
@@ -806,7 +808,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     AST::SuffixOpNode* node = new AST::SuffixOpNode((AST::ExprNode*)pi_pri.data_.node_, 
-        pi_suf.data_.tok_type_ == TokenType::TokUnaryInc ? AST::UnaryOpNode::Inc : AST::UnaryOpNode::Dec);
+        pi_suf.data_.tok_type_ == Lexer::TokUnaryInc ? AST::UnaryOpNode::Inc : AST::UnaryOpNode::Dec);
 
     pi_new.type_ = ParseInfo::ASTNode;
     pi_new.data_.node_ = node;
@@ -843,7 +845,9 @@ namespace Parser {
     return True;
   }
   
+  // "." name
   eResult SyntaxAnalyzer::Act_seq_dot_name(void) {
+    ParseInfo pi = parse_stack_.Top();
     // <<== working here
     return True;
   }

@@ -9,7 +9,7 @@
 CC = g++ 
 
 # define any compile-time flags
-CFLAGS = -Wall -g -Wno-write-strings -D ENABLE_DEBUG
+CFLAGS = -Wall -g -std=c++11 -Wno-write-strings -D ENABLE_DEBUG
 
 # define any directories containing header files other than /usr/include
 #INCLUDES = -I/home/newhall/include  -I../include
