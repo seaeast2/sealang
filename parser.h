@@ -150,9 +150,6 @@ namespace Parser {
     seq_adr_term,// "&" term 
     seq_sizeof_type,// <SIZEOF> "(" type ")"
     seq_sizeof_unary,// <SIZEOF> unary
-    seq_primary_incdec,// primary ("++"|"--")
-    sel_incdec,// "++"|"--"
-    seq_primary_reffunc, // primary ("[" expr "]" | "." name | "->" name | "(" args ")")*
     rep_reffunc, //("[" expr "]" | "." name | "->" name | "(" args ")")*
     sel_reffunc, //"[" expr "]" | "." name | "->" name | "(" args ")"
     seq_bo_expr_bc, //"[" expr "]"
@@ -267,8 +264,6 @@ namespace Parser {
       eResult Term(void); // term
       eResult Unary(void); // unary
       eResult Postfix(void); // postfix
-        eResult Act_seq_primary_incdec(void);
-          eResult Act_sel_incdec(void);
           eResult Act_seq_bo_expr_bc(void);
           eResult Act_seq_dot_name(void);
       eResult Primary(void); // primary

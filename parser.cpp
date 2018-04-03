@@ -482,31 +482,25 @@ namespace Parser {
      
     // postfix 
     //   : primary ("++"               // post ++ 
-    //             |"--")              // post -- 
-    //   | primary ("[" expr "]"       // array reference 
+    //             |"--"               // post -- 
+    //             |"[" expr "]"       // array reference 
     //             |"." name           // class member reference 
     //             |"->" name          // class member pointer reference 
     //             |"(" args ")"       // function call 
     //             )* 
-    rules_[postfix] = {Select, {seq_primary_incdec, seq_primary_reffunc}};
-      // primary ("++"|"--")
-      rules_[seq_primary_incdec] = {Sequence, {primary, sel_incdec}};
-        // "++"|"--"
-        rules_[sel_incdec] = {Select, {TokUnaryInc, TokUnaryDec}};
-      // primary ("[" expr "]" | "." name | "->" name | "(" args ")")*
-      rules_[seq_primary_reffunc] = {Sequence, {primary, rep_reffunc}};
-        //("[" expr "]" | "." name | "->" name | "(" args ")")*
-        rules_[rep_reffunc] = {Repeat, {sel_reffunc}};
-          //"[" expr "]" | "." name | "->" name | "(" args ")"
-          rules_[sel_reffunc] = {Select, {seq_bo_expr_bc, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
-            //"[" expr "]"
-            rules_[seq_bo_expr_bc] = {Sequence, {TokBracketOpen, expr, TokBracketClose}};
-            //"." name
-            rules_[seq_dot_name] = {Sequence, {TokDot, name}};
-            //"->" name
-            rules_[seq_arrow_name] = {Sequence, {TokRightArrow, name}};
-            //"(" args ")"
-            rules_[seq_po_args_pc] = {Sequence, {TokParenOpen, args, TokParenClose}};
+    rules_[postfix] = {Sequence, {primary, rep_reffunc}};
+      //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
+      rules_[rep_reffunc] = {Repeat, {sel_reffunc}};
+        // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
+        rules_[sel_reffunc] = {Select, {TokUnaryInc, TokUnaryDec, seq_bo_expr_bc, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
+          //"[" expr "]"
+          rules_[seq_bo_expr_bc] = {Sequence, {TokBracketOpen, expr, TokBracketClose}};
+          //"." name
+          rules_[seq_dot_name] = {Sequence, {TokDot, name}};
+          //"->" name
+          rules_[seq_arrow_name] = {Sequence, {TokRightArrow, name}};
+          //"(" args ")"
+          rules_[seq_po_args_pc] = {Sequence, {TokParenOpen, args, TokParenClose}};
      
     // args 
     //   : [expr ("," expr)*] 
@@ -533,10 +527,8 @@ namespace Parser {
     rule_actions_[name] = &SyntaxAnalyzer::Name;
 
     rule_actions_[postfix] = &SyntaxAnalyzer::Postfix;
-      rule_actions_[seq_primary_incdec] = &SyntaxAnalyzer::Act_seq_primary_incdec;
-        rule_actions_[sel_incdec] = &SyntaxAnalyzer::Act_sel_incdec;
-        rule_actions_[seq_bo_expr_bc] = &SyntaxAnalyzer::Act_seq_bo_expr_bc;
-        rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
+      rule_actions_[seq_bo_expr_bc] = &SyntaxAnalyzer::Act_seq_bo_expr_bc;
+      rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
 
     rule_actions_[primary] = &SyntaxAnalyzer::Primary;
       rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
@@ -800,7 +792,7 @@ namespace Parser {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Act_seq_primary_incdec(void) {
+/*  eResult SyntaxAnalyzer::Act_seq_primary_incdec(void) {
     ParseInfo pi_suf, pi_pri, pi_new;
     pi_suf = parse_stack_.Top(); // suffix
     parse_stack_.Pop();
@@ -815,16 +807,8 @@ namespace Parser {
 
     parse_stack_.Push(pi_new);
     return True;
-  }
+  }*/
 
-  // "++"|"--"
-  eResult SyntaxAnalyzer::Act_sel_incdec(void) {
-    ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ != ParseInfo::TokenType) 
-      return Error;
-
-    return True;
-  }
 
   //"[" expr "]"
   eResult SyntaxAnalyzer::Act_seq_bo_expr_bc(void) {
