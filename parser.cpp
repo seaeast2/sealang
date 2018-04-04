@@ -62,7 +62,7 @@ namespace Parser {
 
     // name 
     //   : <IDENTIFIER> 
-    rules_[name] = {Nonterminal, {TokIdentifier}};
+    rules_[name] = {Sequence, {TokIdentifier}};
 
     // top_defs // top definitions 
     //   : ( deffunc 
@@ -492,7 +492,11 @@ namespace Parser {
       //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
       rules_[rep_reffunc] = {Repeat, {sel_reffunc}};
         // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
-        rules_[sel_reffunc] = {Select, {TokUnaryInc, TokUnaryDec, seq_bo_expr_bc, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
+        rules_[sel_reffunc] = {Select, {seq_post_inc, seq_post_dec, seq_bo_expr_bc, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
+          // "++"
+          rules_[seq_post_inc] = {Sequence, {TokUnaryInc}};
+          // "--"
+          rules_[seq_post_dec] = {Sequence, {TokUnaryDec}};
           //"[" expr "]"
           rules_[seq_bo_expr_bc] = {Sequence, {TokBracketOpen, expr, TokBracketClose}};
           //"." name
@@ -527,8 +531,11 @@ namespace Parser {
     rule_actions_[name] = &SyntaxAnalyzer::Name;
 
     rule_actions_[postfix] = &SyntaxAnalyzer::Postfix;
+      rule_actions_[seq_post_inc] = &SyntaxAnalyzer::Act_seq_post_inc;
+      rule_actions_[seq_post_dec] = &SyntaxAnalyzer::Act_seq_post_dec;
       rule_actions_[seq_bo_expr_bc] = &SyntaxAnalyzer::Act_seq_bo_expr_bc;
       rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
+      rule_actions_[seq_arrow_name] = &SyntaxAnalyzer::Act_seq_arrow_name;
 
     rule_actions_[primary] = &SyntaxAnalyzer::Primary;
       rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
@@ -537,8 +544,6 @@ namespace Parser {
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
     rule_actions_[TokStringLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
     rule_actions_[TokIdentifier] = &SyntaxAnalyzer::ActIdentifier;
-    rule_actions_[TokUnaryInc] = &SyntaxAnalyzer::PushToken;
-    rule_actions_[TokUnaryDec] = &SyntaxAnalyzer::PushToken;
   }
 
   eResult SyntaxAnalyzer::TraverseRule(int entry) {
@@ -656,17 +661,6 @@ namespace Parser {
         }
         break;
 
-      case Nonterminal:
-        {
-          if (TraverseRule(rule.sub_rules_[0]) == True) {
-            // Run action
-            (this->*rule_actions_[entry])();
-            return True;
-          }
-          return False;
-        }
-        break;
-
       default:
         assert("Error wrong rule action.");
         break;
@@ -710,7 +704,7 @@ namespace Parser {
     ParseInfo pi = parse_stack_.Top();
     if(pi.type_ == ParseInfo::Identifier)
       return True;
-    return False;
+    return Error;
   }
 
   eResult SyntaxAnalyzer::Storage(void) {
@@ -792,47 +786,150 @@ namespace Parser {
     return True;
   }
 
-/*  eResult SyntaxAnalyzer::Act_seq_primary_incdec(void) {
-    ParseInfo pi_suf, pi_pri, pi_new;
-    pi_suf = parse_stack_.Top(); // suffix
+  // "++"
+  eResult SyntaxAnalyzer::Act_seq_post_inc(void) {
+    ParseInfo pi_expr, pi_new;
+    pi_expr = parse_stack_.Top(); // get stored Expr
     parse_stack_.Pop();
-    pi_pri = parse_stack_.Top(); // primary
-    parse_stack_.Pop();
+    if (!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on postfix unary increase");
+      return Error;
+    }
 
-    AST::SuffixOpNode* node = new AST::SuffixOpNode((AST::ExprNode*)pi_pri.data_.node_, 
-        pi_suf.data_.tok_type_ == Lexer::TokUnaryInc ? AST::UnaryOpNode::Inc : AST::UnaryOpNode::Dec);
+    AST::SuffixOpNode* node = 
+      new AST::SuffixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Inc);
 
     pi_new.type_ = ParseInfo::ASTNode;
     pi_new.data_.node_ = node;
 
     parse_stack_.Push(pi_new);
     return True;
-  }*/
+  }
 
+  // "--"
+  eResult SyntaxAnalyzer::Act_seq_post_dec(void) {
+    ParseInfo pi_expr, pi_new;
+    pi_expr = parse_stack_.Top(); // get stored Expr
+    parse_stack_.Pop();
+    
+    if (pi_expr.type_ != ParseInfo::ASTNode) {
+      assert("Error on postfix unary decrease");
+      return Error;
+    }
+    
+    if (!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on postfix unary decrease");
+      return Error;
+    }
+
+    AST::SuffixOpNode* node = 
+      new AST::SuffixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Dec);
+
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+
+    parse_stack_.Push(pi_new);
+    return True;
+  }
 
   //"[" expr "]"
   eResult SyntaxAnalyzer::Act_seq_bo_expr_bc(void) {
-    ParseInfo pi = parse_stack_.Top(), new_pi;
-    if (pi.type_ != ParseInfo::ASTNode)
-      return Error;
-
-    // Check if node is ExprNode
-    if(!pi.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy))
-      return Error;
-
+    // get array size expr
+    ParseInfo pi_arrsize_expr = parse_stack_.Top();
     parse_stack_.Pop();
+    if (pi_arrsize_expr.type_ != ParseInfo::ASTNode) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
+    if(!pi_arrsize_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
 
-    AST::ArrayRefNode * arnode = new AST::ArrayRefNode((AST::ExprNode*)pi.data_.node_);
-    new_pi.type_ = ParseInfo::ASTNode;
-    new_pi.data_.node_ = (AST::BaseNode*)arnode;
+    // get expr
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
+    if(!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
+
+    AST::ArrayRefNode * arnode = 
+      new AST::ArrayRefNode((AST::ExprNode*)pi_expr.data_.node_, 
+                            (AST::ExprNode*)pi_arrsize_expr.data_.node_);
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = (AST::BaseNode*)arnode;
+    parse_stack_.Push(pi_new);
 
     return True;
   }
   
   // "." name
   eResult SyntaxAnalyzer::Act_seq_dot_name(void) {
-    ParseInfo pi = parse_stack_.Top();
-    // <<== working here
+    // get member name
+    ParseInfo pi_name = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_name.type_ != ParseInfo::Identifier) {
+      assert("Error on Postfix member reference");
+      return Error;
+    }
+
+    // get expr
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
+    if(!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
+
+    // create new pi
+    ParseInfo pi_new;
+    AST::MemberRefNode* memref_node = 
+      new AST::MemberRefNode((AST::ExprNode*)pi_expr.data_.node_, pi_name.data_.cstr_);
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = (AST::BaseNode*)memref_node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "->" name
+  eResult SyntaxAnalyzer::Act_seq_arrow_name(void) {
+    // get member name
+    ParseInfo pi_name = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_name.type_ != ParseInfo::Identifier) {
+      assert("Error on Postfix member reference");
+      return Error;
+    }
+
+    // get expr
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
+    if(!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on postfix array reference");
+      return Error;
+    }
+
+    // create new pi
+    ParseInfo pi_new;
+    AST::PtrMemberRefNode* ptrmemref_node = 
+      new AST::PtrMemberRefNode((AST::ExprNode*)pi_expr.data_.node_, pi_name.data_.cstr_);
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = (AST::BaseNode*)ptrmemref_node;
+    parse_stack_.Push(pi_new);
     return True;
   }
 
@@ -872,8 +969,9 @@ namespace Parser {
       new_pi.data_.node_ = node;
       parse_stack_.Push(new_pi);
     }
-    else if (top_pi.type_ == ParseInfo::ASTNode) {
-      // do nothing
+    else if (top_pi.type_ == ParseInfo::ASTNode &&
+        top_pi.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      // Do nothing
     }
     else
       return Error;
@@ -885,7 +983,7 @@ namespace Parser {
     ParseInfo pi = parse_stack_.Top();
     // Check if top has expr ASTNode
     if(pi.type_ == ParseInfo::ASTNode && 
-        pi.data_.node_->GetNodeKind() == AST::BaseNode::ExprNodeTy) 
+        pi.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy))
       return True;
     return False;
   }

@@ -124,17 +124,19 @@ namespace AST {
 
   class ArrayRefNode : public LHSNode {
     // TODO : need to add base type
-    ExprNode * array_size_expr_;
+    ExprNode* expr_; // array varibale expr
+    ExprNode* array_size_expr_;
     int array_size_;
     public:
       ArrayRefNode() {
         kind_ = ArrayRefNodeTy;
         array_size_ = 0;
       }
-      ArrayRefNode(ExprNode* arr_size_) {
+      ArrayRefNode(ExprNode* expr, ExprNode* arr_size) {
         kind_ = ArrayRefNodeTy;
         array_size_ = 0;
-        array_size_expr_ = arr_size_;
+        array_size_expr_ = arr_size;
+        expr_ = expr;
       }
       virtual ~ArrayRefNode() {}
 
@@ -148,18 +150,44 @@ namespace AST {
   };
 
   class MemberRefNode : public LHSNode {
+    ExprNode* expr_;
     string member_name_;
     public:
       MemberRefNode() {
         kind_ = MemberRefNodeTy;
       }
-      MemberRefNode(const string& mbname) { kind_ = MemberRefNodeTy;
+      MemberRefNode(ExprNode* expr, const char* mbname) { 
+        kind_ = MemberRefNodeTy;
+        expr_ = expr;
         member_name_ = mbname;
       }
       virtual ~MemberRefNode() {}
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == MemberRefNodeTy ||
+            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class PtrMemberRefNode : public LHSNode {
+    ExprNode* expr_;
+    string member_name_;
+    public:
+      PtrMemberRefNode() {
+        kind_ = PtrMemberRefNodeTy;
+      }
+      PtrMemberRefNode(ExprNode* expr, const char* mbname) { 
+        kind_ = PtrMemberRefNodeTy;
+        expr_ = expr;
+        member_name_ = mbname;
+      }
+      virtual ~PtrMemberRefNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == PtrMemberRefNodeTy ||
             kind == LHSNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
