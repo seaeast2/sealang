@@ -150,12 +150,12 @@ namespace Parser {
     seq_adr_term,// "&" term 
     seq_sizeof_type,// <SIZEOF> "(" type ")"
     seq_sizeof_unary,// <SIZEOF> unary
-    rep_reffunc, //("[" expr "]" | "." name | "->" name | "(" args ")")*
-    sel_reffunc, //"[" expr "]" | "." name | "->" name | "(" args ")"
-    seq_bo_expr_bc, //"[" expr "]"
-    seq_dot_name, //"." name
-    seq_arrow_name, //"->" name
-    seq_po_args_pc, //"(" args ")"
+    rep_reffunc, //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
+      sel_reffunc, // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
+        seq_bo_expr_bc, //"[" expr "]"
+        seq_dot_name, //"." name
+        seq_arrow_name, //"->" name
+        seq_po_args_pc, //"(" args ")"
     rep_dot_expr, // ("," expr)*
     seq_po_expr_pc,// "(" expr ")" 
     rep_case_clause,// (case_clause)*
