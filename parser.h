@@ -80,8 +80,19 @@ namespace Parser {
     term,
     unary,
     postfix,
+      rep_reffunc, //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
+        sel_reffunc, // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
+          seq_post_inc, // "++"
+          seq_post_dec, // "--"
+          seq_bo_expr_bc, //"[" expr "]"
+          seq_dot_name, //"." name
+          seq_arrow_name, //"->" name
+          seq_po_args_pc, //"(" args ")"
     args,
+      seq_args_expr, // expr
+      rep_comma_expr, // ("," expr)*
     primary,
+      seq_po_expr_pc,// "(" expr ")" 
 
     // sub rule
     seq_unsigned_char, // <UNSIGNED> <CHAR>
@@ -95,8 +106,8 @@ namespace Parser {
     opt_rep_cm_name_dot_eq_expr, // [("," name ["=" expr])*]
     rep_cm_name_dot_eq_expr, // ("," name ["=" expr])
     seq_fixparms_dot_dotdotdot, // fixedparams ["," "..."] 
-    opt_dot_dotdotdot, // ["," "..."] 
-    rep_dot_param, // ("," param)* 
+    opt_comma_dotdotdot, // ["," "..."] 
+    rep_comma_param, // ("," param)* 
     rep_class_member_semicolon, // (class_member ";")
     seq_type_name, // type name
     rep_sel_arry_ptr_fnptr,
@@ -105,7 +116,7 @@ namespace Parser {
     seq_bo_int_bc, // "["<INTEGER>"]"
     seq_po_paramty_pc, // "(" param_typerefs ")"
     seq_type_rep_type_dot, // type ("," type)* ["," "..."] 
-    rep_dot_type, // ("," type)*
+    rep_comma_type, // ("," type)*
     seq_expr_semicolon, // expr ";"
     opt_else_stmt, // [<ELSE> stmt]
     opt_expr, // [expr]
@@ -150,16 +161,6 @@ namespace Parser {
     seq_adr_term,// "&" term 
     seq_sizeof_type,// <SIZEOF> "(" type ")"
     seq_sizeof_unary,// <SIZEOF> unary
-    rep_reffunc, //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
-      sel_reffunc, // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
-        seq_post_inc, // "++"
-        seq_post_dec, // "--"
-        seq_bo_expr_bc, //"[" expr "]"
-        seq_dot_name, //"." name
-        seq_arrow_name, //"->" name
-        seq_po_args_pc, //"(" args ")"
-    rep_dot_expr, // ("," expr)*
-    seq_po_expr_pc,// "(" expr ")" 
     rep_case_clause,// (case_clause)*
     opt_default_clause,// [default_clause]
 
@@ -271,9 +272,11 @@ namespace Parser {
           eResult Act_seq_bo_expr_bc(void);
           eResult Act_seq_dot_name(void);
           eResult Act_seq_arrow_name(void);
+          eResult Act_seq_po_args_pc(void);
+      eResult Args(void); // args
+        eResult Act_seq_args_expr(void);
       eResult Primary(void); // primary
         eResult Act_seq_po_expr_pc(void);
-      eResult Args(void); // args
       eResult OpAssignOp(void); // opassign_op
       eResult Expr10(void); // expr10
       eResult Expr9(void); // expr9

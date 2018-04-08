@@ -105,15 +105,15 @@ namespace Parser {
     //   | fixedparams ["," "..."] 
     rules_[params] = {Select, {TokVoid, seq_fixparms_dot_dotdotdot}};
       // fixedparams ["," "..."] 
-      rules_[seq_fixparms_dot_dotdotdot] = {Sequence, {fixedparams, opt_dot_dotdotdot}};
+      rules_[seq_fixparms_dot_dotdotdot] = {Sequence, {fixedparams, opt_comma_dotdotdot}};
         // ["," "..."] 
-        rules_[opt_dot_dotdotdot] = {Options, {TokDot, TokDotDotDot}};
+        rules_[opt_comma_dotdotdot] = {Options, {TokComma, TokDotDotDot}};
 
     // fixedparams // fixed parameter definition 
     //   : param ("," param)* 
-    rules_[fixedparams] = {Sequence, {param, rep_dot_param}};
+    rules_[fixedparams] = {Sequence, {param, rep_comma_param}};
       // ("," param)* 
-      rules_[rep_dot_param] = {Repeat, {TokDot, param}};
+      rules_[rep_comma_param] = {Repeat, {TokComma, param}};
       
     // param 
     //   : type name 
@@ -176,9 +176,9 @@ namespace Parser {
     //   | type ("," type)* ["," "..."] 
     rules_[param_typerefs] = {Select, {TokVoid, seq_type_rep_type_dot}};
       // type ("," type)* ["," "..."] 
-      rules_[seq_type_rep_type_dot] = {Sequence, {type, rep_dot_type, opt_dot_dotdotdot}};
+      rules_[seq_type_rep_type_dot] = {Sequence, {type, rep_comma_type, opt_comma_dotdotdot}};
         // ("," type)*
-        rules_[rep_dot_type] = {Repeat, {TokDot, type}};
+        rules_[rep_comma_type] = {Repeat, {TokComma, type}};
 
     // stmts 
     //   : (stmt)* 
@@ -508,9 +508,11 @@ namespace Parser {
      
     // args 
     //   : [expr ("," expr)*] 
-    rules_[args] = {Options, {expr, rep_dot_expr}};
+    rules_[args] = {Options, {seq_args_expr, rep_comma_expr}};
+      // expr
+      rules_[seq_args_expr] = {Sequence, {expr}};
       // ("," expr)*
-      rules_[rep_dot_expr] = {Repeat, {TokDot, expr}};
+      rules_[rep_comma_expr] = {Repeat, {TokComma, expr}};
      
     // primary 
     //   : <INTEGER> 
@@ -536,6 +538,10 @@ namespace Parser {
       rule_actions_[seq_bo_expr_bc] = &SyntaxAnalyzer::Act_seq_bo_expr_bc;
       rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
       rule_actions_[seq_arrow_name] = &SyntaxAnalyzer::Act_seq_arrow_name;
+      rule_actions_[seq_po_args_pc] = &SyntaxAnalyzer::Act_seq_po_args_pc;
+
+    rule_actions_[args] = &SyntaxAnalyzer::Args;
+      rule_actions_[seq_args_expr] = &SyntaxAnalyzer::Act_seq_args_expr;
 
     rule_actions_[primary] = &SyntaxAnalyzer::Primary;
       rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
@@ -933,6 +939,35 @@ namespace Parser {
     return True;
   }
 
+  //"(" args ")"
+  eResult SyntaxAnalyzer::Act_seq_po_args_pc(void) {
+    // get args
+    ParseInfo pi_args = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_args.type_ != ParseInfo::ASTNode)
+      return Error;
+    if (!pi_args.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy))
+      return Error;
+    // get function 
+    ParseInfo pi_func = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_func.type_ != ParseInfo::ASTNode)
+      return Error;
+    if (!pi_func.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy))
+      return Error;
+
+    // create new pi
+    ParseInfo pi_new;
+    AST::FuncCallNode* fcall= 
+      new AST::FuncCallNode((AST::ExprNode*)pi_func.data_.node_, 
+          (AST::ArgsNode*)pi_args.data_.node_);
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = (AST::BaseNode*)fcall;
+    parse_stack_.Push(pi_new);
+
+    return True;
+  }
+
   eResult SyntaxAnalyzer::Primary(void) {
     if (parse_stack_.IsEmpty())  {
       assert("Error on Primary() : Need to child data!");
@@ -989,6 +1024,12 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Args(void) {
+    return True;
+  }
+  
+  // expr // first function argument
+  eResult SyntaxAnalyzer::Act_seq_args_expr(void) {
+
     return True;
   }
 

@@ -18,48 +18,51 @@ namespace AST {
       enum NodeKind {
         BaseNodeTy,
         RootNodeTy,
-        ExprNodeTy,
-          AbstractAssignNodeTy,
-            AssignNodeTy,
-            OpAssignNodeTy,
-          AddressNodeTy,
-          BinaryOpNodeTy,
-            LogicalAndNodeTy,
-            LogicalOrNodeTy,
-          CastNodeTy,
-          CondExprNodeTy,
-          FuncCallNodeTy,
-          LHSNodeTy,
-            ArrayRefNodeTy,
-            DereferenceNodeTy,
-            MemberRefNodeTy,
-            PtrMemberRefNodeTy,
-            VariableNodeTy,
-          LiteralNodeTy,
-            IntegerLiteralNodeTy,
-            RealLiteralNodeTy,
-            StringLiteralNodeTy,
-          SizeofExprNodeTy,
-          SizeofTypeNodeTy,
-          UnaryOpNodeTy,
-            UnaryArithmeticOpNodeTy,
-              PrefixOpNodeTy,
-              SuffixOpNodeTy,
-          MemberNodeTy,
-          StmtNodeTy,
-            BlockNodeTy,
-            BreakNodeTy,
-            CaseNodeTy,
-            ContinueNodeTy,
-            DoWhileNodeTy,
-            ExprStmtNodeTy,
-            ForNodeTy,
-            GotoNodeTy,
-            IfNodeTy,
-            LabelNodeTy,
-            ReturnNodeTy,
-            SwitchNodeTy,
-            WhileNodeTy,
+        FunctionNodeTy,
+        ParamsNodeTy, // function parameters
+        StmtNodeTy,
+          BlockNodeTy,
+          BreakNodeTy,
+          CaseNodeTy,
+          ContinueNodeTy,
+          DoWhileNodeTy,
+          ExprStmtNodeTy, // ??
+          ForNodeTy,
+          GotoNodeTy,
+          IfNodeTy,
+          LabelNodeTy,
+          ReturnNodeTy,
+          SwitchNodeTy,
+          WhileNodeTy,
+          ExprNodeTy,
+            AbstractAssignNodeTy,
+              AssignNodeTy,
+              OpAssignNodeTy,
+            AddressNodeTy,
+            BinaryOpNodeTy,
+              LogicalAndNodeTy,
+              LogicalOrNodeTy,
+            CastNodeTy,
+            CondExprNodeTy,
+            FuncCallNodeTy,
+            LHSNodeTy,
+              ArrayRefNodeTy,
+              DereferenceNodeTy,
+              MemberRefNodeTy,
+              PtrMemberRefNodeTy,
+              VariableNodeTy,
+            LiteralNodeTy,
+              IntegerLiteralNodeTy,
+              RealLiteralNodeTy,
+              StringLiteralNodeTy,
+            SizeofExprNodeTy,
+            SizeofTypeNodeTy,
+            UnaryOpNodeTy,
+              UnaryArithmeticOpNodeTy,
+                PrefixOpNodeTy,
+                SuffixOpNodeTy,
+            MemberNodeTy, // struct or class member
+            ArgsNodeTy, // function call arguments
         TypeDefinitionTy,
           CompositeTypeDefinitionTy,
             ClassNodeTy,
@@ -95,13 +98,64 @@ namespace AST {
       }
   };
 
-  class ExprNode : public BaseNode {
+  class StmtNode : public BaseNode {
+    protected:
+
+    public:
+      StmtNode() {}
+      virtual ~StmtNode() {}
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class ExprNode : public StmtNode {
     public:
       ExprNode() {}
       virtual ~ExprNode() {}
       
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == ExprNodeTy|| kind == BaseNodeTy)
+        if (kind == ExprNodeTy|| kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class ArgsNode : public ExprNode {
+    public:
+      ArgsNode() {
+        kind_ = ArgsNodeTy;
+      }
+      virtual ~ArgsNode() {}
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ArgsNodeTy || kind == ExprNodeTy || 
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class FuncCallNode : public ExprNode {
+    ExprNode* func_expr_;
+    ArgsNode* args_;
+    public:
+      FuncCallNode() {
+        kind_ = FuncCallNodeTy;
+      }
+
+      FuncCallNode(ExprNode* func, ArgsNode* args) {
+        kind_ = FuncCallNodeTy;
+        func_expr_ = func;
+        args_ = args;
+      }
+      virtual ~FuncCallNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == FuncCallNodeTy || kind == ExprNodeTy || 
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -116,7 +170,7 @@ namespace AST {
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == LHSNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -143,7 +197,7 @@ namespace AST {
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ArrayRefNodeTy ||
             kind == LHSNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -166,7 +220,7 @@ namespace AST {
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == MemberRefNodeTy ||
             kind == LHSNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -189,7 +243,7 @@ namespace AST {
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == PtrMemberRefNodeTy ||
             kind == LHSNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -213,7 +267,7 @@ namespace AST {
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == VariableNodeTy ||
             kind == LHSNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -244,7 +298,7 @@ namespace AST {
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == UnaryOpNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -260,7 +314,7 @@ namespace AST {
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == UnaryArithmeticOpNodeTy ||
             kind == UnaryOpNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -277,7 +331,7 @@ namespace AST {
         if (kind == PrefixOpNodeTy ||
             kind == UnaryArithmeticOpNodeTy ||
             kind == UnaryOpNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -296,7 +350,7 @@ namespace AST {
         if (kind == SuffixOpNodeTy ||
             kind == UnaryArithmeticOpNodeTy ||
             kind == UnaryOpNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -310,11 +364,12 @@ namespace AST {
       virtual ~LiteralNode() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == LiteralNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
   };
+
 
   class IntegerLiteralNode : public LiteralNode {
     public:
@@ -339,7 +394,7 @@ namespace AST {
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == IntegerLiteralNodeTy ||
             kind == LiteralNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+            kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
