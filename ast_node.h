@@ -125,9 +125,14 @@ namespace AST {
   };
 
   class ArgsNode : public ExprNode {
+    enum {MAX_ARGS = 30};
+
+    ExprNode* args_[MAX_ARGS];
+    int count_;
     public:
       ArgsNode() {
         kind_ = ArgsNodeTy;
+        count_ = 0;
       }
       virtual ~ArgsNode() {}
       virtual bool IsKindOf(NodeKind kind) {
@@ -135,6 +140,24 @@ namespace AST {
             kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
+      }
+
+      int Add(ExprNode* arg) {
+        if (count_ == MAX_ARGS)
+          return -1;
+
+        args_[count_++] = arg;
+        return count_;
+      }
+
+      int GetCount() {
+        return count_;
+      }
+
+      ExprNode* GetArg(int idx) {
+        if (idx < 0 || idx >= count_)
+          return NULL;
+        return args_[idx];
       }
   };
 

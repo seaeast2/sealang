@@ -79,6 +79,15 @@ namespace Parser {
     expr1,
     term,
     unary,
+      seq_preinc_unary,// "++" unary
+      seq_predec_unary,// "--" unary
+      seq_pos_term,// "+" term 
+      seq_neg_term,// "-" term
+      seq_not_term,// "!" term 
+      seq_ptr_term,// "*" term
+      seq_adr_term,// "&" term 
+      seq_sizeof_type,// <SIZEOF> "(" type ")"
+      seq_sizeof_unary,// <SIZEOF> unary
     postfix,
       rep_reffunc, //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
         sel_reffunc, // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
@@ -90,7 +99,7 @@ namespace Parser {
           seq_po_args_pc, //"(" args ")"
     args,
       seq_args_expr, // expr
-      rep_comma_expr, // ("," expr)*
+      rep_args_expr, // ("," expr)*
     primary,
       seq_po_expr_pc,// "(" expr ")" 
 
@@ -152,15 +161,6 @@ namespace Parser {
     seq_div_term,// "/" term 
     seq_mod_term,// "%" term
     seq_type_term, //"(" type ")" term
-    seq_preinc_unary,// "++" unary
-    seq_predec_unary,// "--" unary
-    seq_pos_term,// "+" term 
-    seq_neg_term,// "-" term
-    seq_not_term,// "!" term 
-    seq_ptr_term,// "*" term
-    seq_adr_term,// "&" term 
-    seq_sizeof_type,// <SIZEOF> "(" type ")"
-    seq_sizeof_unary,// <SIZEOF> unary
     rep_case_clause,// (case_clause)*
     opt_default_clause,// [default_clause]
 
@@ -275,6 +275,7 @@ namespace Parser {
           eResult Act_seq_po_args_pc(void);
       eResult Args(void); // args
         eResult Act_seq_args_expr(void);
+        eResult Act_rep_args_expr(void);
       eResult Primary(void); // primary
         eResult Act_seq_po_expr_pc(void);
       eResult OpAssignOp(void); // opassign_op

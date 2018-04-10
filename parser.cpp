@@ -508,11 +508,11 @@ namespace Parser {
      
     // args 
     //   : [expr ("," expr)*] 
-    rules_[args] = {Options, {seq_args_expr, rep_comma_expr}};
+    rules_[args] = {Options, {seq_args_expr, rep_args_expr}};
       // expr
       rules_[seq_args_expr] = {Sequence, {expr}};
       // ("," expr)*
-      rules_[rep_comma_expr] = {Repeat, {TokComma, expr}};
+      rules_[rep_args_expr] = {Repeat, {TokComma, expr}};
      
     // primary 
     //   : <INTEGER> 
@@ -542,6 +542,7 @@ namespace Parser {
 
     rule_actions_[args] = &SyntaxAnalyzer::Args;
       rule_actions_[seq_args_expr] = &SyntaxAnalyzer::Act_seq_args_expr;
+      rule_actions_[rep_args_expr] = &SyntaxAnalyzer::Act_rep_args_expr;
 
     rule_actions_[primary] = &SyntaxAnalyzer::Primary;
       rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
@@ -606,10 +607,10 @@ namespace Parser {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
           for (; rule.sub_rules_[i] > -1; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
-            if (res == True) {
+            if (res == True) { // matched
               matching_count++;
             }
-            else if (res == False) { // False
+            else if (res == False) { // not matching
               if (rules_[rule.sub_rules_[i]].action_ == Options) {
                 matching_count++;
               }
@@ -618,10 +619,8 @@ namespace Parser {
               return Error;
           }
 
-          // Run action
-          //(this->*rule_actions_[rule.sub_rules_[i]])();
           if (matching_count == i) {
-            // Run action
+            // if every rules are matching, run action.
             (this->*rule_actions_[entry])();
             return True;
           }
@@ -1014,6 +1013,7 @@ namespace Parser {
     return True;
   }
 
+  // "(" expr ")" 
   eResult SyntaxAnalyzer::Act_seq_po_expr_pc(void) {
     ParseInfo pi = parse_stack_.Top();
     // Check if top has expr ASTNode
@@ -1023,13 +1023,78 @@ namespace Parser {
     return False;
   }
 
+  // args 
+  //   : [expr ("," expr)*] 
   eResult SyntaxAnalyzer::Args(void) {
+    // get ArgsNode
+    ParseInfo pi_arg_node = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_arg_node.type_ == ParseInfo::ASTNode && 
+        pi_arg_node.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy)) {
+      return True;
+    }
+
+    // if there isn't appropriate ArgsNode, create new one.
+    ParseInfo pi_new;
+    AST::ArgsNode* args_node = new AST::ArgsNode();
+
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = (AST::BaseNode*)args_node;
+    parse_stack_.Push(pi_new);
     return True;
   }
   
   // expr // first function argument
   eResult SyntaxAnalyzer::Act_seq_args_expr(void) {
+    // get first argument expr
+    ParseInfo pi_arg_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_arg_expr.type_ != ParseInfo::ASTNode || 
+        !pi_arg_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on Args first expr");
+      return Error;
+    }
 
+    // create new pi
+    ParseInfo pi_new;
+    AST::ArgsNode* args_node = new AST::ArgsNode();
+    args_node->Add((AST::ExprNode*)pi_arg_expr.data_.node_);
+
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = (AST::BaseNode*)args_node;
+    parse_stack_.Push(pi_new);
+
+    return True;
+  }
+
+  // ("," expr)*
+  eResult SyntaxAnalyzer::Act_rep_args_expr(void) {
+    // get argument expr
+    ParseInfo pi_arg_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_arg_expr.type_ != ParseInfo::ASTNode || 
+        !pi_arg_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy) {
+      assert("Error on Args first expr");
+      return Error;
+    }
+
+    // get ArgsNode
+    ParseInfo pi_arg_node = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_arg_node.type_ != ParseInfo::ASTNode || 
+      !pi_arg_node.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy) {
+      assert("Error on Args first expr");
+      return Error;
+    }
+
+    // create new pi
+    ParseInfo pi_new;
+    AST::ArgsNode* args_node = (AST::ArgsNode*)pi_arg_node.data_.node_;
+    args_node->Add((AST::ExprNode*)pi_arg_expr.data_.node_);
+
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = (AST::BaseNode*)args_node;
+    parse_stack_.Push(pi_new);
     return True;
   }
 
