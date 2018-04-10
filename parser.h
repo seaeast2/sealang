@@ -266,13 +266,22 @@ namespace Parser {
       eResult Expr(void); // expr
       eResult Term(void); // term
       eResult Unary(void); // unary
+        eResult Act_seq_preinc_unary(void);// "++" unary
+        eResult Act_seq_predec_unary(void);// "--" unary
+        eResult Act_seq_pos_term(void);// "+" term 
+        eResult Act_seq_neg_term(void);// "-" term
+        eResult Act_seq_not_term(void);// "!" term 
+        eResult Act_seq_ptr_term(void);// "*" term
+        eResult Act_seq_adr_term(void);// "&" term 
+        eResult Act_seq_sizeof_type(void);// <SIZEOF> "(" type ")"
+        eResult Act_seq_sizeof_unary(void);// <SIZEOF> unary
       eResult Postfix(void); // postfix
-          eResult Act_seq_post_inc(void);
-          eResult Act_seq_post_dec(void);
-          eResult Act_seq_bo_expr_bc(void);
-          eResult Act_seq_dot_name(void);
-          eResult Act_seq_arrow_name(void);
-          eResult Act_seq_po_args_pc(void);
+        eResult Act_seq_post_inc(void);
+        eResult Act_seq_post_dec(void);
+        eResult Act_seq_bo_expr_bc(void);
+        eResult Act_seq_dot_name(void);
+        eResult Act_seq_arrow_name(void);
+        eResult Act_seq_po_args_pc(void);
       eResult Args(void); // args
         eResult Act_seq_args_expr(void);
         eResult Act_rep_args_expr(void);

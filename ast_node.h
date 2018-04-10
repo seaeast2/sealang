@@ -89,7 +89,9 @@ namespace AST {
     protected:
 
     public:
-      RootNode() {}
+      RootNode() {
+        kind_ = RootNodeTy;
+      }
       virtual ~RootNode() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == RootNodeTy || kind == BaseNodeTy)
@@ -102,7 +104,9 @@ namespace AST {
     protected:
 
     public:
-      StmtNode() {}
+      StmtNode() {
+        kind_ = StmtNodeTy;
+      }
       virtual ~StmtNode() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == StmtNodeTy || kind == BaseNodeTy)
@@ -113,11 +117,34 @@ namespace AST {
 
   class ExprNode : public StmtNode {
     public:
-      ExprNode() {}
+      ExprNode() {
+        kind_ = ExprNodeTy;
+      }
       virtual ~ExprNode() {}
       
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ExprNodeTy|| kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class AddressNode : public ExprNode {
+    ExprNode * expr_;
+    public:
+      AddressNode() {
+        kind_ = AddressNodeTy;
+      }
+      AddressNode(ExprNode* expr) {
+        kind_ = AddressNodeTy;
+        expr_ = expr;
+      }
+      virtual ~AddressNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == AddressNodeTy || 
+            kind == ExprNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
@@ -226,6 +253,27 @@ namespace AST {
       }
   };
 
+  class DereferenceNode : public LHSNode {
+    ExprNode* expr_;
+    public:
+      DereferenceNode() {
+        kind_ = DereferenceNodeTy;
+      }
+      DereferenceNode(ExprNode* expr) {
+        kind_ = DereferenceNodeTy;
+        expr_ = expr;
+      }
+      virtual ~DereferenceNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == DereferenceNodeTy || 
+            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
   class MemberRefNode : public LHSNode {
     ExprNode* expr_;
     string member_name_;
@@ -296,6 +344,46 @@ namespace AST {
       }
   };
 
+  class SizeofExprNode : public ExprNode {
+    ExprNode* expr_;
+    public:
+      SizeofExprNode() {
+        kind_ = SizeofExprNodeTy;
+      }
+      SizeofExprNode(ExprNode* expr) {
+        kind_ = SizeofExprNodeTy;
+        expr_ = expr;
+      }
+      virtual ~SizeofExprNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == SizeofExprNodeTy || kind == ExprNodeTy || 
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class SizeofTypeNode : public ExprNode {
+    ExprNode * expr_;
+    public:
+      SizeofTypeNode() {
+        kind_ = SizeofTypeNodeTy;
+      }
+      SizeofTypeNode(ExprNode* expr) {
+        kind_ = SizeofTypeNodeTy;
+        expr_ = expr;
+      }
+      virtual ~SizeofTypeNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == SizeofTypeNodeTy || kind == ExprNodeTy || 
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
   class UnaryOpNode : public ExprNode {
     public:
     enum UnaryOp {
@@ -315,6 +403,11 @@ namespace AST {
     public:
       UnaryOpNode() {
         kind_ = UnaryOpNodeTy;
+      }
+      UnaryOpNode(ExprNode* expr, UnaryOpNode::UnaryOp op) {
+        kind_ = UnaryOpNodeTy;
+        expr_ = expr;
+        op_ = op;
       }
       virtual ~UnaryOpNode() {}
       ExprNode* GetExpr() { return expr_; }
@@ -348,6 +441,11 @@ namespace AST {
       PrefixOpNode() {
         kind_ = PrefixOpNodeTy;
       }
+      PrefixOpNode(ExprNode *expr, UnaryOp op) {
+        kind_ = PrefixOpNodeTy;
+        expr_ = expr; 
+        op_ = op;
+      }
       virtual ~PrefixOpNode() {}
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -362,6 +460,9 @@ namespace AST {
 
   class SuffixOpNode : public UnaryArithmeticOpNode{
     public:
+      SuffixOpNode() {
+        kind_ = SuffixOpNodeTy;
+      }
       SuffixOpNode(ExprNode *expr, UnaryOp op) {
         kind_ = SuffixOpNodeTy;
         expr_ = expr; 

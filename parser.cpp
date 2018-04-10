@@ -532,6 +532,17 @@ namespace Parser {
     
     rule_actions_[name] = &SyntaxAnalyzer::Name;
 
+    rule_actions_[unary] = &SyntaxAnalyzer::Unary;
+      rule_actions_[seq_preinc_unary] = &SyntaxAnalyzer::Act_seq_preinc_unary;
+      rule_actions_[seq_predec_unary] = &SyntaxAnalyzer::Act_seq_predec_unary;
+      rule_actions_[seq_pos_term] = &SyntaxAnalyzer::Act_seq_pos_term;
+      rule_actions_[seq_neg_term] = &SyntaxAnalyzer::Act_seq_neg_term;
+      rule_actions_[seq_not_term] = &SyntaxAnalyzer::Act_seq_not_term;
+      rule_actions_[seq_ptr_term] = &SyntaxAnalyzer::Act_seq_ptr_term;
+      rule_actions_[seq_adr_term] = &SyntaxAnalyzer::Act_seq_adr_term;
+      rule_actions_[seq_sizeof_type] = &SyntaxAnalyzer::Act_seq_sizeof_type;
+      rule_actions_[seq_sizeof_unary] = &SyntaxAnalyzer::Act_seq_sizeof_unary;
+
     rule_actions_[postfix] = &SyntaxAnalyzer::Postfix;
       rule_actions_[seq_post_inc] = &SyntaxAnalyzer::Act_seq_post_inc;
       rule_actions_[seq_post_dec] = &SyntaxAnalyzer::Act_seq_post_dec;
@@ -773,7 +784,188 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Unary(void) {
+    // <<== working
     return False;
+  }
+
+  // "++" unary
+  eResult SyntaxAnalyzer::Act_seq_preinc_unary(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary prefix increase");
+      return Error;
+    }
+
+    AST::PrefixOpNode* node = 
+      new AST::PrefixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Inc);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "--" unary
+  eResult SyntaxAnalyzer::Act_seq_predec_unary(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary prefix increase");
+      return Error;
+    }
+
+    AST::PrefixOpNode* node = 
+      new AST::PrefixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Dec);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "+" term 
+  eResult SyntaxAnalyzer::Act_seq_pos_term(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary positive");
+      return Error;
+    }
+
+    AST::UnaryOpNode* node = 
+      new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Pos);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "-" term 
+  eResult SyntaxAnalyzer::Act_seq_neg_term(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary positive");
+      return Error;
+    }
+
+    AST::UnaryOpNode* node = 
+      new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Neg);
+    
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "!" term 
+  eResult SyntaxAnalyzer::Act_seq_not_term(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary positive");
+      return Error;
+    }
+
+    AST::UnaryOpNode* node = 
+      new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Not);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "*" term 
+  eResult SyntaxAnalyzer::Act_seq_ptr_term(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary positive");
+      return Error;
+    }
+
+    AST::DereferenceNode* node = 
+      new AST::DereferenceNode((AST::ExprNode*)pi_expr.data_.node_);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // "&" term 
+  eResult SyntaxAnalyzer::Act_seq_adr_term(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary positive");
+      return Error;
+    }
+
+    AST::AddressNode * node = 
+      new AST::AddressNode((AST::ExprNode*)pi_expr.data_.node_);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // <SIZEOF> "(" type ")"
+  eResult SyntaxAnalyzer::Act_seq_sizeof_type(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary positive");
+      return Error;
+    }
+
+    AST::SizeofTypeNode* node = 
+      new AST::SizeofTypeNode((AST::ExprNode*)pi_expr.data_.node_);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+
+  // <SIZEOF> unary
+  eResult SyntaxAnalyzer::Act_seq_sizeof_unary(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on unary positive");
+      return Error;
+    }
+
+    AST::SizeofExprNode* node = 
+      new AST::SizeofExprNode((AST::ExprNode*)pi_expr.data_.node_);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Postfix(void) {
@@ -801,12 +993,11 @@ namespace Parser {
       return Error;
     }
 
+    // create suffix node
     AST::SuffixOpNode* node = 
       new AST::SuffixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Inc);
-
     pi_new.type_ = ParseInfo::ASTNode;
     pi_new.data_.node_ = node;
-
     parse_stack_.Push(pi_new);
     return True;
   }
@@ -1073,7 +1264,7 @@ namespace Parser {
     ParseInfo pi_arg_expr = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_arg_expr.type_ != ParseInfo::ASTNode || 
-        !pi_arg_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy) {
+        !pi_arg_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
       assert("Error on Args first expr");
       return Error;
     }
@@ -1082,7 +1273,7 @@ namespace Parser {
     ParseInfo pi_arg_node = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_arg_node.type_ != ParseInfo::ASTNode || 
-      !pi_arg_node.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy) {
+      !pi_arg_node.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy)) {
       assert("Error on Args first expr");
       return Error;
     }
