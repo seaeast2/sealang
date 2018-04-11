@@ -78,6 +78,7 @@ namespace Parser {
     expr2,
     expr1,
     term,
+      seq_type_term, //"(" type ")" term
     unary,
       seq_preinc_unary,// "++" unary
       seq_predec_unary,// "--" unary
@@ -160,7 +161,6 @@ namespace Parser {
     seq_mul_term,// "*" term  
     seq_div_term,// "/" term 
     seq_mod_term,// "%" term
-    seq_type_term, //"(" type ")" term
     rep_case_clause,// (case_clause)*
     opt_default_clause,// [default_clause]
 
@@ -186,7 +186,8 @@ namespace Parser {
       Character,
       String,
       ASTNode,
-      TokenType
+      ASTType,
+      TokenType,
     };
 
     union RawData {
@@ -194,6 +195,7 @@ namespace Parser {
       char character_;
       const char* cstr_;
       AST::BaseNode* node_;
+      AST::Type* type_;
       Lexer::TokenType tok_type_;
     };
 
@@ -265,6 +267,7 @@ namespace Parser {
       eResult Block(void); // block
       eResult Expr(void); // expr
       eResult Term(void); // term
+        eResult Act_seq_type_term(void);//"(" type ")" term  // typecasting
       eResult Unary(void); // unary
         eResult Act_seq_preinc_unary(void);// "++" unary
         eResult Act_seq_predec_unary(void);// "--" unary

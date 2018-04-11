@@ -531,6 +531,8 @@ namespace Parser {
     }
     
     rule_actions_[name] = &SyntaxAnalyzer::Name;
+    rule_actions_[term] = &SyntaxAnalyzer::Term;
+      rule_actions_[seq_type_term] = &SyntaxAnalyzer::Act_seq_type_term;
 
     rule_actions_[unary] = &SyntaxAnalyzer::Unary;
       rule_actions_[seq_preinc_unary] = &SyntaxAnalyzer::Act_seq_preinc_unary;
@@ -780,12 +782,30 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Term(void) {
+    // actually do nothing
     return True;
   }
 
+  //"(" type ")" term          // type casting 
+  eResult SyntaxAnalyzer::Act_seq_type_term(void) {
+    return True;
+  }
+
+  // unary
   eResult SyntaxAnalyzer::Unary(void) {
-    // <<== working
-    return False;
+    // actually do nothing
+    if (parse_stack_.IsEmpty())  {
+      assert("Error on Postfix() : Needed parsing info!");
+      return Error;
+    }
+
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ != ParseInfo::ASTNode) {
+      assert("Error on Postfix() : Needed ASTNode in stack!");
+      return Error;
+    }
+
+    return True;
   }
 
   // "++" unary
