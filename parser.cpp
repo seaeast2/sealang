@@ -730,7 +730,7 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Type(void) {
-    return TypeRef();
+    return True;
   }
 
   eResult SyntaxAnalyzer::TypeRef(void) {
@@ -783,11 +783,44 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Term(void) {
     // actually do nothing
+    ParseInfo pi_expr = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on term casting");
+      return Error;
+    }
     return True;
   }
 
   //"(" type ")" term          // type casting 
   eResult SyntaxAnalyzer::Act_seq_type_term(void) {
+    // get term
+    ParseInfo pi_term = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_term.type_ != ParseInfo::ASTNode || 
+        !pi_term.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on term casting");
+      return Error;
+    }
+
+    // get type
+    ParseInfo pi_type = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi_type.type_ != ParseInfo::ASTNode || 
+        !pi_type.data_.node_->IsKindOf(AST::BaseNode::TypeNodeTy)) {
+      assert("Error on term TypeNode");
+      return Error;
+    }
+
+    AST::CastNode* node = 
+      new AST::CastNode((AST::ExprNode*)pi_term.data_.node_,
+          (AST::TypeNode*)pi_type.data_.node_);
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTNode;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
     return True;
   }
 

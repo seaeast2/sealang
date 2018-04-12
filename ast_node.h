@@ -20,6 +20,7 @@ namespace AST {
           RootNodeTy,
           FunctionNodeTy,
           ParamsNodeTy, // function parameters
+          TypeNodeTy,
           StmtNodeTy,
             BlockNodeTy,
             BreakNodeTy,
@@ -67,7 +68,6 @@ namespace AST {
             CompositeTypeDefinitionTy,
               ClassNodeTy,
             TypedefNodeTy,
-          TypeNodeTy
       };
     protected:
       NodeKind kind_;
@@ -95,6 +95,29 @@ namespace AST {
       virtual ~RootNode() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == RootNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class TypeNode : public BaseNode {
+    AST::Type* type_;
+    public:
+      TypeNode() {
+        kind_ = TypeNodeTy;
+      }
+      TypeNode(AST::Type* ty) {
+        kind_ = TypeNodeTy;
+        type_ = ty;
+      }
+      virtual ~TypeNode() {}
+
+      AST::Type* GetType() { 
+        return type_;
+      }
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == TypeNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -153,17 +176,17 @@ namespace AST {
 
   class CastNode : public ExprNode {
     TypeNode * cast_type_;
-    ExprNode * expr_;
+    ExprNode * term_expr_;
     public:
       CastNode() {
         kind_ = CastNodeTy;
         cast_type_ = NULL;
-        expr_ = NULL;
+        term_expr_ = NULL;
       }
 
-      CastNode(ExprNode* expr, TypeNode* castty) {
+      CastNode(ExprNode* term, TypeNode* castty) {
         kind_ = CastNodeTy;
-        expr_ = expr;
+        term_expr_ = term;
         cast_type_ = castty;
       }
 
@@ -575,28 +598,6 @@ namespace AST {
       }
   };
 
-  class TypeNode : public BaseNode {
-    AST::Type* type_;
-    public:
-      TypeNode() {
-        kind_ = TypeNodeTy;
-      }
-      TypeNode(AST::Type* ty) {
-        kind_ = TypeNodeTy;
-        type_ = ty;
-      }
-      virtual ~TypeNode() {}
-
-      AST::Type* GetType() { 
-        return type_;
-      }
-
-      virtual bool IsKindOf(NodeKind kind) {
-        if (kind == TypeNodeTy || kind == BaseNodeTy)
-          return true;
-        return false;
-      }
-  };
 
 };
 #endif
