@@ -32,6 +32,11 @@ namespace Parser {
     name,
     top_defs,
     typeref_base,
+      seq_unsigned_char, // <UNSIGNED> <CHAR>
+      seq_unsigned_short, // <UNSIGNED> <SHORT>
+      seq_unsigned_int, // <UNSIGNED> <INT>
+      seq_unsigned_long, // <UNSIGNED> <LONG>
+      seq_class_identifier, // <CLASS> <IDENTIFIER>
     defvars,
     storage,
     type,
@@ -45,8 +50,14 @@ namespace Parser {
     defclass,
     member_list,
     class_member,
-    typedef_, // to avoid type crash, '_' is added.
+    typedef_, // to avoid keyword name crash with C++, '_' is added.
     typeref,
+      rep_sel_arry_ptr_fnptr,
+        sel_arry_ptr_fnptr,
+          seq_unassigned_array, // "[""]              // unassigned array
+          seq_assigned_array,   // "["<INTEGER>"]"    // assigned array
+          seq_ptr,              // *                  //pointer
+          seq_func_ptr,         // "(" param_typerefs ")" // function pointer
     param_typerefs,
     stmts,
     stmt,
@@ -94,7 +105,7 @@ namespace Parser {
         sel_reffunc, // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
           seq_post_inc, // "++"
           seq_post_dec, // "--"
-          seq_bo_expr_bc, //"[" expr "]"
+          seq_array_reference, //"[" expr "]"
           seq_dot_name, //"." name
           seq_arrow_name, //"->" name
           seq_po_args_pc, //"(" args ")"
@@ -105,11 +116,6 @@ namespace Parser {
       seq_po_expr_pc,// "(" expr ")" 
 
     // sub rule
-    seq_unsigned_char, // <UNSIGNED> <CHAR>
-    seq_unsigned_short, // <UNSIGNED> <SHORT>
-    seq_unsigned_int, // <UNSIGNED> <INT>
-    seq_unsigned_long, // <UNSIGNED> <LONG>
-    seq_class_identifier, // <CLASS> <IDENTIFIER>
     rep_dot_name, // ("," name)*
     sel_fun_var_const_class_typedef, // deffunc | defvars | defconst | defclass | typedef
     opt_eq_expr, // ["=" expr]
@@ -120,11 +126,6 @@ namespace Parser {
     rep_comma_param, // ("," param)* 
     rep_class_member_semicolon, // (class_member ";")
     seq_type_name, // type name
-    rep_sel_arry_ptr_fnptr,
-    sel_arry_ptr_fnptr,
-    seq_bo_bc, // "[""]
-    seq_bo_int_bc, // "["<INTEGER>"]"
-    seq_po_paramty_pc, // "(" param_typerefs ")"
     seq_type_rep_type_dot, // type ("," type)* ["," "..."] 
     rep_comma_type, // ("," type)*
     seq_expr_semicolon, // expr ";"
@@ -256,6 +257,7 @@ namespace Parser {
       
       eResult Type(void); // type
       eResult TypeRef(void); // typeref
+
       eResult TypeRefBase(void); // typeref_base
       eResult TypeDef(void); // typedef
       
@@ -281,7 +283,7 @@ namespace Parser {
       eResult Postfix(void); // postfix
         eResult Act_seq_post_inc(void);
         eResult Act_seq_post_dec(void);
-        eResult Act_seq_bo_expr_bc(void);
+        eResult Act_seq_array_reference(void);
         eResult Act_seq_dot_name(void);
         eResult Act_seq_arrow_name(void);
         eResult Act_seq_po_args_pc(void);

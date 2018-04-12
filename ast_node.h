@@ -72,7 +72,6 @@ namespace AST {
     protected:
       NodeKind kind_;
       Location loc_;
-      AST::Type type_;
 
     public:
       BaseNode() {}

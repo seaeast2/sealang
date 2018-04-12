@@ -163,13 +163,14 @@ namespace Parser {
         //   | "["<INTEGER>"]"           // assigned array
         //   | "*"                       // pointer 
         //   | "(" param_typerefs ")"  // function pointer 
-        rules_[sel_arry_ptr_fnptr] = {Select, {seq_bo_bc, seq_bo_int_bc, TokMul, seq_po_paramty_pc}};
+        rules_[sel_arry_ptr_fnptr] = {Select, {seq_unassigned_array, seq_assigned_array, seq_ptr, seq_func_ptr}};
           // "[""]
-          rules_[seq_bo_bc] = {Sequence, {TokBracketOpen, TokBracketClose}};
+          rules_[seq_unassigned_array] = {Sequence, {TokBracketOpen, TokBracketClose}};
           // "["<INTEGER>"]"
-          rules_[seq_bo_int_bc] = {Sequence, {TokBracketOpen, TokIntegerLiteral, TokBracketClose}};
+          rules_[seq_assigned_array] = {Sequence, {TokBracketOpen, TokIntegerLiteral, TokBracketClose}};
+          rules_[seq_ptr] = {Sequence, {TokMul}};
           // "(" param_typerefs ")"
-          rules_[seq_po_paramty_pc] = {Sequence, {TokParenOpen, param_typerefs, TokParenClose}};
+          rules_[seq_func_ptr] = {Sequence, {TokParenOpen, param_typerefs, TokParenClose}};
 
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
@@ -492,13 +493,13 @@ namespace Parser {
       //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
       rules_[rep_reffunc] = {Repeat, {sel_reffunc}};
         // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
-        rules_[sel_reffunc] = {Select, {seq_post_inc, seq_post_dec, seq_bo_expr_bc, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
+        rules_[sel_reffunc] = {Select, {seq_post_inc, seq_post_dec, seq_array_reference, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
           // "++"
           rules_[seq_post_inc] = {Sequence, {TokUnaryInc}};
           // "--"
           rules_[seq_post_dec] = {Sequence, {TokUnaryDec}};
           //"[" expr "]"
-          rules_[seq_bo_expr_bc] = {Sequence, {TokBracketOpen, expr, TokBracketClose}};
+          rules_[seq_array_reference] = {Sequence, {TokBracketOpen, expr, TokBracketClose}};
           //"." name
           rules_[seq_dot_name] = {Sequence, {TokDot, name}};
           //"->" name
@@ -548,7 +549,7 @@ namespace Parser {
     rule_actions_[postfix] = &SyntaxAnalyzer::Postfix;
       rule_actions_[seq_post_inc] = &SyntaxAnalyzer::Act_seq_post_inc;
       rule_actions_[seq_post_dec] = &SyntaxAnalyzer::Act_seq_post_dec;
-      rule_actions_[seq_bo_expr_bc] = &SyntaxAnalyzer::Act_seq_bo_expr_bc;
+      rule_actions_[seq_array_reference] = &SyntaxAnalyzer::Act_seq_array_reference;
       rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
       rule_actions_[seq_arrow_name] = &SyntaxAnalyzer::Act_seq_arrow_name;
       rule_actions_[seq_po_args_pc] = &SyntaxAnalyzer::Act_seq_po_args_pc;
@@ -734,10 +735,12 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::TypeRef(void) {
-    return False; // can't find matching
+    // <<== working here
+    return False;
   }
 
   eResult SyntaxAnalyzer::TypeRefBase(void) {
+    // <<== working here
     return False;
   }
 
@@ -1082,7 +1085,7 @@ namespace Parser {
   }
 
   //"[" expr "]"
-  eResult SyntaxAnalyzer::Act_seq_bo_expr_bc(void) {
+  eResult SyntaxAnalyzer::Act_seq_array_reference(void) {
     // get array size expr
     ParseInfo pi_arrsize_expr = parse_stack_.Top();
     parse_stack_.Pop();
