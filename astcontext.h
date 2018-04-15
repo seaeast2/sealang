@@ -2,6 +2,7 @@
 #define _astcontext_h_
 
 #include "common.h"
+#include "ast_type.h"
 #include "ast_node.h"
 
 using namespace std;

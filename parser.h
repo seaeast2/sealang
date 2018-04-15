@@ -32,10 +32,17 @@ namespace Parser {
     name,
     top_defs,
     typeref_base,
+      seq_void,         // <VOID>
+      seq_char,         // <CHAR>
+      seq_short,        // <SHORT>
+      seq_int,          // <INT>
+      seq_long,         // <LONG>
       seq_unsigned_char, // <UNSIGNED> <CHAR>
       seq_unsigned_short, // <UNSIGNED> <SHORT>
       seq_unsigned_int, // <UNSIGNED> <INT>
       seq_unsigned_long, // <UNSIGNED> <LONG>
+      seq_float,        // <FLOAT>
+      seq_double,       // <DOUBLE>
       seq_class_identifier, // <CLASS> <IDENTIFIER>
     defvars,
     storage,
@@ -259,6 +266,19 @@ namespace Parser {
       eResult TypeRef(void); // typeref
 
       eResult TypeRefBase(void); // typeref_base
+        eResult Act_seq_void(void); 
+        eResult Act_seq_char(void);
+        eResult Act_seq_short(void);
+        eResult Act_seq_int(void);
+        eResult Act_seq_long(void);
+        eResult Act_seq_unsigned_char(void);
+        eResult Act_seq_unsigned_short(void);
+        eResult Act_seq_unsigned_int(void);
+        eResult Act_seq_unsigned_long(void);
+        eResult Act_seq_float(void);
+        eResult Act_seq_double(void);
+        eResult Act_seq_class_identifier(void);
+
       eResult TypeDef(void); // typedef
       
       eResult ParamTypeRefs(void); // param_typerefs

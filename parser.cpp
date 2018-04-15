@@ -31,23 +31,30 @@ namespace Parser {
     //      | <FLOAT> 
     //      | <DOUBLE>
     //      | <CLASS> <IDENTIFIER> 
-    rules_[typeref_base] = {Select, { TokVoid, 
-                                      TokChar,
-                                      TokShort, 
-                                      TokInt, 
-                                      TokLong, 
+    rules_[typeref_base] = {Select, { seq_void, 
+                                      seq_char,
+                                      seq_short, 
+                                      seq_int, 
+                                      seq_long, 
                                       seq_unsigned_char,
                                       seq_unsigned_short,
                                       seq_unsigned_int,
                                       seq_unsigned_long,
-                                      TokFloat,
-                                      TokDouble,
+                                      seq_float,
+                                      seq_double,
                                       seq_class_identifier,
                                       }};
+      rules_[seq_void] = {Sequence, {TokVoid}};
+      rules_[seq_char] = {Sequence, {TokChar}};
+      rules_[seq_short] = {Sequence, {TokShort}};
+      rules_[seq_int] = {Sequence, {TokInt}};
+      rules_[seq_long] = {Sequence, {TokLong}};
       rules_[seq_unsigned_char] = {Sequence, {TokUnsigned, TokChar}};
       rules_[seq_unsigned_short] = {Sequence, {TokUnsigned, TokShort}};
       rules_[seq_unsigned_int] = {Sequence, {TokUnsigned, TokInt}};
       rules_[seq_unsigned_long] = {Sequence, {TokUnsigned, TokLong}};
+      rules_[seq_float] = {Sequence, {TokFloat}};
+      rules_[seq_double] = {Sequence, {TokDouble}};
       rules_[seq_class_identifier] = {Sequence, {TokClass, TokIdentifier}};
     
     // import_stmts  
@@ -531,6 +538,20 @@ namespace Parser {
       rule_actions_[i] = &SyntaxAnalyzer::DoNothing;
     }
     
+    rule_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;
+      rule_actionss[seq_void] = &SyntaxAnalyzer::Act_seq_void; 
+      rule_actionss[seq_char] = &SyntaxAnalyzer::Act_seq_char;
+      rule_actionss[seq_short] = &SyntaxAnalyzer::Act_seq_short;
+      rule_actionss[seq_int] = &SyntaxAnalyzer::Act_seq_int;
+      rule_actionss[seq_long] = &SyntaxAnalyzer::Act_seq_long;
+      rule_actionss[seq_unsigned_char] = &SyntaxAnalyzer::Act_seq_unsigned_char;
+      rule_actionss[seq_unsigned_short] = &SyntaxAnalyzer::Act_seq_unsigned_short;
+      rule_actionss[seq_unsigned_int] = &SyntaxAnalyzer::Act_seq_unsigned_int;
+      rule_actionss[seq_unsigned_long] = &SyntaxAnalyzer::Act_seq_unsigned_long;
+      rule_actionss[seq_float] = &SyntaxAnalyzer::Act_seq_float;
+      rule_actionss[seq_double] = &SyntaxAnalyzer::Act_seq_double;
+      rule_actionss[seq_class_identifier] = &SyntaxAnalyzer::Act_seq_class_identifier;
+
     rule_actions_[name] = &SyntaxAnalyzer::Name;
     rule_actions_[term] = &SyntaxAnalyzer::Term;
       rule_actions_[seq_type_term] = &SyntaxAnalyzer::Act_seq_type_term;
@@ -742,6 +763,50 @@ namespace Parser {
   eResult SyntaxAnalyzer::TypeRefBase(void) {
     // <<== working here
     return False;
+  }
+
+  // create primitive types
+  eResult SyntaxAnalyzer::Act_seq_void(void) {
+    AST::VoidType * ty = new AST::VoidType();
+
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::ASTType;
+    pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_char(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_short(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_int(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_long(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_unsigned_char(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_unsigned_short(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_unsigned_int(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_unsigned_long(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_float(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_double(void){
+    return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_class_identifier(void){
+    return True;
   }
 
   eResult SyntaxAnalyzer::TypeDef(void) {

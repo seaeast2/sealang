@@ -7,7 +7,6 @@ using namespace std;
 namespace AST {
   // These types are all AST Types.
   // Base type in AST
-  class TypeName;
 
   class Type {
     public:
@@ -81,6 +80,7 @@ namespace AST {
   };
 
   class NamedType : public Type {
+    char name_[64]; // type name
     public:
       NamedType() {
         kind_ = NamedTy;
@@ -162,22 +162,6 @@ namespace AST {
         if (kind == FunctionTy || kind == BaseTy)
           return true;
         return false;
-      }
-  };
-
-  class TypeName {
-    Type* type_;
-    char  type_name_[256];
-    public:
-      TypeName() {
-        type_ = NULL;
-        memset(type_name_, 0, sizeof(type_name_));
-      }
-      TypeName(Type* ty, const char* type_name) {
-        type_ = ty;
-        strcpy(type_name_, type_name);
-      }
-      ~TypeName() {
       }
   };
 
