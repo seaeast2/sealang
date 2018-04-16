@@ -5,7 +5,6 @@
 template <class T, unsigned int STACK_SIZE = 100> 
 class SimpleArrayStack {
   T data_[STACK_SIZE];
-
   int top_;
 
   public:

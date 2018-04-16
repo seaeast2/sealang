@@ -182,7 +182,6 @@ class SimpleList {
       new_item->priv_ = new_item->next_ = NULL;
       return new_item;
     }
-
 };
 
 #endif
