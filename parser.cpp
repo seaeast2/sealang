@@ -539,18 +539,18 @@ namespace Parser {
     }
     
     rule_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;
-      rule_actionss[seq_void] = &SyntaxAnalyzer::Act_seq_void; 
-      rule_actionss[seq_char] = &SyntaxAnalyzer::Act_seq_char;
-      rule_actionss[seq_short] = &SyntaxAnalyzer::Act_seq_short;
-      rule_actionss[seq_int] = &SyntaxAnalyzer::Act_seq_int;
-      rule_actionss[seq_long] = &SyntaxAnalyzer::Act_seq_long;
-      rule_actionss[seq_unsigned_char] = &SyntaxAnalyzer::Act_seq_unsigned_char;
-      rule_actionss[seq_unsigned_short] = &SyntaxAnalyzer::Act_seq_unsigned_short;
-      rule_actionss[seq_unsigned_int] = &SyntaxAnalyzer::Act_seq_unsigned_int;
-      rule_actionss[seq_unsigned_long] = &SyntaxAnalyzer::Act_seq_unsigned_long;
-      rule_actionss[seq_float] = &SyntaxAnalyzer::Act_seq_float;
-      rule_actionss[seq_double] = &SyntaxAnalyzer::Act_seq_double;
-      rule_actionss[seq_class_identifier] = &SyntaxAnalyzer::Act_seq_class_identifier;
+      rule_actions_[seq_void] = &SyntaxAnalyzer::Act_seq_void; 
+      rule_actions_[seq_char] = &SyntaxAnalyzer::Act_seq_char;
+      rule_actions_[seq_short] = &SyntaxAnalyzer::Act_seq_short;
+      rule_actions_[seq_int] = &SyntaxAnalyzer::Act_seq_int;
+      rule_actions_[seq_long] = &SyntaxAnalyzer::Act_seq_long;
+      rule_actions_[seq_unsigned_char] = &SyntaxAnalyzer::Act_seq_unsigned_char;
+      rule_actions_[seq_unsigned_short] = &SyntaxAnalyzer::Act_seq_unsigned_short;
+      rule_actions_[seq_unsigned_int] = &SyntaxAnalyzer::Act_seq_unsigned_int;
+      rule_actions_[seq_unsigned_long] = &SyntaxAnalyzer::Act_seq_unsigned_long;
+      rule_actions_[seq_float] = &SyntaxAnalyzer::Act_seq_float;
+      rule_actions_[seq_double] = &SyntaxAnalyzer::Act_seq_double;
+      rule_actions_[seq_class_identifier] = &SyntaxAnalyzer::Act_seq_class_identifier;
 
     rule_actions_[name] = &SyntaxAnalyzer::Name;
     rule_actions_[term] = &SyntaxAnalyzer::Term;
@@ -767,12 +767,12 @@ namespace Parser {
 
   // create primitive types
   eResult SyntaxAnalyzer::Act_seq_void(void) {
-    AST::VoidType * ty = new AST::VoidType();
-
-    ParseInfo pi_new;
-    pi_new.type_ = ParseInfo::ASTType;
-    pi_new.data_.node_ = node;
-    parse_stack_.Push(pi_new);
+  //    AST::VoidType * ty = new AST::VoidType();
+  //
+  //    ParseInfo pi_new;
+  //    pi_new.type_ = ParseInfo::ASTType;
+  //    pi_new.data_.node_ = node;
+  //    parse_stack_.Push(pi_new);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_char(void){

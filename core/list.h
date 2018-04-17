@@ -2,6 +2,7 @@
 #define _list_h_
 
 
+// simple linked list
 template <class T> 
 class SimpleList {
   public:
