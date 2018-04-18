@@ -2,13 +2,12 @@
 #define _hash_h_
 
 // simple hash table
-
 template <class T> 
-class SimpleHashTable {
+class HashTable {
   public:
-    SimpleHashTable() {
+    HashTable() {
     }
-    ~SimpleHashTable() {
+    ~HashTable() {
     }
 };
 
