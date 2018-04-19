@@ -23,24 +23,38 @@ class RBTree {
     };
 
   private:
-    RbNode* root_;
-    RbNode* nil_leaf_; // sentinel leaf node
+    RbNode* root_; // root node
+    RbNode* nil_; // sentinel leaf node
 
   public:
     RBTree() {
       root_ = NULL;
-      nil_leaf_ = new RbNode;
-      nil_leaf_->color_ = BLACK;
-      nil_leaf_->parent_ = NULL;
-      nil_leaf_->left = NULL;
-      nil_leaf_->right_ = NULL;
+      nil_ = NULL;
     }
 
     ~RBTree() {
-      delete nil_leaf_;
     }
 
-    //bool RotateLeft(
+    //      |                      |
+    //      y    Left rotation     x
+    //     / \   <============    / \
+    //    x   c  Right rotation  a   y
+    //   / \      ============>     / \
+    //  a   b                      b   c
+    // 
+    // Red black tree rotation
+    bool RotateLeft(RbNode* x) {
+      RbNode* y = x->right_;  // set y
+      x->right_ = y->left_; // turn y's left subtree into x's right subtree.
+      if (y->left_ != nil_) 
+        y->left_->parent_ = x;
+      y->parent_ = x->parent_; // link x's parent to y
+      if (x->parent_ == nil_) // check root
+        root_ = y;
+      else if (x == x->parent_->left_)
+      
+      return true;
+    }
 };
 
 
