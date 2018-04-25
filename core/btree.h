@@ -23,7 +23,7 @@ class BSTree {
       Clear();
     }
 
-    bool AddNode(const K& key, const V& value) {
+    bool Insert(const K& key, const V& value) {
       BtNode* newnode = new BtNode;
       newnode->key_ = key;
       newnode->value_ = value;
@@ -65,7 +65,7 @@ class BSTree {
       return false;
     }
 
-    bool DelNode(const K& key) {
+    bool Delete(const K& key) {
       BtNode* del_node = FindNode(key);
       if(del_node == NULL) 
         return false;
@@ -141,20 +141,18 @@ class BSTree {
     }
 
     // find smallest node in given tree
-    BtNode* FindMinNode(const BtNode* top_node) {
+    BtNode* TreeMinimum(const BtNode* top_node) {
       BtNode* focus_node = top_node;
-      while(focus_node->left_ != NULL) {
+      while(focus_node->left_ != NULL)
         focus_node = focus_node->left_;
-      }
       return focus_node;
     }
 
     // find biggest node in given tree
-    BtNode* FindMaxNode(const BtNode* top_node) {
+    BtNode* TreeMaximum(const BtNode* top_node) {
       BtNode* focus_node = top_node;
-      while(focus_node->right_ != NULL) {
+      while(focus_node->right_ != NULL)
         focus_node = focus_node->right_;
-      }
       return focus_node;
     }
 
@@ -162,12 +160,11 @@ class BSTree {
       BtNode* focus_node = root_;
 
       while(focus_node->key_ != key) {
-        if (key < focus_node->key) {
+        if (key < focus_node->key)
           focus_node = focus_node->left_;
-        }
-        else {
+        else
           focus_node = focus_node->right_;
-        }
+
         if (focus_node == NULL)
           return NULL;
       }
