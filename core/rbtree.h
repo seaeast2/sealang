@@ -84,8 +84,16 @@ class RBTree {
         else {
           Transplant(y, y->right_);
           y->right_ = z->right_;
+          y->right_->parent_ = y;
         }
+        Transplant(z, y);
+        y->left_ = z->left_;
+        y->left_->parent_= y;
+        y->color_ = z->color_;
       }
+
+      if (y_original_color == BLACK) 
+        DeleteFixup(x);
     }
 
 
@@ -196,6 +204,62 @@ class RBTree {
         x = x->right_;
       }
       return x;
+    }
+
+    void DeleteFixup(RbNode* x) {
+      while (x != root_ && x->color_ == BLACK) {
+        if (x == x->parent_->left_) {
+          RbNode* w = x->parent_->right_;
+          if (w->color_ == RED) {
+            w->color_ = BLACK;
+            w->parent_->color_ = RED;
+            RotateLeft(x->parent_);
+            w = x->parent_->right_;
+          }
+          if (w->left_->color_ == BLACK && w->right_->color == BLACK) {
+            w->color_ = RED;
+            x = x->parent_;
+          }
+          else if (w->right_->color_ == BLACK) {
+            w->left_->color_ = BLACK;
+            w->color_ = RED;
+            RotateRight(w);
+            w = x->parent_->right_;
+
+            w->color_ = x->parent_->color_;
+            x->parent_->color_ = BLACK;
+            w->right_->color_ = BLACK;
+            RotateLeft(x->p);
+            x = root_;
+          }
+        }
+        else {
+          RbNode* w = x->parent_->left_;
+          if (w->color_ == RED) {
+            w->color_ = BLACK;
+            w->parent_->color_ = RED;
+            RotateRight(x->parent_);
+            w = x->parent_->left_;
+          }
+          if (w->right_->color_ == BLACK && w->left_->color == BLACK) {
+            w->color_ = RED;
+            x = x->parent_;
+          }
+          else if (w->left_->color_ == BLACK) {
+            w->right_->color_ = BLACK;
+            w->color_ = RED;
+            RotateLeft(w);
+            w = x->parent_->left_;
+
+            w->color_ = x->parent_->color_;
+            x->parent_->color_ = BLACK;
+            w->left_->color_ = BLACK;
+            RotateRight(x->p);
+            x = root_;
+          }
+        }
+      }
+      x->color_ = BLACK;
     }
 };
 
