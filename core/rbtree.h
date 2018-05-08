@@ -30,7 +30,11 @@ class RBTree {
   public:
     RBTree() {
       root_ = NULL;
+
       nil_ = new RbNode;
+      nil_->parent_ = NULL;
+      nil_->left_ = NULL;
+      nil_->right_ = NULL;
       nil_->color_ = BLACK;
     }
 
@@ -38,6 +42,7 @@ class RBTree {
       delete nil_;
     }
 
+    // TODO : need to make 'find' and 'clear'
 
     void Insert(RbNode* z) {
       RbNode* y = nil_;
@@ -67,11 +72,11 @@ class RBTree {
       RbNode* x, *y;
       RbNode* y = z;
       eColor y_original_color = y->color_;
-      if (z->left_ == nil_) { // in case left is blank, take out z and link left to parent.
+      if (z->left_ == nil_) {
         x = z->right_;
         Transplant(z, z->right_);
       }
-      else if (z->right_ == nil_) { // right child is blank.
+      else if (z->right_ == nil_) {
         x = z->left_;
         Transplant(z, z->left_)
       }
@@ -91,6 +96,8 @@ class RBTree {
         y->left_->parent_= y;
         y->color_ = z->color_;
       }
+
+      delete z;
 
       if (y_original_color == BLACK) 
         DeleteFixup(x);
@@ -189,6 +196,7 @@ class RBTree {
         u->parent_->left_ = v;
       else
         u->parent_->right_ = v;
+
       v->parent_ = u->parent_;
     }
 
