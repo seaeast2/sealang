@@ -66,7 +66,7 @@ class BSTree {
     }
 
     bool Delete(const K& key) {
-      BtNode* del_node = FindNode(key);
+      BtNode* del_node = Find(key);
       if(del_node == NULL) 
         return false;
 
@@ -156,31 +156,47 @@ class BSTree {
       return focus_node;
     }
 
-    BtNode* FindNode(const K& key) {
+    BtNode* Find(const K& key) {
       BtNode* focus_node = root_;
 
+      if (focus_node == NULL)
+        return NULL;
       while(focus_node->key_ != key) {
-        if (key < focus_node->key)
+        if (key < focus_node->key_)
           focus_node = focus_node->left_;
         else
           focus_node = focus_node->right_;
-
         if (focus_node == NULL)
           return NULL;
       }
       return focus_node;
     }
 
-    void Clear(BtNode* node) {
-      BtNode* bkleft, *bkright;
-      bkleft = node->left_;
-      bkright = node->right_;
-      delete node;
+    void Clear() {
+      BtNode* cur_node = root_;
+      while(root_->left_ == NULL && root_->right_ == NULL) {
+        if(cur_node->left_)
+          cur_node = cur_node->left_;
+        else if(cur_node->right_)
+          cur_node = cur_node->right_;
+        else {
+          BtNode* p = cur_node->parent_;
+          if(cur_node == cur_node->parent_->left_)
+            p->left_ = NULL;
+          else
+            p->right_ = NULL;
 
-      if (bkleft != NULL)
-        Clear(bkleft);
-      if (bkright != NULL)
-        Clear(bkright);
+          delete cur_node;
+          cur_node = p;
+        }
+      }
+      if (root_ == root_->parent_->left_)
+        root_->parent_->left_ = NULL;
+      else
+        root_->parent_->right_ = NULL;
+
+      delete root_;
+      root_ = NULL;
     }
 };
 

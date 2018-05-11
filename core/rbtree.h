@@ -40,9 +40,8 @@ class RBTree {
 
     ~RBTree() {
       delete nil_;
+      Clear();
     }
-
-    // TODO : need to make 'find' and 'clear'
 
     void Insert(RbNode* z) {
       RbNode* y = nil_;
@@ -66,6 +65,22 @@ class RBTree {
       z->color_ = RED;
        
       InsertFixup(z);
+    }
+    
+    RbNode* Find(const K& key) {
+      BbNode* focus_node = root_;
+
+      if (focus_node == NULL)
+        return NULL;
+      while(focus_node->key_ != key) {
+        if (key < focus_node->key_)
+          focus_node = focus_node->left_;
+        else
+          focus_node = focus_node->right_;
+        if (focus_node == NULL)
+          return NULL;
+      }
+      return focus_node;
     }
 
     void Delete(RbNode* z) {
@@ -103,6 +118,32 @@ class RBTree {
         DeleteFixup(x);
     }
 
+    void Clear() {
+      BbNode* cur_node = root_;
+      while(root_->left_ == NULL && root_->right_ == NULL) {
+        if(cur_node->left_)
+          cur_node = cur_node->left_;
+        else if(cur_node->right_)
+          cur_node = cur_node->right_;
+        else {
+          BbNode* p = cur_node->parent_;
+          if(cur_node == cur_node->parent_->left_)
+            p->left_ = NULL;
+          else
+            p->right_ = NULL;
+
+          delete cur_node;
+          cur_node = p;
+        }
+      }
+      if (root_ == root_->parent_->left_)
+        root_->parent_->left_ = NULL;
+      else
+        root_->parent_->right_ = NULL;
+
+      delete root_;
+      root_ = NULL;
+    }
 
   private:
     // Refer to 'Introduction to Algorithms 3rd Edition : p316-317'
