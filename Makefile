@@ -30,7 +30,7 @@ LIBS =
 
 
 # define the C source files
-SRCS = ast_node.cpp ast_type.cpp astcontext.cpp  error_diagnosis.cpp  import.cpp  lexer.cpp  parser.cpp parser_actions.cpp test_parser.cpp  vm.cpp
+SRCS = ast_node.cpp ast_type.cpp astcontext.cpp  error_diagnosis.cpp  import.cpp  lexer.cpp  parser.cpp parser_actions.cpp main.cpp  vm.cpp
 
 # define the C object files 
 #
@@ -43,7 +43,7 @@ SRCS = ast_node.cpp ast_type.cpp astcontext.cpp  error_diagnosis.cpp  import.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # define the executable file 
-MAIN = test_parser
+MAIN = main 
 
 #
 # The following part of the makefile is generic; it can be used to 

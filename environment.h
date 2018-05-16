@@ -12,14 +12,14 @@ class Environment {
   public:
     Environment() {}
     ~Environment() {
-      Clear();
+      //Clear();
     }
 
     V* GetValue(const char* key) {
       return data_.Find(key);
     }
 
-    bool Push(const char* key, const V& value) {
+    bool Push(char* key, const V& value) {
       if(data_.Find(key))
         return false;
 

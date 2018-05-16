@@ -8,7 +8,7 @@
 namespace AST {
 // Abstrat Syntax Tree Base Nodes
   struct Location {
-    string source_name_;
+    std::string source_name_;
     int token_idx_;
   };
 
@@ -324,7 +324,7 @@ namespace AST {
 
   class MemberRefNode : public LHSNode {
     ExprNode* expr_;
-    string member_name_;
+    std::string member_name_;
     public:
       MemberRefNode() {
         kind_ = MemberRefNodeTy;
@@ -347,7 +347,7 @@ namespace AST {
 
   class PtrMemberRefNode : public LHSNode {
     ExprNode* expr_;
-    string member_name_;
+    std::string member_name_;
     public:
       PtrMemberRefNode() {
         kind_ = PtrMemberRefNodeTy;

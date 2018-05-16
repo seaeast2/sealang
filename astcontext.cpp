@@ -12,7 +12,7 @@ namespace AST {
     delete rootNode_;
   }
 
-  void ASTContext::AddImport(const string &import) {
+  void ASTContext::AddImport(const std::string &import) {
     imports_.push_back(import);
   }
 

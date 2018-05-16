@@ -1,5 +1,6 @@
-
 #include "error_diagnosis.h"
+
+using namespace std;
 
 // Error diagnosis system package
 namespace ErrorDiag {

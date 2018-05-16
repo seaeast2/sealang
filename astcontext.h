@@ -23,7 +23,7 @@ namespace AST {
       ASTContext();
       ~ASTContext();
 
-      void AddImport(const string &import);
+      void AddImport(const std::string &import);
       VecStr::iterator import_begin();
       VecStr::iterator import_end();
       
