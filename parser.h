@@ -1,7 +1,7 @@
 #ifndef _parser_h_
 #define _parser_h_
 
-#include <string.h>
+#include <string>
 #include "common.h"
 #include "core/stack.h"
 #include "lexer.h"

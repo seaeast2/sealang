@@ -1,7 +1,7 @@
 #ifndef _hash_h_
 #define _hash_h_
 
-#include <string.h>
+#include <string>
 
 // string key hash table
 template <class V, unsigned int MAX_TABLE> 

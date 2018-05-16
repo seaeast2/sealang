@@ -1,7 +1,7 @@
 #ifndef _ast_node_h_
 #define _ast_node_h_
 
-#include <string.h>
+#include <cstring>
 #include "ast_type.h"
 
 

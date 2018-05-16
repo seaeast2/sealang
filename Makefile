@@ -68,6 +68,7 @@ $(MAIN): $(OBJS)
 
 clean:
 	$(RM) *.o *~ $(MAIN)
+	$(RM) log.txt
 
 test: $(MAIN)
 	./$(MAIN)

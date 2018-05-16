@@ -7,12 +7,11 @@
 template <class V>
 class Environment {
   HashTable<V, 64> data_;
-  RSStack<char*> key_stack_; // resizable stack
+  RSStack<std::string> key_stack_; // resizable stack
 
   public:
     Environment() {}
     ~Environment() {
-      //Clear();
     }
 
     V* GetValue(const char* key) {

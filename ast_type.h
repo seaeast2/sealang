@@ -1,7 +1,7 @@
 #ifndef _ast_type_h_
 #define _ast_type_h_
 
-#include <string.h>
+#include <string>
 
 namespace AST {
   // These types are all AST Types.
@@ -12,8 +12,14 @@ namespace AST {
       enum TypeKind {
         BaseTy,
         VoidTy,
-        IntTy,
+        IntegerType,
+          CharTy,
+          ShortTy,
+          IntTy,
+          LongTy,
         RealTy,
+          FloatTy,
+          DoubleTy,
         NamedTy,
           CompositeTy,
             ClassTy,
@@ -24,24 +30,28 @@ namespace AST {
 
     protected:
       TypeKind kind_;
+      std::string type_name_;
     public:
       Type() {
         kind_ = BaseTy;
+        type_name_ = "";
       };
       virtual ~Type() {};
       TypeKind GetKind() {
         return kind_;
       }
       virtual bool IsKindOf(TypeKind kind) = 0;
+      virtual const char* GetTypeName() = 0;
       virtual void Print();
-      virtual char* GetTypeName() { return NULL; }
   };
 
   class VoidType : public Type {
-    public:
       VoidType() {
         kind_ = VoidTy;
+        type_name_ = "void";
       }
+    public:
+      
       virtual ~VoidType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
@@ -49,19 +59,134 @@ namespace AST {
           return true;
         return false;
       }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
   };
 
-  class IntegerType : public Type {
+  class IntegerType: public Type {
     public:
-      IntegerType() {
-        kind_ = IntTy;
+    enum eSign {
+      Signed,
+      Unsigned,
+    };
+    private:
+    eSign sign_;
+
+    public:
+      IntegerType(eSign sign) {
+        kind_ = IntegerTy;
+        sign_ = sign;
+        if (sign_ == Signed)
+          type_name_ = "signed integer";
+        else
+          type_name_ = "unsigned integer";
       }
       virtual ~IntegerType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
-        if (kind == IntTy || kind == BaseTy)
+        if (kind == IntegerTy || kind == BaseTy)
           return true;
         return false;
+      }
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
+
+      eSign GetSign() {
+        return sign_;
+      }
+  };
+
+  class CharType: public Type {
+    public:
+      CharType(eSign sign) {
+        kind_ = CharTy;
+        sign_ = sign;
+        if (sign_ == Signed)
+          type_name_ = "char";
+        else
+          type_name_ = "unsigned char";
+      }
+      virtual ~CharType() {}
+
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == CharTy || kind == IntegerTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
+  };
+
+  class ShortType: public Type {
+    public:
+      ShortType(eSign sign) {
+        kind_ = ShortTy;
+        sign_ = sign;
+        if (sign_ == Signed)
+          type_name_ = "short";
+        else
+          type_name_ = "unsigned short";
+      }
+      virtual ~ShortType() {}
+
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == ShortTy || kind == IntegerTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
+  };
+  
+  class IntType: public Type {
+    public:
+      IntType(eSign sign) {
+        kind_ = IntTy;
+        sign_ = sign;
+        if (sign_ == Signed)
+          type_name_ = "int";
+        else
+          type_name_ = "unsigned int";
+      }
+      virtual ~IntType() {}
+
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == IntTy || kind == IntegerTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
+  };
+
+  class LongType: public Type {
+    public:
+      LongType(eSign sign) {
+        kind_ = LongTy;
+        sign_ = sign;
+        if (sign_ == Signed)
+          type_name_ = "long";
+        else
+          type_name_ = "unsigned long";
+      }
+      virtual ~LongType() {}
+
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == LongTy || kind == IntegerTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
       }
   };
 
@@ -69,6 +194,7 @@ namespace AST {
     public:
       RealType() {
         kind_ = RealTy;
+        type_name_ = "real";
       }
       virtual ~RealType() {}
       
@@ -76,6 +202,48 @@ namespace AST {
         if (kind == RealTy || kind == BaseTy)
           return true;
         return false;
+      }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
+  };
+
+  class FloatType : public Type {
+    public:
+      FloatType() {
+        kind_ = FloatTy;
+        type_name_ = "real";
+      }
+      virtual ~FloatType() {}
+      
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == FloatTy || kind == RealTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
+  };
+
+  class DoubleType : public Type {
+    public:
+      DoubleType() {
+        kind_ = DoubleTy;
+        type_name_ = "real";
+      }
+      virtual ~DoubleType() {}
+      
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == DoubleTy || kind == RealTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
       }
   };
 
