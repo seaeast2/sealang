@@ -15,7 +15,7 @@ class Environment {
       Clear();
     }
 
-    V* Get(const char* key) {
+    V* GetValue(const char* key) {
       return data_.Find(key);
     }
 
@@ -30,7 +30,12 @@ class Environment {
 
     bool Pop(const char* key) {
       char* key_top = key_stack_.Top();
-      if (key_top == key)
+      if (!strcmp(key_top, key)) {
+        key_stack_.Pop();
+        data_.Delete(key);
+        return true;
+      }
+      return false;
     }
 };
 

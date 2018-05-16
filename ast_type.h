@@ -2,7 +2,6 @@
 #define _ast_type_h_
 
 #include <string.h>
-using namespace std;
 
 namespace AST {
   // These types are all AST Types.
@@ -35,6 +34,7 @@ namespace AST {
       }
       virtual bool IsKindOf(TypeKind kind) = 0;
       virtual void Print();
+      virtual char* GetTypeName() { return NULL; }
   };
 
   class VoidType : public Type {

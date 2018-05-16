@@ -2,7 +2,6 @@
 #define _error_diagnosis_h_
 
 #include <iostream>
-using namespace std;
 
 namespace ErrorDiag {
   enum ErrorKind {

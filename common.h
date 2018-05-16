@@ -4,9 +4,7 @@
 #include <vector>
 #include <string>
 
-using namespace std;
-
-typedef vector<string> VecStr;
+typedef std::vector<string> VecStr;
 
 
 #endif

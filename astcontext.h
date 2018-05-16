@@ -6,7 +6,6 @@
 #include "ast_node.h"
 #include "environment.h"
 
-using namespace std;
 
 namespace AST {
   // AST context manager
@@ -16,9 +15,9 @@ namespace AST {
       RootNode* rootNode_;
 
       // type environment
-      Environment<char*, Type*> type_env_;
+      Environment<Type*> type_env_;
       // variable evironment
-      Environment<char*, VariableNode*> var_evn_;
+      Environment<VariableNode*> var_evn_;
 
     public:
       ASTContext();
