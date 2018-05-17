@@ -2,6 +2,7 @@
 #define _ast_type_h_
 
 #include <string>
+#include "astcontext.h"
 
 namespace AST {
   // These types are all AST Types.
@@ -31,6 +32,7 @@ namespace AST {
     protected:
       TypeKind kind_;
       std::string type_name_;
+
     public:
       Type() {
         kind_ = BaseTy;
@@ -40,6 +42,7 @@ namespace AST {
       TypeKind GetKind() {
         return kind_;
       }
+
       virtual bool IsKindOf(TypeKind kind) = 0;
       virtual const char* GetTypeName() = 0;
       virtual void Print();
@@ -51,15 +54,15 @@ namespace AST {
         type_name_ = "void";
       }
     public:
-      
       virtual ~VoidType() {}
+
+      static VoidType* Get(ASTContext* ac); // Type creator
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == VoidTy || kind == BaseTy)
           return true;
         return false;
       }
-
       virtual const char* GetTypeName() {
         return type_name_.c_str();
       }
@@ -67,14 +70,13 @@ namespace AST {
 
   class IntegerType: public Type {
     public:
-    enum eSign {
-      Signed,
-      Unsigned,
-    };
+      enum eSign {
+        Signed,
+        Unsigned,
+      };
     private:
-    eSign sign_;
+      eSign sign_;
 
-    public:
       IntegerType(eSign sign) {
         kind_ = IntegerTy;
         sign_ = sign;
@@ -83,6 +85,7 @@ namespace AST {
         else
           type_name_ = "unsigned integer";
       }
+    public:
       virtual ~IntegerType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
@@ -99,8 +102,8 @@ namespace AST {
       }
   };
 
+  // 8bit 
   class CharType: public Type {
-    public:
       CharType(eSign sign) {
         kind_ = CharTy;
         sign_ = sign;
@@ -109,7 +112,10 @@ namespace AST {
         else
           type_name_ = "unsigned char";
       }
+    public:
       virtual ~CharType() {}
+
+      static CharType* Get(ASTContext* ac);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == CharTy || kind == IntegerTy || kind == BaseTy)
@@ -121,6 +127,7 @@ namespace AST {
       }
   };
 
+  // 16bit
   class ShortType: public Type {
     public:
       ShortType(eSign sign) {
@@ -144,6 +151,7 @@ namespace AST {
       }
   };
   
+  // 32bit
   class IntType: public Type {
     public:
       IntType(eSign sign) {
@@ -167,6 +175,7 @@ namespace AST {
       }
   };
 
+  // 64bit
   class LongType: public Type {
     public:
       LongType(eSign sign) {
@@ -213,7 +222,7 @@ namespace AST {
     public:
       FloatType() {
         kind_ = FloatTy;
-        type_name_ = "real";
+        type_name_ = "float";
       }
       virtual ~FloatType() {}
       
@@ -232,7 +241,7 @@ namespace AST {
     public:
       DoubleType() {
         kind_ = DoubleTy;
-        type_name_ = "real";
+        type_name_ = "double";
       }
       virtual ~DoubleType() {}
       
