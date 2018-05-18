@@ -1,6 +1,7 @@
-#include "ast_type.h"
 #include <iostream>
 #include <string>
+#include "ast_type.h"
+#include "astcontext.h"
 
 using namespace std;
 
@@ -10,13 +11,32 @@ namespace AST {
     cout << "Base Type" << endl;
   }
 
-  VoidType* VoidType::Get(ASTContext* ac) {
+  const VoidType* VoidType::Get(ASTContext* ac) {
     return ac->GetVoidTy();
   }
 
-  CharType* CharType::Get(ASTContext* ac) {
+  const CharType* CharType::Get(ASTContext* ac) {
     return ac->GetCharTy();
   }
 
+  const ShortType* ShortType::Get(ASTContext* ac) {
+    return ac->GetShortTy();
+  }
+
+  const IntType* IntType::Get(ASTContext* ac) {
+    return ac->GetIntTy();
+  }
+
+  const LongType* LongType::Get(ASTContext* ac) {
+    return ac->GetLongTy();
+  }
+
+  const FloatType* FloatType::Get(ASTContext* ac) {
+    return ac->GetFloatTy();
+  }
+
+  const DoubleType* DoubleType::Get(ASTContext* ac) {
+    return ac->GetDoubleTy();
+  }
 }
 

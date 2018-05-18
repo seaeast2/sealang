@@ -1,9 +1,8 @@
 #ifndef _queue_h_
 #define _queue_h_
 
-
 template <class T, unsigned int QUEUE_SIZE = 100> 
-class SimpleQueue{
+class SimpleQueue {
   T data_[QUEUE_SIZE];
 
   int front_, back_;

@@ -2,18 +2,19 @@
 #define _ast_type_h_
 
 #include <string>
-#include "astcontext.h"
 
 namespace AST {
   // These types are all AST Types.
   // Base type in AST
+
+  class ASTContext;
 
   class Type {
     public:
       enum TypeKind {
         BaseTy,
         VoidTy,
-        IntegerType,
+        IntegerTy,
           CharTy,
           ShortTy,
           IntTy,
@@ -33,11 +34,12 @@ namespace AST {
       TypeKind kind_;
       std::string type_name_;
 
-    public:
       Type() {
         kind_ = BaseTy;
         type_name_ = "";
       };
+
+    public:
       virtual ~Type() {};
       TypeKind GetKind() {
         return kind_;
@@ -49,6 +51,7 @@ namespace AST {
   };
 
   class VoidType : public Type {
+    protected:
       VoidType() {
         kind_ = VoidTy;
         type_name_ = "void";
@@ -56,7 +59,7 @@ namespace AST {
     public:
       virtual ~VoidType() {}
 
-      static VoidType* Get(ASTContext* ac); // Type creator
+      static const VoidType* Get(ASTContext* ac); // Type creator
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == VoidTy || kind == BaseTy)
@@ -74,8 +77,13 @@ namespace AST {
         Signed,
         Unsigned,
       };
-    private:
+
+    protected:
       eSign sign_;
+
+      IntegerType() {
+        sign_ = Signed;
+      }
 
       IntegerType(eSign sign) {
         kind_ = IntegerTy;
@@ -86,6 +94,7 @@ namespace AST {
           type_name_ = "unsigned integer";
       }
     public:
+
       virtual ~IntegerType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
@@ -103,8 +112,9 @@ namespace AST {
   };
 
   // 8bit 
-  class CharType: public Type {
-      CharType(eSign sign) {
+  class CharType: public IntegerType {
+    protected:
+      CharType(IntegerType::eSign sign) {
         kind_ = CharTy;
         sign_ = sign;
         if (sign_ == Signed)
@@ -115,7 +125,7 @@ namespace AST {
     public:
       virtual ~CharType() {}
 
-      static CharType* Get(ASTContext* ac);
+      static const CharType* Get(ASTContext* ac);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == CharTy || kind == IntegerTy || kind == BaseTy)
@@ -128,9 +138,9 @@ namespace AST {
   };
 
   // 16bit
-  class ShortType: public Type {
-    public:
-      ShortType(eSign sign) {
+  class ShortType: public IntegerType {
+    protected:
+      ShortType(IntegerType::eSign sign) {
         kind_ = ShortTy;
         sign_ = sign;
         if (sign_ == Signed)
@@ -138,7 +148,10 @@ namespace AST {
         else
           type_name_ = "unsigned short";
       }
+    public:
       virtual ~ShortType() {}
+
+      static const ShortType* Get(ASTContext* ac);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == ShortTy || kind == IntegerTy || kind == BaseTy)
@@ -152,9 +165,9 @@ namespace AST {
   };
   
   // 32bit
-  class IntType: public Type {
-    public:
-      IntType(eSign sign) {
+  class IntType: public IntegerType {
+    protected:
+      IntType(IntegerType::eSign sign) {
         kind_ = IntTy;
         sign_ = sign;
         if (sign_ == Signed)
@@ -162,7 +175,10 @@ namespace AST {
         else
           type_name_ = "unsigned int";
       }
+    public:
       virtual ~IntType() {}
+
+      static const IntType* Get(ASTContext* ac);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == IntTy || kind == IntegerTy || kind == BaseTy)
@@ -176,9 +192,9 @@ namespace AST {
   };
 
   // 64bit
-  class LongType: public Type {
-    public:
-      LongType(eSign sign) {
+  class LongType: public IntegerType {
+    protected:
+      LongType(IntegerType::eSign sign) {
         kind_ = LongTy;
         sign_ = sign;
         if (sign_ == Signed)
@@ -186,7 +202,10 @@ namespace AST {
         else
           type_name_ = "unsigned long";
       }
+    public:
       virtual ~LongType() {}
+
+      static const LongType* Get(ASTContext* ac);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == LongTy || kind == IntegerTy || kind == BaseTy)
@@ -200,11 +219,12 @@ namespace AST {
   };
 
   class RealType : public Type {
-    public:
+    protected:
       RealType() {
         kind_ = RealTy;
         type_name_ = "real";
       }
+    public:
       virtual ~RealType() {}
       
       virtual bool IsKindOf(TypeKind kind) {
@@ -218,13 +238,16 @@ namespace AST {
       }
   };
 
-  class FloatType : public Type {
-    public:
+  class FloatType : public RealType {
+    protected:
       FloatType() {
         kind_ = FloatTy;
         type_name_ = "float";
       }
+    public:
       virtual ~FloatType() {}
+
+      static const FloatType* Get(ASTContext* ac);
       
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == FloatTy || kind == RealTy || kind == BaseTy)
@@ -237,13 +260,16 @@ namespace AST {
       }
   };
 
-  class DoubleType : public Type {
-    public:
+  class DoubleType : public RealType {
+    protected:
       DoubleType() {
         kind_ = DoubleTy;
         type_name_ = "double";
       }
+    public:
       virtual ~DoubleType() {}
+
+      static const DoubleType* Get(ASTContext* ac);
       
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == DoubleTy || kind == RealTy || kind == BaseTy)
@@ -257,11 +283,12 @@ namespace AST {
   };
 
   class NamedType : public Type {
-    char name_[64]; // type name
-    public:
+    protected:
       NamedType() {
         kind_ = NamedTy;
+        type_name_ = "named type";
       }
+    public:
       virtual ~NamedType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
@@ -269,13 +296,18 @@ namespace AST {
           return true;
         return false;
       }
+
+      virtual const char* GetTypeName() {
+        return type_name_.c_str();
+      }
   };
 
   class CompositeType : public NamedType {
-    public:
+    protected:
       CompositeType() {
         kind_ = CompositeTy;
       }
+    public:
       virtual ~CompositeType() {}
       
       virtual bool IsKindOf(TypeKind kind) {
@@ -286,10 +318,11 @@ namespace AST {
   };
 
   class ClassType : public CompositeType {
-    public:
+    protected:
       ClassType() {
         kind_ = ClassTy;
       }
+    public:
       virtual ~ClassType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
@@ -301,10 +334,11 @@ namespace AST {
   };
 
   class UserType : public NamedType {
-    public:
+    protected:
       UserType() {
         kind_ = UserTy;
       }
+    public:
       virtual ~UserType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
@@ -315,10 +349,11 @@ namespace AST {
   };
 
   class PointerType : public Type {
-    public:
+    protected:
       PointerType() {
         kind_ = PointerTy;
       }
+    public:
       virtual ~PointerType() {}
 
       virtual bool IsKindOf(TypeKind kind) {
@@ -329,10 +364,11 @@ namespace AST {
   };
 
   class FunctionType : public Type {
-    public:
+    protected:
       FunctionType() {
         kind_ = FunctionTy;
       }
+    public:
       virtual ~FunctionType() {}
 
       virtual bool IsKindOf(TypeKind kind) {

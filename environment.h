@@ -2,7 +2,7 @@
 #define _environment_h_
 
 #include "core/hash.h"
-#include "core/stack.h"
+#include "core/resize_stack.h"
 
 template <class V>
 class Environment {
