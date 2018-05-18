@@ -14,11 +14,11 @@ class Environment {
     ~Environment() {
     }
 
-    V* GetValue(const char* key) {
-      return data_.Find(key);
+    V GetValue(const char* key) {
+      return *data_.Find(key);
     }
 
-    bool Push(char* key, const V& value) {
+    bool Push(const char* key, V& value) {
       if(data_.Find(key))
         return false;
 
@@ -28,7 +28,7 @@ class Environment {
     }
 
     bool Pop(const char* key) {
-      char* key_top = key_stack_.Top();
+      const char* key_top = key_stack_.Top().c_str();
       if (!strcmp(key_top, key)) {
         key_stack_.Pop();
         data_.Delete(key);

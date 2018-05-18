@@ -59,7 +59,7 @@ namespace AST {
     public:
       virtual ~VoidType() {}
 
-      static const VoidType* Get(ASTContext* ac); // Type creator
+      static VoidType* Get(ASTContext* ac); // Type creator
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == VoidTy || kind == BaseTy)
@@ -125,7 +125,7 @@ namespace AST {
     public:
       virtual ~CharType() {}
 
-      static const CharType* Get(ASTContext* ac);
+      static CharType* Get(ASTContext* ac, IntegerType::eSign s);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == CharTy || kind == IntegerTy || kind == BaseTy)
@@ -151,7 +151,7 @@ namespace AST {
     public:
       virtual ~ShortType() {}
 
-      static const ShortType* Get(ASTContext* ac);
+      static ShortType* Get(ASTContext* a, IntegerType::eSign sc);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == ShortTy || kind == IntegerTy || kind == BaseTy)
@@ -178,7 +178,7 @@ namespace AST {
     public:
       virtual ~IntType() {}
 
-      static const IntType* Get(ASTContext* ac);
+      static IntType* Get(ASTContext* ac, IntegerType::eSign s);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == IntTy || kind == IntegerTy || kind == BaseTy)
@@ -205,7 +205,7 @@ namespace AST {
     public:
       virtual ~LongType() {}
 
-      static const LongType* Get(ASTContext* ac);
+      static LongType* Get(ASTContext* ac, IntegerType::eSign s);
 
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == LongTy || kind == IntegerTy || kind == BaseTy)
@@ -226,7 +226,7 @@ namespace AST {
       }
     public:
       virtual ~RealType() {}
-      
+
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == RealTy || kind == BaseTy)
           return true;
@@ -247,7 +247,7 @@ namespace AST {
     public:
       virtual ~FloatType() {}
 
-      static const FloatType* Get(ASTContext* ac);
+      static FloatType* Get(ASTContext* ac);
       
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == FloatTy || kind == RealTy || kind == BaseTy)
@@ -269,7 +269,7 @@ namespace AST {
     public:
       virtual ~DoubleType() {}
 
-      static const DoubleType* Get(ASTContext* ac);
+      static DoubleType* Get(ASTContext* ac);
       
       virtual bool IsKindOf(TypeKind kind) {
         if (kind == DoubleTy || kind == RealTy || kind == BaseTy)

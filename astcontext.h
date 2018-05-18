@@ -19,15 +19,6 @@ namespace AST {
       // variable evironment
       Environment<VariableNode*> var_evn_;
 
-      // primitive types
-      VoidType void_ty_;
-      CharType char_ty_;
-      ShortType short_ty_;
-      IntType int_ty_;
-      LongType long_ty_;
-      FloatType float_ty_;
-      DoubleType double_ty_;
-
     public:
       ASTContext();
       ~ASTContext();
@@ -38,27 +29,10 @@ namespace AST {
       
       RootNode* GetAstRoot() { return rootNode_; }
 
-      const VoidType* GetVoidTy() const {
-        return &void_ty_;
-      }
-      const CharType* GetCharTy() const {
-        return &char_ty_;
-      }
-      const ShortType* GetShortTy() const {
-        return &short_ty_;
-      }
-      const IntType* GetIntTy() const {
-        return &int_ty_;
-      }
-      const LongType* GetLongTy() const {
-        return &long_ty_;
-      }
-      const FloatType* GetFloatTy() const {
-        return &float_ty_;
-      }
-      const DoubleType* GetDoubleTy() const {
-        return &double_ty_;
-      }
+      // Type environment control
+      Type* FindType(const char* type_name);
+      bool AddType(const char* key, Type* ty);
+      Type* RemoveType(const char* key);
 
       // Debug functions
       void PrintImports();
