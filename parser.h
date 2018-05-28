@@ -248,7 +248,6 @@ namespace Parser {
       eResult TraverseRule(int entry);
 
       eResult DoNothing(void) { return True; } // Dummy function for function pointer array
-      eResult PushToken(void); // Push Token to ParseInfo stack.
       eResult CompilationUnit(void); // compilation_unit
       
       eResult ImportStmts(void); // import_stmts
@@ -264,6 +263,11 @@ namespace Parser {
       
       eResult Type(void); // type
       eResult TypeRef(void); // typeref
+        eResult Act_seq_unassigned_array(void);
+        eResult Act_seq_assigned_array(void);
+        eResult Act_seq_ptr(void);
+        eResult Act_seq_func_ptr(void);
+
 
       eResult TypeRefBase(void); // typeref_base
         eResult Act_seq_void(void); 
@@ -342,6 +346,10 @@ namespace Parser {
       eResult ActTokStringLiteral(void);
       eResult ActIdentifier(void);
 
+      // Utils
+      void PushType(AST::Type* type);
+      void PushToken(void); // Push Token to ParseInfo stack.
+      void PushNode(AST::BaseNode* node);
       void DebugPrint();
   };
 }

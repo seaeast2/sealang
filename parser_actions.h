@@ -9,14 +9,21 @@
 namespace Parser {
   // Build AST
   class SyntaxAction {
-    Lexer::Tokenizer* tokenizer_;
-    AST::ASTContext* astctx_;
-    ErrorDiag::Diagnosis* err_diag_;
+    private:
+      Lexer::Tokenizer* tokenizer_;
+      AST::ASTContext* astctx_;
+      ErrorDiag::Diagnosis* err_diag_;
+
     public:
       SyntaxAction(AST::ASTContext* AC, Lexer::Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAction();
 
       void ActOnImport(const std::string &import_path); // get import path.
+
+
+      AST::ASTContext* GetContext() {
+        return astctx_;
+      }
 
   };
 }
