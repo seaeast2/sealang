@@ -352,15 +352,19 @@ namespace AST {
         is_incomplete_ = false;
       }
       ArrayType(Type* basety) {
+        kind_ = ArrayTy;
+        is_incomplete_ = false;
+        
         base_type_ = basety;
-
         type_name_ = basety->GetTypeName(); 
         type_name_ += "[]";
       }
       ArrayType(Type* basety, unsigned int size) {
+        kind_ = ArrayTy;
+        is_incomplete_ = false;
+
         base_type_ = basety;
         array_size_= size;
-        
         type_name_ = basety->GetTypeName();
         type_name_ = type_name_ + "[" + std::to_string(size) + "]";
       }
@@ -377,10 +381,22 @@ namespace AST {
   };
 
   class PointerType : public Type {
+    private:
+      Type* base_type_;
     protected:
       PointerType() {
+        base_type_ = NULL;
         kind_ = PointerTy;
         is_incomplete_ = false;
+      }
+      PointerType(Type* basety) {
+        base_type_ = NULL;
+        kind_ = PointerTy;
+        is_incomplete_ = false;
+
+        base_type_ = basety;
+        type_name_ = basety->GetTypeName();
+        type_name_ += "*";
       }
     public:
       virtual ~PointerType() {}
@@ -390,6 +406,8 @@ namespace AST {
           return true;
         return false;
       }
+
+      static PointerType* Get(ASTContext* ac, Type* basety);
   };
 
   class FunctionType : public Type {

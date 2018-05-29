@@ -133,5 +133,17 @@ namespace AST {
     ac->AddType(ty->GetTypeName(), ty);
     return (ArrayType*) ty;
   }
+
+  PointerType* PointerType::Get(ASTContext* ac, Type* basety) {
+    string arr_type_name = basety->GetTypeName();
+    arr_type_name = arr_type_name + "*";
+    Type* ty = ac->FindType(arr_type_name.c_str());
+    if (ty)
+      return (PointerType*) ty;
+
+    ty = new PointerType(basety);
+    ac->AddType(ty->GetTypeName(), ty);
+    return (PointerType*) ty;
+  }
 }
 

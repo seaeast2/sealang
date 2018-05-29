@@ -168,12 +168,36 @@ namespace Parser {
     return False;
   }
   eResult SyntaxAnalyzer::Act_seq_unassigned_array(void) {
-    // <<== working here
-    return True;
+    ParseInfo pi = parse_stack_.Top();
+    parse_stack_.Pop();
+    if (pi.type_ == ParseInfo::ASTType) {
+      AST::Type* basety = pi.data_.type_;
+      AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety);
+      PushType((AST::Type*)arrty);
+      return True;
+    }
+    return Error;
   }
   eResult SyntaxAnalyzer::Act_seq_assigned_array(void) {
-    // <<== working here
-    return True;
+    ParseInfo pi_basety, pi_int;  
+    pi_int = parse_stack_.Top();
+    if (pi_int.type_ == ParseInfo::Integer) {
+      parse_stack_.Pop();
+      pi_basety = parse_stack_.Top();
+      parse_stack_.Pop();
+      if (pi_basety.type_ == ParseInfo::ASTType) {
+        AST::Type* basety = pi_basety.data_.type_;
+        long size = pi_int.data_.integer_;
+        if (size < 0) {
+          // invalid array size.
+          return Error;
+        }
+        AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety, size);
+        PushType((AST::Type*)arrty);
+        return True;
+      }
+    }
+    return Error;
   }
   eResult SyntaxAnalyzer::Act_seq_ptr(void) {
     // <<== working here
