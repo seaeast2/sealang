@@ -200,11 +200,25 @@ namespace Parser {
     return Error;
   }
   eResult SyntaxAnalyzer::Act_seq_ptr(void) {
-    // <<== working here
-    return True;
+    ParseInfo pi_basety;
+    pi_basety = parse_stack_.Top();
+    if (pi_basety.type_ == ParseInfo::ASTType) {
+      parse_stack_.Pop();
+      AST::Type* basety = pi_basety.data_.type_;
+
+      AST::PointerType* ptrty = AST::PointerType::Get(action_->GetContext(), basety);
+      PushType((AST::Type*)ptrty);
+      return True;
+    }
+    return Error;
   }
-  eResult SyntaxAnalyzer::Act_seq_func_ptr(void) {
-    // <<== working here
+  eResult SyntaxAnalyzer::Act_seq_func(void) {
+    ParseInfo pi_params = parse_stack_.Top();
+    if (pi_params.type_ == ParseInfo::TypeList) {
+      SimpleVector<AST::Type*>* params = pi_params.data_.types_;
+      //<<== working
+    }
+    
     return True;
   }
 

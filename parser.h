@@ -4,6 +4,7 @@
 #include <string>
 #include "common.h"
 #include "core/stack.h"
+#include "core/simple_vector.h"
 #include "lexer.h"
 #include "error_diagnosis.h"
 #include "parser_actions.h"
@@ -64,7 +65,7 @@ namespace Parser {
           seq_unassigned_array, // "[""]              // unassigned array
           seq_assigned_array,   // "["<INTEGER>"]"    // assigned array
           seq_ptr,              // *                  //pointer
-          seq_func_ptr,         // "(" param_typerefs ")" // function pointer
+          seq_func,         // "(" param_typerefs ")" // function pointer
     param_typerefs,
     stmts,
     stmt,
@@ -196,6 +197,7 @@ namespace Parser {
       ASTNode,
       ASTType,
       TokenType,
+      TypeList,
     };
 
     union RawData {
@@ -205,6 +207,7 @@ namespace Parser {
       AST::BaseNode* node_;
       AST::Type* type_;
       Lexer::TokenType tok_type_;
+      SimpleVector<AST::Type*>* types_;
     };
 
     RawDataType type_;
@@ -263,10 +266,10 @@ namespace Parser {
       
       eResult Type(void); // type
       eResult TypeRef(void); // typeref
-        eResult Act_seq_unassigned_array(void);
-        eResult Act_seq_assigned_array(void);
-        eResult Act_seq_ptr(void);
-        eResult Act_seq_func_ptr(void);
+        eResult Act_seq_unassigned_array(void); // unassigned array type
+        eResult Act_seq_assigned_array(void); // assigned array type
+        eResult Act_seq_ptr(void); // pointer type
+        eResult Act_seq_func(void); // function type
 
 
       eResult TypeRefBase(void); // typeref_base

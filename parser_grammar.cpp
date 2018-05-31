@@ -166,14 +166,15 @@ namespace Parser {
         //   | "["<INTEGER>"]"           // assigned array
         //   | "*"                       // pointer 
         //   | "(" param_typerefs ")"  // function pointer 
-        rules_[sel_arry_ptr_fnptr] = {Select, {seq_unassigned_array, seq_assigned_array, seq_ptr, seq_func_ptr}};
+        rules_[sel_arry_ptr_fnptr] = {Select, {seq_unassigned_array, seq_assigned_array, seq_ptr, seq_func}};
           // "[""]
           rules_[seq_unassigned_array] = {Sequence, {TokBracketOpen, TokBracketClose}};
           // "["<INTEGER>"]"
           rules_[seq_assigned_array] = {Sequence, {TokBracketOpen, TokIntegerLiteral, TokBracketClose}};
+          // "*"
           rules_[seq_ptr] = {Sequence, {TokMul}};
           // "(" param_typerefs ")"
-          rules_[seq_func_ptr] = {Sequence, {TokParenOpen, param_typerefs, TokParenClose}};
+          rules_[seq_func] = {Sequence, {TokParenOpen, param_typerefs, TokParenClose}};
 
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
@@ -538,7 +539,7 @@ namespace Parser {
       rule_actions_[seq_unassigned_array] = &SyntaxAnalyzer::Act_seq_unassigned_array; 
       rule_actions_[seq_assigned_array] = &SyntaxAnalyzer::Act_seq_assigned_array; 
       rule_actions_[seq_ptr] = &SyntaxAnalyzer::Act_seq_ptr; 
-      rule_actions_[seq_func_ptr] = &SyntaxAnalyzer::Act_seq_func_ptr; 
+      rule_actions_[seq_func] = &SyntaxAnalyzer::Act_seq_func; 
     
     rule_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;
       rule_actions_[seq_void] = &SyntaxAnalyzer::Act_seq_void; 

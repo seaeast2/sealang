@@ -2,6 +2,7 @@
 #define _ast_type_h_
 
 #include <string>
+#include "core/simple_vector.h"
 
 namespace AST {
   // These types are all AST Types.
@@ -390,7 +391,6 @@ namespace AST {
         is_incomplete_ = false;
       }
       PointerType(Type* basety) {
-        base_type_ = NULL;
         kind_ = PointerTy;
         is_incomplete_ = false;
 
@@ -409,12 +409,35 @@ namespace AST {
 
       static PointerType* Get(ASTContext* ac, Type* basety);
   };
-
+  
   class FunctionType : public Type {
+    private:
+      Type* return_type_;
+      SimpleVector<Type*> param_types_;
     protected:
       FunctionType() {
         kind_ = FunctionTy;
         is_incomplete_ = false;
+      }
+
+      FunctionType(Type* retty, SimpleVector<Type*> param_types) {
+        kind_ = FunctionTy;
+        is_incomplete_ = false;
+
+        return_type_ = retty;
+        param_types_ = param_types;
+        
+        // funciton type typename
+        // retty(paramty1,paramty2,paramty3,...) 
+        std::string fn_type_name = retty->GetTypeName();
+        fn_type_name += "(";
+        for (int i = 0; i < param_types.GetSize(); i++) {
+          fn_type_name += param_types[i]->GetTypeName();
+          if (i+1 < param_types.GetSize())
+            fn_type_name += ",";
+        }
+        fn_type_name += ")";
+        type_name_ = fn_type_name;
       }
     public:
       virtual ~FunctionType() {}
@@ -424,6 +447,8 @@ namespace AST {
           return true;
         return false;
       }
+
+      static FunctionType* Get(ASTContext* ac, Type* retty, SimpleVector<Type*> param_types);
   };
 
 }

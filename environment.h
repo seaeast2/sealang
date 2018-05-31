@@ -18,6 +18,10 @@ class Environment {
       return *data_.Find(key);
     }
 
+    void PushNewScope() {
+      key_stack_.Push("newscope");
+    }
+
     bool Push(const char* key, V& value) {
       if(data_.Find(key))
         return false;

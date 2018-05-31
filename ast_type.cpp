@@ -145,5 +145,25 @@ namespace AST {
     ac->AddType(ty->GetTypeName(), ty);
     return (PointerType*) ty;
   }
+
+  FunctionType* FunctionType::Get(ASTContext* ac, Type* retty, SimpleVector<Type*> param_types) {
+    // funciton type typename
+    // retty(paramty1,paramty2,paramty3,...) 
+    string fn_type_name = retty->GetTypeName();
+    fn_type_name += "(";
+    for (int i = 0; i < param_types.GetSize(); i++) {
+      fn_type_name += param_types[i]->GetTypeName();
+      if (i+1 < param_types.GetSize())
+        fn_type_name += ",";
+    }
+    fn_type_name += ")";
+    Type* ty = ac->FindType(fn_type_name.c_str());
+    if (ty)
+      return (FunctionType*) ty;
+
+    ty = new FunctionType(retty, param_types);
+    ac->AddType(ty->GetTypeName(), ty);
+    return (FunctionType*) ty;
+  }
 }
 

@@ -14,27 +14,14 @@ class SimpleVector {
   int count_; // item count 
 
   public:
-    SimpleVector() {
-      count_ = 0;
-      max_size_ = DefaultExtendSize;
-      data_ = new T[max_size_];
-    }
-
-    SimpleVector(const SimpleVector& sv) {
-      for (int i = 0; i < sv.GetSize(); i++) {
-        PushBack(st[i]);
-      }
-    }
-
-    ~SimpleVector() {
-      Clear();
-    }
-
+    SimpleVector();
+    SimpleVector(const SimpleVector& sv);
+    ~SimpleVector();
 
     void PushBack(const T& t) {
       if (count_ + 1 > max_size_) {
-        T* new_data = new T[max_size_ + DefualtExtendSize];
-        max_size_ += DefualtExtendSize;
+        T* new_data = new T[max_size_ + DefaultExtendSize];
+        max_size_ += DefaultExtendSize;
         // copy items
         Copy(new_data, data_, count_);
         delete[] data_;
@@ -63,7 +50,7 @@ class SimpleVector {
       return max_size_;
     }
 
-    int GetSize() {
+    int GetSize() const {
       return count_;
     }
 
@@ -96,5 +83,24 @@ class SimpleVector {
       }
     }
 };
+
+template <class T>
+SimpleVector<T>::SimpleVector() {
+  count_ = 0;
+  max_size_ = DefaultExtendSize;
+  data_ = new T[max_size_];
+}
+
+template <class T>
+SimpleVector<T>::SimpleVector(const SimpleVector& sv) {
+  for (int i = 0; i < sv.GetSize(); i++) {
+    PushBack(sv[i]);
+  }
+}
+
+template <class T>
+SimpleVector<T>::~SimpleVector() {
+  Clear();
+}
 
 #endif
