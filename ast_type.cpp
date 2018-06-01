@@ -165,5 +165,16 @@ namespace AST {
     ac->AddType(ty->GetTypeName(), ty);
     return (FunctionType*) ty;
   }
+
+
+  VarArgType* VarArgType::Get(ASTContext* ac) {
+    string vaarg = "...";
+    Type* ty = ac->FindType(vaarg.c_str());
+    if (ty)
+      return (VarArgType*) ty;
+    
+    ty = new VarArgType();
+    return (VarArgType*) ty;
+  }
 }
 

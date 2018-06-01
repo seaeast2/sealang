@@ -29,7 +29,8 @@ namespace AST {
           UserTy,
         ArrayTy,
         PointerTy,
-        FunctionTy
+        FunctionTy,
+        VarArgTy,
       };
 
     protected:
@@ -451,5 +452,23 @@ namespace AST {
       static FunctionType* Get(ASTContext* ac, Type* retty, SimpleVector<Type*> param_types);
   };
 
+  class VarArgType: public Type {
+    protected:
+      VarArgType() {
+        type_name_ = "...";
+        kind_ = VarArgTy;
+        is_incomplete_ = false;
+      }
+    public:
+      virtual ~VarArgType() {}
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == VarArgTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+      
+      static VarArgType* Get(ASTContext* ac);
+  };
 }
+
 #endif

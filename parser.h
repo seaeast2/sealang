@@ -62,11 +62,15 @@ namespace Parser {
     typeref,
       rep_sel_arry_ptr_fnptr,
         sel_arry_ptr_fnptr,
-          seq_unassigned_array, // "[""]              // unassigned array
-          seq_assigned_array,   // "["<INTEGER>"]"    // assigned array
-          seq_ptr,              // *                  //pointer
-          seq_func,         // "(" param_typerefs ")" // function pointer
+          seq_unassigned_array, // "[""]              // unassigned array type
+          seq_assigned_array,   // "["<INTEGER>"]"    // assigned array type
+          seq_ptr,              // *                  // pointer type
+          seq_func,         // "(" param_typerefs ")" // function pointer type
     param_typerefs,
+      seq_param_void,       // <VOID>
+      seq_param_type_list,  // type ("," type)* ["," "..."] 
+        rep_param_comma_type,     // ("," type)*
+    param_type,
     stmts,
     stmt,
     labeled_stmt,
@@ -129,13 +133,11 @@ namespace Parser {
     opt_eq_expr, // ["=" expr]
     opt_rep_cm_name_dot_eq_expr, // [("," name ["=" expr])*]
     rep_cm_name_dot_eq_expr, // ("," name ["=" expr])
-    seq_fixparms_dot_dotdotdot, // fixedparams ["," "..."] 
-    opt_comma_dotdotdot, // ["," "..."] 
+    seq_fixedparams_vararg, // fixedparams ["," "..."] 
+    opt_vararg, // ["," "..."] 
     rep_comma_param, // ("," param)* 
     rep_class_member_semicolon, // (class_member ";")
     seq_type_name, // type name
-    seq_type_rep_type_dot, // type ("," type)* ["," "..."] 
-    rep_comma_type, // ("," type)*
     seq_expr_semicolon, // expr ";"
     opt_else_stmt, // [<ELSE> stmt]
     opt_expr, // [expr]
@@ -183,7 +185,7 @@ namespace Parser {
   };
 
   struct Rule {
-    int action_; // repeat, select, sequence, terminal, nonterminal
+    int action_; // repeat, select, sequence, terminal
     int sub_rules_[15];
   };
 
@@ -289,6 +291,9 @@ namespace Parser {
       eResult TypeDef(void); // typedef
       
       eResult ParamTypeRefs(void); // param_typerefs
+        eResult Act_seq_param_void(void); // <VOID> 
+      eResult ParamType(void); // param_type
+
       eResult Params(void); // params
       eResult FixedParams(void); // fixedparams
       eResult Param(void); // param
@@ -353,6 +358,7 @@ namespace Parser {
       void PushType(AST::Type* type);
       void PushToken(void); // Push Token to ParseInfo stack.
       void PushNode(AST::BaseNode* node);
+      void PushTypeList(SimpleVector<AST::Type*>* ty_list);
       void DebugPrint();
   };
 }

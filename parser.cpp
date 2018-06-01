@@ -14,18 +14,30 @@ namespace Parser {
       case Repeat:
         {
           while(true) {
+            int matching_count = 0;
+            int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
-            for (int i = 0; rule.sub_rules_[i] > -1; i++) {
+            for (; rule.sub_rules_[i] > -1; i++) {
               res = TraverseRule(rule.sub_rules_[i]);
-              if (res == False)
-                if (rules_[rule.sub_rules_[i]].action_ != Options) {
-                  tokenizer_->SetTokPos(tok_pos); // restore token position.
-                  // Run action
-                  (this->*rule_actions_[entry])();
-                  return True;
+              if (res == True) { // matched
+                matching_count++;
+              }
+              else if (res == False) { // not matching
+                if (rules_[rule.sub_rules_[i]].action_ == Options) {
+                  matching_count++;
                 }
-              else if (res == Error)
+                else {
+                  tokenizer_->SetTokPos(tok_pos); // restore token position.
+                  return True; // reached unmatching point.
+                }
+              }
+              else
                 return Error;
+            }
+
+            if (matching_count == i) {
+              // if every rules are matching, run action.
+              (this->*rule_actions_[entry])();
             }
           };
         }
@@ -160,6 +172,7 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Type(void) {
+    // <<== working
     return True;
   }
 
@@ -213,13 +226,27 @@ namespace Parser {
     return Error;
   }
   eResult SyntaxAnalyzer::Act_seq_func(void) {
-    ParseInfo pi_params = parse_stack_.Top();
+    ParseInfo pi_params, pi_retty;
+    pi_params = parse_stack_.Top();
     if (pi_params.type_ == ParseInfo::TypeList) {
+      parse_stack_.Pop();
       SimpleVector<AST::Type*>* params = pi_params.data_.types_;
-      //<<== working
+
+      pi_retty = parse_stack_.Top();
+      if (pi_retty.type_ == ParseInfo::ASTType) {
+        parse_stack_.Pop();
+        AST::Type* retty = pi_retty.data_.type_;
+
+        AST::FunctionType* fnty = AST::FunctionType::Get(action_->GetContext(), 
+            retty, *params);
+        PushType((AST::Type*)fnty);
+        delete params; // delete parameter type list container.
+
+        return True;
+      }
+      return Error; // TODO : Error message for invalid return type.
     }
-    
-    return True;
+    return Error; // TODO : Error message for invalid parameter types
   }
 
   eResult SyntaxAnalyzer::TypeRefBase(void) {
@@ -315,7 +342,39 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::ParamTypeRefs(void) {
+    // <<== working
     return True;
+  }
+  eResult SyntaxAnalyzer::Act_seq_param_void(void) {
+    AST::Type* ty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
+    SimpleVector<AST::Type*>* params = new SimpleVector<AST::Type*>();
+    params->PushBack(ty);
+    PushTypeList(params);
+    return True;
+  }
+  eResult SyntaxAnalyzer::ParamType(void) {
+    ParseInfo pi_type, pi_type_list;
+    SimpleVector<AST::Type*>* params = NULL;
+
+    pi_type = parse_stack_.Top();
+    if (pi_type.type_ == ParseInfo::ASTType) {
+      parse_stack_.Pop();
+
+      pi_type_list = parse_stack_.Top();
+      if (pi_type_list.type_ == ParseInfo::TypeList) {
+        parse_stack_.Pop();
+        params = parse_stack_.data_.types_;
+      }
+      else {
+        params = new SimpleVector<AST::Type*>();
+      }
+
+      params->PushBack(pi_type.data_.type_);
+      PushTypeList(params);
+      return True;
+    }
+
+    return False;
   }
 
   eResult SyntaxAnalyzer::Block(void) {
@@ -996,6 +1055,13 @@ namespace Parser {
     ParseInfo pi_new;
     pi_new.type_ = ParseInfo::ASTNode;
     pi_new.data_.node_ = node;
+    parse_stack_.Push(pi_new);
+  }
+
+  void SyntaxAnalyzer::PushTypeList(SimpleVector<AST::Type*>* ty_list) {
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::TypeList;
+    pi_new.data_.types_ = ty_list;
     parse_stack_.Push(pi_new);
   }
 

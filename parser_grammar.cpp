@@ -7,6 +7,7 @@ namespace Parser {
       memset(rules_[i].sub_rules_, -1, sizeof(rules_[i].sub_rules_));
     }
 
+    // Initialize rules as Terminal.
     for (int i = TokEof; i < TokEnd; i++) {
       rules_[i] = {Terminal, {i}};
     }
@@ -106,11 +107,11 @@ namespace Parser {
     // params // parameter definition 
     //   : <VOID> 
     //   | fixedparams ["," "..."] 
-    rules_[params] = {Select, {TokVoid, seq_fixparms_dot_dotdotdot}};
+    rules_[params] = {Select, {TokVoid, seq_fixedparams_vararg}};
       // fixedparams ["," "..."] 
-      rules_[seq_fixparms_dot_dotdotdot] = {Sequence, {fixedparams, opt_comma_dotdotdot}};
+      rules_[seq_fixedparams_vararg] = {Sequence, {fixedparams, opt_vararg}};
         // ["," "..."] 
-        rules_[opt_comma_dotdotdot] = {Options, {TokComma, TokDotDotDot}};
+        rules_[opt_vararg] = {Options, {TokComma, TokDotDotDot}};
 
     // fixedparams // fixed parameter definition 
     //   : param ("," param)* 
@@ -179,11 +180,17 @@ namespace Parser {
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
     //   | type ("," type)* ["," "..."] 
-    rules_[param_typerefs] = {Select, {TokVoid, seq_type_rep_type_dot}};
+    rules_[param_typerefs] = {Select, {seq_param_void, seq_param_type_list}};
+      // <VOID>
+      rules_[seq_param_void] = {Sequence, {TokVoid}};
       // type ("," type)* ["," "..."] 
-      rules_[seq_type_rep_type_dot] = {Sequence, {type, rep_comma_type, opt_comma_dotdotdot}};
+      rules_[seq_param_type_list] = {Sequence, {param_type, rep_param_comma_type, opt_vararg}};
         // ("," type)*
-        rules_[rep_comma_type] = {Repeat, {TokComma, type}};
+        rules_[rep_param_comma_type] = {Repeat, {TokComma, param_type}};
+
+    // param_type 
+    //   : typeref 
+    rules_[param_type] = {Sequence, {typeref}};
 
     // stmts 
     //   : (stmt)* 
@@ -540,6 +547,10 @@ namespace Parser {
       rule_actions_[seq_assigned_array] = &SyntaxAnalyzer::Act_seq_assigned_array; 
       rule_actions_[seq_ptr] = &SyntaxAnalyzer::Act_seq_ptr; 
       rule_actions_[seq_func] = &SyntaxAnalyzer::Act_seq_func; 
+
+    rule_actions_[param_typerefs] = &SyntaxAnalyzer::ParamTypeRefs;
+      rule_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
+    rule_actions_[param_type] = &SyntaxAnalyzer::ParamType;
     
     rule_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;
       rule_actions_[seq_void] = &SyntaxAnalyzer::Act_seq_void; 
