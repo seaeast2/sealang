@@ -51,6 +51,7 @@ namespace Parser {
     defconst,
     deffunc,
     params,
+      opt_vararg, // ["," "..."] 
     fixedparams,
     param,
     defvar_list,
@@ -70,6 +71,7 @@ namespace Parser {
       seq_param_void,       // <VOID>
       seq_param_type_list,  // type ("," type)* ["," "..."] 
         rep_param_comma_type,     // ("," type)*
+        opt_vararg_type,// ["," "..."] 
     param_type,
     stmts,
     stmt,
@@ -134,7 +136,6 @@ namespace Parser {
     opt_rep_cm_name_dot_eq_expr, // [("," name ["=" expr])*]
     rep_cm_name_dot_eq_expr, // ("," name ["=" expr])
     seq_fixedparams_vararg, // fixedparams ["," "..."] 
-    opt_vararg, // ["," "..."] 
     rep_comma_param, // ("," param)* 
     rep_class_member_semicolon, // (class_member ";")
     seq_type_name, // type name
@@ -292,11 +293,15 @@ namespace Parser {
       
       eResult ParamTypeRefs(void); // param_typerefs
         eResult Act_seq_param_void(void); // <VOID> 
+        eResult Act_seq_param_type_list(void); // param_type ("," type)* ["," "..."]
+          eResult Act_rep_param_comma_type(void); // ("," type)*
+          eResult Act_opt_vararg_type(void); // ["," "..."] 
       eResult ParamType(void); // param_type
 
       eResult Params(void); // params
       eResult FixedParams(void); // fixedparams
       eResult Param(void); // param
+        eResult Act_opt_vararg(void); //opt_vararg
 
       eResult Block(void); // block
       eResult Expr(void); // expr

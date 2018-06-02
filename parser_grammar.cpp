@@ -183,10 +183,12 @@ namespace Parser {
     rules_[param_typerefs] = {Select, {seq_param_void, seq_param_type_list}};
       // <VOID>
       rules_[seq_param_void] = {Sequence, {TokVoid}};
-      // type ("," type)* ["," "..."] 
-      rules_[seq_param_type_list] = {Sequence, {param_type, rep_param_comma_type, opt_vararg}};
+      // param_type ("," type)* ["," "..."] 
+      rules_[seq_param_type_list] = {Sequence, {param_type, rep_param_comma_type, opt_vararg_type}};
         // ("," type)*
-        rules_[rep_param_comma_type] = {Repeat, {TokComma, param_type}};
+        rules_[rep_param_comma_type] = {Repeat, {TokComma, type}};
+        // ["," "..."] 
+        rules_[opt_vararg_type] = {Repeat, {TokComma, TokDotDotDot}};
 
     // param_type 
     //   : typeref 
@@ -550,6 +552,9 @@ namespace Parser {
 
     rule_actions_[param_typerefs] = &SyntaxAnalyzer::ParamTypeRefs;
       rule_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
+      rule_actions_[seq_param_type_list] = &SyntaxAnalyzer::Act_seq_param_type_list;
+        rule_actions_[rep_param_comma_type] = &SyntaxAnalyzer::Act_rep_param_comma_type;
+        rule_actions_[opt_vararg_type] = &SyntaxAnalyzer::Act_opt_vararg_type;
     rule_actions_[param_type] = &SyntaxAnalyzer::ParamType;
     
     rule_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;

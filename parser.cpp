@@ -352,29 +352,46 @@ namespace Parser {
     PushTypeList(params);
     return True;
   }
-  eResult SyntaxAnalyzer::ParamType(void) {
-    ParseInfo pi_type, pi_type_list;
-    SimpleVector<AST::Type*>* params = NULL;
 
-    pi_type = parse_stack_.Top();
+  eResult SyntaxAnalyzer::Act_seq_param_type_list(void) {
+    ParseInfo pi = parse_stack_.Top();
+    if (pi_type.type_ == ParseInfo::TypeList) {
+    }
+  }
+
+  eResult SyntaxAnalyzer::Act_rep_param_comma_type(void) {
+    ParseInfo pi_type = parse_stack_.Top();
+    if (pi_type.type_ == ParseInfo::ASTType) {
+      parse_stack_.Pop();
+      ParseInfo pi_type_list = parse_stack_.Top();
+      if (pi_type_list.type_ == ParseInfo::TypeList) {
+        parse_stack_.Pop();
+        SimpleVector<AST::Type*>* params = pi_type_list.data_.types_;
+        params->PushBack(pi_type.data_.type_);
+        PushTypeList(params);
+        return True;
+      }
+    }
+    return Error;
+  }
+
+  eResult SyntaxAnalyzer::Act_opt_vararg_type(void) {
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::ParamType(void) {
+    ParseInfo pi_type = parse_stack_.Top();;
+    SimpleVector<AST::Type*>* params = NULL;
     if (pi_type.type_ == ParseInfo::ASTType) {
       parse_stack_.Pop();
 
-      pi_type_list = parse_stack_.Top();
-      if (pi_type_list.type_ == ParseInfo::TypeList) {
-        parse_stack_.Pop();
-        params = parse_stack_.data_.types_;
-      }
-      else {
-        params = new SimpleVector<AST::Type*>();
-      }
+      params = new SimpleVector<AST::Type*>();
 
       params->PushBack(pi_type.data_.type_);
       PushTypeList(params);
       return True;
     }
-
-    return False;
+    return Error;
   }
 
   eResult SyntaxAnalyzer::Block(void) {
