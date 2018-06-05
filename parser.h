@@ -23,6 +23,7 @@ namespace Parser {
   };
 
 #define MAX_RULES 300
+#define MAX_SUB_RULES 15
   enum RuleName {
     // Token
     
@@ -132,7 +133,7 @@ namespace Parser {
     // sub rule
     rep_dot_name, // ("," name)*
     sel_fun_var_const_class_typedef, // deffunc | defvars | defconst | defclass | typedef
-    opt_eq_expr, // ["=" expr]
+    opt_var_initialize, // ["=" expr]
     opt_rep_cm_name_dot_eq_expr, // [("," name ["=" expr])*]
     rep_cm_name_dot_eq_expr, // ("," name ["=" expr])
     seq_fixedparams_vararg, // fixedparams ["," "..."] 
@@ -144,8 +145,8 @@ namespace Parser {
     opt_expr, // [expr]
     seq_return_semicolon, // <RETURN> ";"
     seq_return_expr_semicolon, // <RETURN> expr ";"
-    seq_term_eq_expr, // term "=" expr  
-    seq_term_ops_expr, // term opassign_op expr 
+    seq_assign_value, // term "=" expr  
+    seq_opassign_value, // term opassign_op expr 
     opt_ternaryop,// ["?" expr ":" expr10] 
     rep_or_expr8, //("||" expr8)* 
     rep_and_expr7,// ("&&" expr7)* 
@@ -193,6 +194,7 @@ namespace Parser {
 
   struct ParseInfo {
     enum RawDataType {
+      DefVarFunc, // Variable, Function definition start point indicator.
       Identifier,
       Integer,
       Character,

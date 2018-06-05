@@ -57,7 +57,7 @@ namespace Parser {
               tokenizer_->SetTokPos(tok_pos); // restore token position.
               return False;
             }
-            else if (res == Error)
+            else
               return Error;
           }
           return False;
@@ -103,7 +103,7 @@ namespace Parser {
             if (res == True) {
               matching_count++;
             }
-            else
+            else if (res == Error)
               return Error;
           }
 
@@ -168,17 +168,21 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Storage(void) {
+    // <<== working
     return False;
   }
 
   eResult SyntaxAnalyzer::Type(void) {
-    // <<== working
-    return True;
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ == ParseInfo::ASTType)
+      return True;
+    return Error;
   }
-
   eResult SyntaxAnalyzer::TypeRef(void) {
-    // <<== working here
-    return False;
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ == ParseInfo::ASTType)
+      return True;
+    return Error;
   }
   eResult SyntaxAnalyzer::Act_seq_unassigned_array(void) {
     ParseInfo pi = parse_stack_.Top();
@@ -236,25 +240,21 @@ namespace Parser {
       if (pi_retty.type_ == ParseInfo::ASTType) {
         parse_stack_.Pop();
         AST::Type* retty = pi_retty.data_.type_;
-
-        AST::FunctionType* fnty = AST::FunctionType::Get(action_->GetContext(), 
-            retty, *params);
+        AST::FunctionType* fnty = AST::FunctionType::Get(action_->GetContext(), retty, *params);
         PushType((AST::Type*)fnty);
         delete params; // delete parameter type list container.
-
         return True;
       }
-      return Error; // TODO : Error message for invalid return type.
+      return Error; // TODO : Need to error message for invalid return type.
     }
-    return Error; // TODO : Error message for invalid parameter types
+    return Error; // TODO : Need to error message for invalid parameter types
   }
 
   eResult SyntaxAnalyzer::TypeRefBase(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ == ParseInfo::ASTType) {
+    if (pi.type_ == ParseInfo::ASTType)
       return True;
-    }
-    return False;
+    return Error;
   }
   // create primitive types
   eResult SyntaxAnalyzer::Act_seq_void(void) {
@@ -342,9 +342,12 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::ParamTypeRefs(void) {
-    // <<== working
-    return True;
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ == ParseInfo::TypeList)
+      return True;
+    return Error;
   }
+
   eResult SyntaxAnalyzer::Act_seq_param_void(void) {
     AST::Type* ty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
     SimpleVector<AST::Type*>* params = new SimpleVector<AST::Type*>();
@@ -355,8 +358,9 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Act_seq_param_type_list(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi_type.type_ == ParseInfo::TypeList) {
-    }
+    if (pi.type_ == ParseInfo::TypeList)
+      return True;
+    return Error;
   }
 
   eResult SyntaxAnalyzer::Act_rep_param_comma_type(void) {
@@ -376,10 +380,21 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Act_opt_vararg_type(void) {
-    return True;
+    // It indicates this function has vararg type.
+    ParseInfo pi = parse_stack_.Top();
+    if (pi.type_ == ParseInfo::TypeList) {
+      parse_stack_.Pop();
+      SimpleVector<AST::Type*>* params = pi.data_.types_;
+      AST::Type* ty = (AST::Type*)AST::VarArgType::Get(action_->GetContext());
+      params->PushBack(ty);
+      PushTypeList(params);
+      return True;
+    }
+    return Error;
   }
 
   eResult SyntaxAnalyzer::ParamType(void) {
+    // This indicates this is first parameter type.
     ParseInfo pi_type = parse_stack_.Top();;
     SimpleVector<AST::Type*>* params = NULL;
     if (pi_type.type_ == ParseInfo::ASTType) {
@@ -415,6 +430,7 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::DefVars(void) {
+    // <<== working
     return True;
   }
 
@@ -423,6 +439,7 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Expr(void) {
+    // <<== working
     return True;
   }
 

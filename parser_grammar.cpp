@@ -4,7 +4,9 @@ namespace Parser {
   void SyntaxAnalyzer::InitBasicRule() {
 
     for (int i = 0; i < MAX_RULES; i++) {
-      memset(rules_[i].sub_rules_, -1, sizeof(rules_[i].sub_rules_));
+      for (int j = 0; j < MAX_SUB_RULES; j++) {
+        rules_[i].sub_rules_[j] = -1;
+      }
     }
 
     // Initialize rules as Terminal.
@@ -75,18 +77,15 @@ namespace Parser {
     //     | defclass 
     //     | typedef )* 
     rules_[top_defs] = {Repeat, {sel_fun_var_const_class_typedef}};
-      rules_[sel_fun_var_const_class_typedef] = {Select, {deffunc, 
-                                                          defvars, 
-                                                          defconst, 
-                                                          defclass}};
+      rules_[sel_fun_var_const_class_typedef] = {Select, {deffunc, defvars, defconst, defclass, typedef_ }};
     // defvars // variable definition. ex) int a = 0, b=19; 
     //   : storage type name ["=" expr] [("," name ["=" expr])*] ";" 
-    rules_[defvars] = {Sequence, {storage, type, name, opt_eq_expr, opt_rep_cm_name_dot_eq_expr, TokSemiColon }};
-      rules_[opt_eq_expr] = {Options, {TokAssign, expr}}; // ["=" expr]
+    rules_[defvars] = {Sequence, {storage, type, name, opt_var_initialize, opt_rep_cm_name_dot_eq_expr, TokSemiColon }};
+      rules_[opt_var_initialize] = {Options, {TokAssign, expr}}; // ["=" expr]
       // [("," name ["=" expr])*]
       rules_[opt_rep_cm_name_dot_eq_expr] = {Options, {rep_cm_name_dot_eq_expr}}; 
         // ("," name ["=" expr])*
-        rules_[rep_cm_name_dot_eq_expr] = {Repeat, {TokComma, name, opt_eq_expr}};
+        rules_[rep_cm_name_dot_eq_expr] = {Repeat, {TokComma, name, opt_var_initialize}};
         
     // defconst
     //   : <CONST> type name "=" expr ";"
@@ -156,17 +155,17 @@ namespace Parser {
     //   : typeref_base  ( "[""]"                    // unassigned array
     //                   | "["<INTEGER>"]"           // assigned array
     //                   | "*"                       // pointer 
-    //                   | "(" param_typerefs ")")*  // function pointer 
+    //                   | "(" param_typerefs ")")*  // function type
     rules_[typeref] = {Sequence, {typeref_base, rep_sel_arry_ptr_fnptr}};
       //   ( "[""]"                    // unassigned array
       //   | "["<INTEGER>"]"           // assigned array
       //   | "*"                       // pointer 
-      //   | "(" param_typerefs ")")*  // function pointer 
+      //   | "(" param_typerefs ")")*  // function type 
       rules_[rep_sel_arry_ptr_fnptr] = {Repeat, {sel_arry_ptr_fnptr}};
         //   "[""]"                    // unassigned array
         //   | "["<INTEGER>"]"           // assigned array
         //   | "*"                       // pointer 
-        //   | "(" param_typerefs ")"  // function pointer 
+        //   | "(" param_typerefs ")"  // function type
         rules_[sel_arry_ptr_fnptr] = {Select, {seq_unassigned_array, seq_assigned_array, seq_ptr, seq_func}};
           // "[""]
           rules_[seq_unassigned_array] = {Sequence, {TokBracketOpen, TokBracketClose}};
@@ -179,7 +178,7 @@ namespace Parser {
 
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
-    //   | type ("," type)* ["," "..."] 
+    //   | param_type ("," type)* ["," "..."] 
     rules_[param_typerefs] = {Select, {seq_param_void, seq_param_type_list}};
       // <VOID>
       rules_[seq_param_void] = {Sequence, {TokVoid}};
@@ -303,11 +302,11 @@ namespace Parser {
     //   : term "=" expr 
     //   | term opassign_op expr 
     //   | expr10 
-    rules_[expr] = {Select, {seq_term_eq_expr, seq_term_ops_expr, expr10}};
+    rules_[expr] = {Select, {seq_assign_value, seq_opassign_value, expr10}};
       // term "=" expr 
-      rules_[seq_term_eq_expr] = {Select, {term, TokAssign, expr}};
+      rules_[seq_assign_value] = {Select, {term, TokAssign, expr}};
       // term opassign_op expr 
-      rules_[seq_term_ops_expr] = {Select, {term, opassign_op, expr}};
+      rules_[seq_opassign_value] = {Select, {term, opassign_op, expr}};
      
     // opassign_op 
     //   : "+=" 
@@ -544,12 +543,14 @@ namespace Parser {
       rule_actions_[i] = &SyntaxAnalyzer::DoNothing;
     }
 
+    rule_actions_[type] = &SyntaxAnalyzer::Type;
     rule_actions_[typeref] = &SyntaxAnalyzer::TypeRef;
       rule_actions_[seq_unassigned_array] = &SyntaxAnalyzer::Act_seq_unassigned_array; 
       rule_actions_[seq_assigned_array] = &SyntaxAnalyzer::Act_seq_assigned_array; 
       rule_actions_[seq_ptr] = &SyntaxAnalyzer::Act_seq_ptr; 
       rule_actions_[seq_func] = &SyntaxAnalyzer::Act_seq_func; 
 
+      // parameter list
     rule_actions_[param_typerefs] = &SyntaxAnalyzer::ParamTypeRefs;
       rule_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
       rule_actions_[seq_param_type_list] = &SyntaxAnalyzer::Act_seq_param_type_list;
