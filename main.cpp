@@ -6,7 +6,7 @@
 
 int main(int argc, char** argv) {
   // TODO : read source file
-  char* src = NULL;
+  char* src = nullptr;
   Lexer::Tokenizer* tk = new Lexer::Tokenizer(src);
   tk->CompileTokens();
 

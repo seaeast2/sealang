@@ -5,11 +5,11 @@ using namespace std;
 
 namespace AST {
   ASTContext::ASTContext() {
-    rootNode_ = new RootNode();
+    decls_ = new Declarations();
   }
 
   ASTContext::~ASTContext() {
-    delete rootNode_;
+    delete decls_;
   }
 
   void ASTContext::AddImport(const std::string &import) {

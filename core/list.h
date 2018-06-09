@@ -19,7 +19,7 @@ class SimpleList {
 
   public:
     SimpleList() { 
-      first_ = last_ = NULL; 
+      first_ = last_ = nullptr; 
       count_ = 0;
     }
     ~SimpleList() {
@@ -47,11 +47,11 @@ class SimpleList {
 
       Element* del_item = last_;
       if (del_item->prev_) {
-        del_item->prev_->next_ = NULL;
+        del_item->prev_->next_ = nullptr;
         last_ = del_item->prev_;
       }
       else
-        first_ = last_ = NULL;
+        first_ = last_ = nullptr;
 
       count_--;
       delete del_item;
@@ -80,11 +80,11 @@ class SimpleList {
 
       Element* del_item = first_;
       if (del_item->next_) {
-        del_item->next_->prev_ = NULL;
+        del_item->next_->prev_ = nullptr;
         first_ = del_item->next_;
       }
       else 
-        first_ = last_ = NULL;
+        first_ = last_ = nullptr;
 
       count_--;
       delete del_item;
@@ -109,12 +109,12 @@ class SimpleList {
           return itr;
         itr = itr->next_;
       }
-      return NULL;
+      return nullptr;
     }
 
     Element* GetAt(int idx) {
       if (idx > count_)
-        return NULL;
+        return nullptr;
 
       Element* itr = first_;
       for (int cnt = 0; cnt < idx; cnt++, itr = itr->next_) {
@@ -126,7 +126,7 @@ class SimpleList {
     // insert at index position.
     Element* InsertAt(int idx, const T& value) {
       if (idx > count_)
-        return NULL;
+        return nullptr;
 
       Element* new_item;
 
@@ -180,7 +180,7 @@ class SimpleList {
     Element* CreateNewItem(const T& value) {
       Element* new_item = new Element;
       new_item->value = value;
-      new_item->priv_ = new_item->next_ = NULL;
+      new_item->priv_ = new_item->next_ = nullptr;
       return new_item;
     }
 };

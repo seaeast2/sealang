@@ -46,7 +46,10 @@ namespace Parser {
       seq_float,        // <FLOAT>
       seq_double,       // <DOUBLE>
       seq_class_identifier, // <CLASS> <IDENTIFIER>
-    defvars,
+    defvars, // storage type name ["=" expr] [("," name ["=" expr])*] ";" 
+      opt_var_initialize, // ["=" expr]
+      opt_rep_var_initialize, // [("," name ["=" expr])*]
+        rep_var_initialize, // ("," name ["=" expr])
     storage,
     type,
     defconst,
@@ -92,6 +95,8 @@ namespace Parser {
     goto_stmt,
     return_stmt,
     expr,
+      seq_assign_value, // term "=" expr  
+      seq_opassign_value, // term opassign_op expr 
     opassign_op,
     expr10,
     expr9,
@@ -123,7 +128,7 @@ namespace Parser {
           seq_array_reference, //"[" expr "]"
           seq_dot_name, //"." name
           seq_arrow_name, //"->" name
-          seq_po_args_pc, //"(" args ")"
+          seq_fncall, //"(" args ")"
     args,
       seq_args_expr, // expr
       rep_args_expr, // ("," expr)*
@@ -133,9 +138,6 @@ namespace Parser {
     // sub rule
     rep_dot_name, // ("," name)*
     sel_fun_var_const_class_typedef, // deffunc | defvars | defconst | defclass | typedef
-    opt_var_initialize, // ["=" expr]
-    opt_rep_cm_name_dot_eq_expr, // [("," name ["=" expr])*]
-    rep_cm_name_dot_eq_expr, // ("," name ["=" expr])
     seq_fixedparams_vararg, // fixedparams ["," "..."] 
     rep_comma_param, // ("," param)* 
     rep_class_member_semicolon, // (class_member ";")
@@ -145,8 +147,6 @@ namespace Parser {
     opt_expr, // [expr]
     seq_return_semicolon, // <RETURN> ";"
     seq_return_expr_semicolon, // <RETURN> expr ";"
-    seq_assign_value, // term "=" expr  
-    seq_opassign_value, // term opassign_op expr 
     opt_ternaryop,// ["?" expr ":" expr10] 
     rep_or_expr8, //("||" expr8)* 
     rep_and_expr7,// ("&&" expr7)* 
@@ -177,13 +177,14 @@ namespace Parser {
     rep_case_clause,// (case_clause)*
     opt_default_clause,// [default_clause]
 
+    nil, // nil
+
     // BNF Action
     Repeat, // ()*
     Select, // |
     Sequence, // rule1 rule2
     Options, // []
-    Terminal,
-    Nonterminal
+    Terminal
   };
 
   struct Rule {
@@ -194,7 +195,6 @@ namespace Parser {
 
   struct ParseInfo {
     enum RawDataType {
-      DefVarFunc, // Variable, Function definition start point indicator.
       Identifier,
       Integer,
       Character,
@@ -203,22 +203,27 @@ namespace Parser {
       ASTType,
       TokenType,
       TypeList,
+      StorageInfo,
+      VarDeclList,
     };
 
     union RawData {
-      long integer_;
+      bool boolean_;
       char character_;
       const char* cstr_;
+      long integer_;
       AST::BaseNode* node_;
       AST::Type* type_;
       Lexer::TokenType tok_type_;
       SimpleVector<AST::Type*>* types_;
+      SimpleVector<AST::VariableDecl*>* vardecls_;
     };
 
     RawDataType type_;
     RawData data_;
     int cstr_len_; // string length;
     int token_idx_; // token index
+    RuleName rule_name_;
 
     ParseInfo() {
       memset(&data_, 0, sizeof(data_));
@@ -245,7 +250,6 @@ namespace Parser {
 
     typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
     fnRuleAction rule_actions_[MAX_RULES];
-
     
     public:
       SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
@@ -254,6 +258,7 @@ namespace Parser {
       void InitBasicRule();
       void InitRuleAction();
       eResult TraverseRule(int entry);
+      eResult TestRule(int entry);
 
       eResult DoNothing(void) { return True; } // Dummy function for function pointer array
       eResult CompilationUnit(void); // compilation_unit
@@ -306,7 +311,6 @@ namespace Parser {
         eResult Act_opt_vararg(void); //opt_vararg
 
       eResult Block(void); // block
-      eResult Expr(void); // expr
       eResult Term(void); // term
         eResult Act_seq_type_term(void);//"(" type ")" term  // typecasting
       eResult Unary(void); // unary
@@ -325,12 +329,17 @@ namespace Parser {
         eResult Act_seq_array_reference(void);
         eResult Act_seq_dot_name(void);
         eResult Act_seq_arrow_name(void);
-        eResult Act_seq_po_args_pc(void);
+        eResult Act_seq_fncall(void);
       eResult Args(void); // args
         eResult Act_seq_args_expr(void);
         eResult Act_rep_args_expr(void);
       eResult Primary(void); // primary
         eResult Act_seq_po_expr_pc(void);
+
+      eResult Expr(void); // expr
+        eResult Act_seq_assign_value(void);
+        eResult Act_seq_opassign_value(void);
+
       eResult OpAssignOp(void); // opassign_op
       eResult Expr10(void); // expr10
       eResult Expr9(void); // expr9
@@ -362,10 +371,12 @@ namespace Parser {
       eResult ActIdentifier(void);
 
       // Utils
-      void PushType(AST::Type* type);
-      void PushToken(void); // Push Token to ParseInfo stack.
-      void PushNode(AST::BaseNode* node);
-      void PushTypeList(SimpleVector<AST::Type*>* ty_list);
+      void PushType(AST::Type* type, RuleName rname = RuleName::nil);
+      void PushToken(int pos_offset = 0, RuleName rname = RuleName::nil); // Push Token to ParseInfo stack.
+      void PushNode(AST::BaseNode* node, RuleName rname = RuleName::nil);
+      void PushTypeList(SimpleVector<AST::Type*>* ty_list, RuleName rname = RuleName::nil);
+      void PushVarDecls(SimpleVector<AST::VariableDecl*>* var_list, RuleName rname = RuleName::nil);
+      void SetRuleNameForPI(RuleName rname);
       void DebugPrint();
   };
 }

@@ -18,14 +18,14 @@ class HashTable {
   public:
     HashTable() {
       for (int i = 0; i < MAX_TABLE; i++) {
-        table_[i] = NULL;
+        table_[i] = nullptr;
       }
     }
     ~HashTable() {
       for (int i = 0; i < MAX_TABLE; i++) {
         if (table_[i]) 
           ClearTable(table_[i]);
-        table_[i] = NULL;
+        table_[i] = nullptr;
       }
     }
 
@@ -37,8 +37,8 @@ class HashTable {
         new_item->key_ = new char[strlen(key)];
         strcpy(new_item->key_, key);
         new_item->value_ = &value;
-        new_item->prev_ = NULL;
-        new_item->next_ = NULL;
+        new_item->prev_ = nullptr;
+        new_item->next_ = nullptr;
 
         // empty table
         long hash_code = Hash(key);
@@ -67,13 +67,13 @@ class HashTable {
           cur = cur->next_; 
         }
       }
-      return NULL;
+      return nullptr;
     }
 
     V* Delete(const char* key) {
       Element* res = FindElement(key);
       if (!res)
-        return NULL;
+        return nullptr;
 
       long hash_code = Hash(key);
       if (res->prev_)
@@ -116,7 +116,7 @@ class HashTable {
           cur = cur->next_; 
         }
       }
-      return NULL;
+      return nullptr;
     }
 
     void ClearTable(Element* e) {

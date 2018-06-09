@@ -46,6 +46,17 @@ class SimpleVector {
       return *(data_ + count_ -1);
     }
 
+    void Reverse() {
+      T* temp; 
+      int half = count_/2, back = count_ -1;
+
+      for (int i = 0; i < half; i++) {
+        *temp = *(data_ + i);
+        *(data_ + i) = *(data_ + back - i);
+        *(data_ + back - i) = *temp;
+      }
+    }
+
     int GetMaxSize() {
       return max_size_;
     }

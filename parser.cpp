@@ -10,6 +10,7 @@ namespace Parser {
     eResult res;
     int tok_pos;
 
+
     switch(rule.action_) {
       case Repeat:
         {
@@ -136,6 +137,127 @@ namespace Parser {
     }
   }
 
+  eResult SyntaxAnalyzer::TestRule(int entry) {
+    Rule rule = rules_[entry];
+    eResult res;
+    int tok_pos;
+
+
+    switch(rule.action_) {
+      case Repeat:
+        {
+          while(true) {
+            int matching_count = 0;
+            int i = 0;
+            tok_pos = tokenizer_->GetTokPos(); // backup token position
+            for (; rule.sub_rules_[i] > -1; i++) {
+              res = TestRule(rule.sub_rules_[i]);
+              if (res == True) { // matched
+                matching_count++;
+              }
+              else if (res == False) { // not matching
+                if (rules_[rule.sub_rules_[i]].action_ == Options) {
+                  matching_count++;
+                }
+                else {
+                  tokenizer_->SetTokPos(tok_pos); // restore token position.
+                  return True; // reached unmatching point.
+                }
+              }
+              else
+                return Error;
+            }
+          };
+        }
+        break;
+
+      case Select:
+        {
+          tok_pos = tokenizer_->GetTokPos(); // backup token position
+          for (int i = 0; rule.sub_rules_[i] > -1; i++) {
+            res = TestRule(rule.sub_rules_[i]);
+            if (res == True) {
+              // Run action
+              return True; // found matching
+            }
+            else if (res == False) {
+              tokenizer_->SetTokPos(tok_pos); // restore token position.
+              return False;
+            }
+            else
+              return Error;
+          }
+          return False;
+        }
+        break;
+
+      case Sequence:
+        {
+          int matching_count = 0;
+          int i = 0;
+          tok_pos = tokenizer_->GetTokPos(); // backup token position
+          for (; rule.sub_rules_[i] > -1; i++) {
+            res = TestRule(rule.sub_rules_[i]);
+            if (res == True) { // matched
+              matching_count++;
+            }
+            else if (res == False) { // not matching
+              if (rules_[rule.sub_rules_[i]].action_ == Options) {
+                matching_count++;
+              }
+            }
+            else
+              return Error;
+          }
+
+          if (matching_count == i) {
+            // if every rules are matching, run action.
+            return True;
+          }
+          tokenizer_->SetTokPos(tok_pos); // restore token position.
+          return False; // unmatching
+        }
+        break;
+
+      case Options:
+        {
+          int matching_count = 0;
+          int i = 0;
+          tok_pos = tokenizer_->GetTokPos(); // backup token position
+          for (; rule.sub_rules_[i] > -1; i++) {
+            res = TestRule(rule.sub_rules_[i]);
+            if (res == True)
+              matching_count++;
+            else if (res == Error)
+              return Error;
+          }
+
+          if (matching_count == i)
+            return True;
+
+          tokenizer_->SetTokPos(tok_pos); // restore token position.
+          return False; // unmatching
+        }
+        break;
+
+      case Terminal:
+        {
+          if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
+            // Run action
+            tokenizer_->ConsumeToken(1);
+            return True;
+          }
+          return False;
+        }
+        break;
+
+      default:
+        assert("Error wrong rule action.");
+        break;
+    }
+    return True;
+  }
+
   SyntaxAnalyzer::SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, 
       ErrorDiag::Diagnosis* ed) {
     tokenizer_ = tk;
@@ -168,8 +290,11 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Storage(void) {
-    // <<== working
-    return False;
+    ParseInfo pi_new;
+    pi_new.type_ = ParseInfo::StorageInfo; 
+    pi_new.data_.boolean_ = true;
+    parse_stack_.Push(pi_new);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Type(void) {
@@ -178,19 +303,21 @@ namespace Parser {
       return True;
     return Error;
   }
+
   eResult SyntaxAnalyzer::TypeRef(void) {
     ParseInfo pi = parse_stack_.Top();
     if (pi.type_ == ParseInfo::ASTType)
       return True;
     return Error;
   }
+
   eResult SyntaxAnalyzer::Act_seq_unassigned_array(void) {
     ParseInfo pi = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi.type_ == ParseInfo::ASTType) {
       AST::Type* basety = pi.data_.type_;
       AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety);
-      PushType((AST::Type*)arrty);
+      PushType((AST::Type*)arrty, RuleName::seq_unassigned_array);
       return True;
     }
     return Error;
@@ -210,12 +337,13 @@ namespace Parser {
           return Error;
         }
         AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety, size);
-        PushType((AST::Type*)arrty);
+        PushType((AST::Type*)arrty, RuleName::seq_assigned_array);
         return True;
       }
     }
     return Error;
   }
+
   eResult SyntaxAnalyzer::Act_seq_ptr(void) {
     ParseInfo pi_basety;
     pi_basety = parse_stack_.Top();
@@ -224,11 +352,12 @@ namespace Parser {
       AST::Type* basety = pi_basety.data_.type_;
 
       AST::PointerType* ptrty = AST::PointerType::Get(action_->GetContext(), basety);
-      PushType((AST::Type*)ptrty);
+      PushType((AST::Type*)ptrty, RuleName::seq_ptr);
       return True;
     }
     return Error;
   }
+
   eResult SyntaxAnalyzer::Act_seq_func(void) {
     ParseInfo pi_params, pi_retty;
     pi_params = parse_stack_.Top();
@@ -241,7 +370,7 @@ namespace Parser {
         parse_stack_.Pop();
         AST::Type* retty = pi_retty.data_.type_;
         AST::FunctionType* fnty = AST::FunctionType::Get(action_->GetContext(), retty, *params);
-        PushType((AST::Type*)fnty);
+        PushType((AST::Type*)fnty, RuleName::seq_func);
         delete params; // delete parameter type list container.
         return True;
       }
@@ -252,72 +381,74 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::TypeRefBase(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ == ParseInfo::ASTType)
-      return True;
-    return Error;
+    if (pi.type_ != ParseInfo::ASTType)
+      return Error;
+
+    SetRuleNameForPI(RuleName::typeref_base);
+    return True;
   }
   // create primitive types
   eResult SyntaxAnalyzer::Act_seq_void(void) {
     AST::Type* ty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
-    PushType(ty);
+    PushType(ty, RuleName::seq_void);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_char(void){
     AST::Type* ty = (AST::Type*)AST::CharType::Get(action_->GetContext(), 
         AST::IntegerType::Signed);
-    PushType(ty);
+    PushType(ty, RuleName::seq_char);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_short(void){
     AST::Type* ty = (AST::Type*)AST::ShortType::Get(action_->GetContext(), 
         AST::IntegerType::Signed);
-    PushType(ty);
+    PushType(ty, RuleName::seq_short);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_int(void){
     AST::Type* ty = (AST::Type*)AST::IntType::Get(action_->GetContext(), 
         AST::IntegerType::Signed);
-    PushType(ty);
+    PushType(ty, RuleName::seq_int);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_long(void){
     AST::Type* ty = (AST::Type*)AST::LongType::Get(action_->GetContext(), 
         AST::IntegerType::Signed);
-    PushType(ty);
+    PushType(ty, RuleName::seq_long);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_char(void){
     AST::Type* ty = (AST::Type*)AST::CharType::Get(action_->GetContext(), 
         AST::IntegerType::Unsigned);
-    PushType(ty);
+    PushType(ty, RuleName::seq_unsigned_char);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_short(void){
     AST::Type* ty = (AST::Type*)AST::ShortType::Get(action_->GetContext(), 
         AST::IntegerType::Unsigned);
-    PushType(ty);
+    PushType(ty, RuleName::seq_unsigned_short);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_int(void){
     AST::Type* ty = (AST::Type*)AST::IntType::Get(action_->GetContext(), 
         AST::IntegerType::Unsigned);
-    PushType(ty);
+    PushType(ty, RuleName::seq_unsigned_int);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_long(void){
     AST::Type* ty = (AST::Type*)AST::LongType::Get(action_->GetContext(), 
         AST::IntegerType::Unsigned);
-    PushType(ty);
+    PushType(ty, RuleName::seq_unsigned_long);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_float(void){
     AST::Type* ty = (AST::Type*)AST::FloatType::Get(action_->GetContext());
-    PushType(ty);
+    PushType(ty, RuleName::seq_float);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_double(void){
     AST::Type* ty = (AST::Type*)AST::DoubleType::Get(action_->GetContext());
-    PushType(ty);
+    PushType(ty, RuleName::seq_double);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_class_identifier(void){
@@ -330,7 +461,7 @@ namespace Parser {
       strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
       AST::ClassType* cty = AST::ClassType::Get(action_->GetContext(), iden);
       if (cty) {
-        PushType(cty);
+        PushType(cty, RuleName::seq_class_identifier);
         return True;
       }
     }
@@ -343,24 +474,32 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::ParamTypeRefs(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ == ParseInfo::TypeList)
-      return True;
-    return Error;
+    if (pi.type_ != ParseInfo::TypeList)
+      return Error;
+    
+    if (pi.rule_name_ != RuleName::seq_param_void &&
+        pi.rule_name_ != RuleName::seq_param_type_list)
+      return Error;
+
+    SetRuleNameForPI(RuleName::param_typerefs);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_param_void(void) {
     AST::Type* ty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
     SimpleVector<AST::Type*>* params = new SimpleVector<AST::Type*>();
     params->PushBack(ty);
-    PushTypeList(params);
+    PushTypeList(params, RuleName::seq_param_void);
     return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_param_type_list(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ == ParseInfo::TypeList)
-      return True;
-    return Error;
+    if (pi.type_ != ParseInfo::TypeList)
+      return Error;
+
+    SetRuleNameForPI(RuleName::seq_param_type_list);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Act_rep_param_comma_type(void) {
@@ -372,7 +511,7 @@ namespace Parser {
         parse_stack_.Pop();
         SimpleVector<AST::Type*>* params = pi_type_list.data_.types_;
         params->PushBack(pi_type.data_.type_);
-        PushTypeList(params);
+        PushTypeList(params, RuleName::rep_param_comma_type);
         return True;
       }
     }
@@ -387,7 +526,7 @@ namespace Parser {
       SimpleVector<AST::Type*>* params = pi.data_.types_;
       AST::Type* ty = (AST::Type*)AST::VarArgType::Get(action_->GetContext());
       params->PushBack(ty);
-      PushTypeList(params);
+      PushTypeList(params, RuleName::opt_vararg_type);
       return True;
     }
     return Error;
@@ -395,15 +534,15 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::ParamType(void) {
     // This indicates this is first parameter type.
-    ParseInfo pi_type = parse_stack_.Top();;
-    SimpleVector<AST::Type*>* params = NULL;
+    ParseInfo pi_type = parse_stack_.Top();
+    SimpleVector<AST::Type*>* params = nullptr;
     if (pi_type.type_ == ParseInfo::ASTType) {
       parse_stack_.Pop();
 
       params = new SimpleVector<AST::Type*>();
 
       params->PushBack(pi_type.data_.type_);
-      PushTypeList(params);
+      PushTypeList(params, RuleName::param_type);
       return True;
     }
     return Error;
@@ -430,28 +569,77 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::DefVars(void) {
-    // <<== working
-    return True;
+    ParseInfo pi;
+    AST::BaseNode* expr_node = nullptr;
+    SimpleVector<AST::VariableDecl*>* vardecls = 
+      new SimpleVector<AST::VariableDecl*>();
+
+    while(true) {
+      pi = parse_stack_.Top();
+      // Read variable initializer Expr
+      expr_node = nullptr;
+      if (pi.type_ == ParseInfo::ASTNode) {
+        expr_node = pi.data_.node_;
+        if (!expr_node->IsKindOf(AST::BaseNode::ExprNodeTy))
+          return Error;
+        parse_stack_.Pop();
+        pi = parse_stack_.Top(); // read variable name
+      }
+
+      // Read variable name
+      if (pi.type_ == ParseInfo::Identifier) {
+        AST::VariableDecl* new_var = new AST::VariableDecl();
+        if(expr_node)
+          new_var->SetInit((AST::ExprNode*)expr_node);
+        new_var->SetName(pi.data_.cstr_, pi.cstr_len_);
+
+        vardecls->PushBack(new_var);
+      }
+
+      // Read variable type
+      if (pi.type_ == ParseInfo::ASTType) {
+        bool is_static = false;
+        AST::Type* ty = pi.data_.type_;
+        parse_stack_.Pop();
+
+        // Read storage info if possible
+        pi = parse_stack_.Top();
+        if (pi.type_ == ParseInfo::StorageInfo) {
+          is_static = true;
+          parse_stack_.Pop();
+        }
+
+        if (vardecls->GetSize() == 0)
+          return Error;
+
+        for (int i = 0; i < vardecls->GetSize(); i++) {
+          (*vardecls)[i]->SetStorage(is_static);
+          (*vardecls)[i]->SetType(ty);
+        }
+        vardecls->Reverse();
+        PushVarDecls(vardecls, RuleName::defvars);
+        return True;
+      }
+    }
+
+    return Error;
   }
 
   eResult SyntaxAnalyzer::DefVarList(void) {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Expr(void) {
-    // <<== working
-    return True;
-  }
 
   eResult SyntaxAnalyzer::Term(void) {
     // actually do nothing
     ParseInfo pi_expr = parse_stack_.Top();
-    parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
       assert("Error on term casting");
       return Error;
     }
+
+    pi_expr.rule_name_ = RuleName::term; // mark pi with term.
     return True;
   }
 
@@ -479,7 +667,7 @@ namespace Parser {
       new AST::CastNode((AST::ExprNode*)pi_term.data_.node_,
           (AST::TypeNode*)pi_type.data_.node_);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_type_term);
     return True;
   }
 
@@ -513,7 +701,7 @@ namespace Parser {
     AST::PrefixOpNode* node = 
       new AST::PrefixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Inc);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_preinc_unary);
     return True;
   }
 
@@ -530,7 +718,7 @@ namespace Parser {
     AST::PrefixOpNode* node = 
       new AST::PrefixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Dec);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_predec_unary);
     return True;
   }
 
@@ -547,7 +735,7 @@ namespace Parser {
     AST::UnaryOpNode* node = 
       new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Pos);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_pos_term);
     return True;
   }
 
@@ -564,7 +752,7 @@ namespace Parser {
     AST::UnaryOpNode* node = 
       new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Neg);
     
-    PushNode(node);
+    PushNode(node, RuleName::seq_neg_term);
     return True;
   }
 
@@ -581,7 +769,7 @@ namespace Parser {
     AST::UnaryOpNode* node = 
       new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Not);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_not_term);
     return True;
   }
 
@@ -598,7 +786,7 @@ namespace Parser {
     AST::DereferenceNode* node = 
       new AST::DereferenceNode((AST::ExprNode*)pi_expr.data_.node_);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_ptr_term);
     return True;
   }
 
@@ -615,7 +803,7 @@ namespace Parser {
     AST::AddressNode * node = 
       new AST::AddressNode((AST::ExprNode*)pi_expr.data_.node_);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_adr_term);
     return True;
   }
 
@@ -632,7 +820,7 @@ namespace Parser {
     AST::SizeofTypeNode* node = 
       new AST::SizeofTypeNode((AST::ExprNode*)pi_expr.data_.node_);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_sizeof_type);
     return True;
   }
 
@@ -649,7 +837,7 @@ namespace Parser {
     AST::SizeofExprNode* node = 
       new AST::SizeofExprNode((AST::ExprNode*)pi_expr.data_.node_);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_sizeof_unary);
     return True;
   }
 
@@ -682,7 +870,7 @@ namespace Parser {
     AST::SuffixOpNode* node = 
       new AST::SuffixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Inc);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_post_inc);
     return True;
   }
 
@@ -705,7 +893,7 @@ namespace Parser {
     AST::SuffixOpNode* node = 
       new AST::SuffixOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Dec);
 
-    PushNode(node);
+    PushNode(node, RuleName::seq_post_dec);
     return True;
   }
 
@@ -738,7 +926,7 @@ namespace Parser {
     AST::ArrayRefNode * arnode = 
       new AST::ArrayRefNode((AST::ExprNode*)pi_expr.data_.node_, 
                             (AST::ExprNode*)pi_arrsize_expr.data_.node_);
-    PushNode(arnode);
+    PushNode(arnode, RuleName::seq_array_reference);
     return True;
   }
   
@@ -767,7 +955,7 @@ namespace Parser {
     // create new pi
     AST::MemberRefNode* memref_node = 
       new AST::MemberRefNode((AST::ExprNode*)pi_expr.data_.node_, pi_name.data_.cstr_);
-    PushNode(memref_node);
+    PushNode(memref_node, RuleName::seq_dot_name);
     return True;
   }
 
@@ -796,12 +984,12 @@ namespace Parser {
     // create new pi
     AST::PtrMemberRefNode* ptrmemref_node = 
       new AST::PtrMemberRefNode((AST::ExprNode*)pi_expr.data_.node_, pi_name.data_.cstr_);
-    PushNode(ptrmemref_node);
+    PushNode(ptrmemref_node, RuleName::seq_arrow_name);
     return True;
   }
 
   //"(" args ")"
-  eResult SyntaxAnalyzer::Act_seq_po_args_pc(void) {
+  eResult SyntaxAnalyzer::Act_seq_fncall(void) {
     // get args
     ParseInfo pi_args = parse_stack_.Top();
     parse_stack_.Pop();
@@ -821,7 +1009,7 @@ namespace Parser {
     AST::FuncCallNode* fcall= 
       new AST::FuncCallNode((AST::ExprNode*)pi_func.data_.node_, 
           (AST::ArgsNode*)pi_args.data_.node_);
-    PushNode(fcall);
+    PushNode(fcall, RuleName::seq_fncall);
     return True;
   }
 
@@ -836,24 +1024,25 @@ namespace Parser {
     if (top_pi.type_ == ParseInfo::Integer) {
       AST::IntegerLiteralNode * node = 
         new AST::IntegerLiteralNode(AST::IntegerLiteralNode::Int, top_pi.data_.integer_);
-      PushNode(node);
+      PushNode(node, RuleName::primary);
     }
     else if (top_pi.type_ == ParseInfo::Character) {
       AST::IntegerLiteralNode * node = 
         new AST::IntegerLiteralNode(AST::IntegerLiteralNode::Char, top_pi.data_.integer_);
-      PushNode(node);
+      PushNode(node, RuleName::primary);
     }
     else if (top_pi.type_ == ParseInfo::String) {
       AST::StringLiteralNode* node = 
         new AST::StringLiteralNode(top_pi.data_.cstr_, top_pi.cstr_len_);
-      PushNode(node);
+      PushNode(node, RuleName::primary);
     }
     else if (top_pi.type_ == ParseInfo::Identifier) {
       AST::VariableNode* node = 
         new AST::VariableNode(top_pi.data_.cstr_, top_pi.cstr_len_);
-      PushNode(node);
+      PushNode(node, RuleName::primary);
     }
     else if (top_pi.type_ == ParseInfo::ASTNode &&
+        top_pi.rule_name_ == RuleName::expr &&
         top_pi.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
       // Do nothing
     }
@@ -886,7 +1075,7 @@ namespace Parser {
 
     // if there isn't appropriate ArgsNode, create new one.
     AST::ArgsNode* args_node = new AST::ArgsNode();
-    PushNode(args_node);
+    PushNode(args_node, RuleName::args);
     return True;
   }
   
@@ -904,7 +1093,7 @@ namespace Parser {
     // create new pi
     AST::ArgsNode* args_node = new AST::ArgsNode();
     args_node->Add((AST::ExprNode*)pi_arg_expr.data_.node_);
-    PushNode(args_node);
+    PushNode(args_node, RuleName::seq_args_expr);
     return True;
   }
 
@@ -931,11 +1120,151 @@ namespace Parser {
     // create new pi
     AST::ArgsNode* args_node = (AST::ArgsNode*)pi_arg_node.data_.node_;
     args_node->Add((AST::ExprNode*)pi_arg_expr.data_.node_);
-    PushNode(args_node);
+    PushNode(args_node, RuleName::rep_args_expr);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Expr(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert("Error on term casting");
+      return Error;
+    }
+
+    if (pi_expr.rule_name_ != RuleName::seq_assign_value && 
+        pi_expr.rule_name_ != RuleName::seq_opassign_value &&
+        pi_expr.rule_name_ != RuleName::expr10)
+      return Error;
+
+    pi_expr.rule_name_ = RuleName::expr; // mark pi with term.
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_assign_value(void) {
+    ParseInfo pi_term, pi_expr;
+    AST::BaseNode* rhs = nullptr, *lhs = nullptr;
+    
+    // Read RHS expr
+    pi_expr = parse_stack_.Top();
+    if (pi_expr.type_ == ParseInfo::ASTNode &&
+        pi_expr.rule_name_ == RuleName::expr){
+      rhs = pi_expr.data_.node_;
+      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
+        return Error;
+      parse_stack_.Pop();
+    }
+    else 
+      return Error;
+
+    // Read LHS term
+    pi_term = parse_stack_.Top();
+    if (pi_term.type_ == ParseInfo::ASTNode && 
+        pi_term.rule_name_ == RuleName::term){
+      lhs = pi_term.data_.node_;
+      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
+        return Error;
+      parse_stack_.Pop();
+    }
+    else 
+      return Error;
+
+    // Create AssignNode
+    AST::AssignNode* assign_node = 
+      new AST::AssignNode((AST::ExprNode*)lhs, (AST::ExprNode*)rhs);
+    PushNode(assign_node, RuleName::seq_assign_value);
+
+    pi_expr = parse_stack_.Top();
+    pi_expr.rule_name_ =  seq_assign_value;
+    return True;;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_opassign_value(void){
+    ParseInfo pi_expr, pi_opassign, pi_term;
+    AST::BaseNode* rhs = nullptr, *lhs = nullptr;
+    AST::OpAssignNode::AssignOp op;
+    
+    // Read RHS expr
+    pi_expr = parse_stack_.Top();
+    if (pi_expr.type_ == ParseInfo::ASTNode &&
+        pi_expr.rule_name_ == RuleName::expr){
+      rhs = pi_expr.data_.node_;
+      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
+        return Error;
+      parse_stack_.Pop();
+    }
+    else 
+      return Error;
+
+    // Read opassign
+    pi_opassign = parse_stack_.Top();
+    if (pi_opassign.type_ == ParseInfo::TokenType &&
+        pi_opassign.rule_name_ == RuleName::opassign_op){
+      parse_stack_.Pop();
+
+      switch(pi_opassign.data_.tok_type_) {
+        case TokComAdd:
+          op = AST::OpAssignNode::AssignAdd;
+          break;
+        case TokComSub:
+          op = AST::OpAssignNode::AssignSub;
+          break;
+        case TokComMul:
+          op = AST::OpAssignNode::AssignMul;
+          break;
+        case TokComDiv:
+          op = AST::OpAssignNode::AssignDiv;
+          break;
+        case TokComMod:
+          op = AST::OpAssignNode::AssignMod;
+          break;
+        case TokComBitAnd:
+          op = AST::OpAssignNode::AssignBitAnd;
+          break;
+        case TokComBitOr:
+          op = AST::OpAssignNode::AssignBitOr;
+          break;
+        case TokComBitXor:
+          op = AST::OpAssignNode::AssignBitXor;
+          break;
+        case TokComBitShiftL:
+          op = AST::OpAssignNode::AssignBitShiftL;
+          break;
+        case TokComBitShiftR:
+          op = AST::OpAssignNode::AssignBitShiftR;
+          break;
+        default:
+          return Error;
+      }
+    }
+    else 
+      return Error;
+
+    // Read LHS term
+    pi_term = parse_stack_.Top();
+    if (pi_term.type_ == ParseInfo::ASTNode && 
+        pi_term.rule_name_ == RuleName::term){
+      lhs = pi_term.data_.node_;
+      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
+        return Error;
+      parse_stack_.Pop();
+    }
+    else 
+      return Error;
+
+    // Create OpAssign
+    AST::OpAssignNode* opassign = 
+      new AST::OpAssignNode((AST::ExprNode*)lhs, op, (AST::ExprNode*)rhs);
+    PushNode(opassign, RuleName::seq_opassign_value);
+
+    pi_expr = parse_stack_.Top();
+    pi_expr.rule_name_ =  seq_opassign_value;
     return True;
   }
 
   eResult SyntaxAnalyzer::OpAssignOp(void) {
+    // Get OpAssign token.
+    PushToken(-1, RuleName::opassign_op);
     return True;
   }
 
@@ -1069,34 +1398,53 @@ namespace Parser {
     return True;
   }
 
-  void SyntaxAnalyzer::PushType(AST::Type* type) {
-    ParseInfo pi_new;
-    pi_new.type_ = ParseInfo::ASTType;
-    pi_new.data_.type_ = type;
-    parse_stack_.Push(pi_new);
-  }
-
-  void SyntaxAnalyzer::PushToken(void) {
+  void SyntaxAnalyzer::PushType(AST::Type* type, RuleName rname) {
     ParseInfo pi;
-    Token tok = tokenizer_->GetCurToken(0);
-
-    pi.type_ = ParseInfo::TokenType;
-    pi.data_.tok_type_ = tok.type;
+    pi.type_ = ParseInfo::ASTType;
+    pi.data_.type_ = type;
+    pi.rule_name_ = rname;
     parse_stack_.Push(pi);
   }
 
-  void SyntaxAnalyzer::PushNode(AST::BaseNode* node) {
-    ParseInfo pi_new;
-    pi_new.type_ = ParseInfo::ASTNode;
-    pi_new.data_.node_ = node;
-    parse_stack_.Push(pi_new);
+  void SyntaxAnalyzer::PushToken(int pos_offset, RuleName rname) {
+    ParseInfo pi;
+    Token tok = tokenizer_->GetCurToken(pos_offset);
+
+    pi.type_ = ParseInfo::TokenType;
+    pi.data_.tok_type_ = tok.type;
+    pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
   }
 
-  void SyntaxAnalyzer::PushTypeList(SimpleVector<AST::Type*>* ty_list) {
-    ParseInfo pi_new;
-    pi_new.type_ = ParseInfo::TypeList;
-    pi_new.data_.types_ = ty_list;
-    parse_stack_.Push(pi_new);
+  void SyntaxAnalyzer::PushNode(AST::BaseNode* node, RuleName rname) {
+    ParseInfo pi;
+    pi.type_ = ParseInfo::ASTNode;
+    pi.data_.node_ = node;
+    pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
+  }
+
+  void SyntaxAnalyzer::PushTypeList(SimpleVector<AST::Type*>* ty_list,
+      RuleName rname) {
+    ParseInfo pi;
+    pi.type_ = ParseInfo::TypeList;
+    pi.data_.types_ = ty_list;
+    pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
+  }
+
+  void SyntaxAnalyzer::PushVarDecls(SimpleVector<AST::VariableDecl*>* var_list,
+      RuleName rname) {
+    ParseInfo pi;
+    pi.type_ = ParseInfo::VarDeclList;
+    pi.data_.vardecls_ = var_list;
+    pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
+  }
+
+  void SyntaxAnalyzer::SetRuleNameForPI(RuleName rname) {
+    ParseInfo pi = parse_stack_.Top();
+    pi.rule_name_ = rname;
   }
 
   void SyntaxAnalyzer::DebugPrint(void) {

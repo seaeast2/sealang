@@ -29,12 +29,12 @@ class RBTree {
 
   public:
     RBTree() {
-      root_ = NULL;
+      root_ = nullptr;
 
       nil_ = new RbNode;
-      nil_->parent_ = NULL;
-      nil_->left_ = NULL;
-      nil_->right_ = NULL;
+      nil_->parent_ = nullptr;
+      nil_->left_ = nullptr;
+      nil_->right_ = nullptr;
       nil_->color_ = BLACK;
     }
 
@@ -70,15 +70,15 @@ class RBTree {
     RbNode* Find(const K& key) {
       BbNode* focus_node = root_;
 
-      if (focus_node == NULL)
-        return NULL;
+      if (focus_node == nullptr)
+        return nullptr;
       while(focus_node->key_ != key) {
         if (key < focus_node->key_)
           focus_node = focus_node->left_;
         else
           focus_node = focus_node->right_;
-        if (focus_node == NULL)
-          return NULL;
+        if (focus_node == nullptr)
+          return nullptr;
       }
       return focus_node;
     }
@@ -120,7 +120,7 @@ class RBTree {
 
     void Clear() {
       BbNode* cur_node = root_;
-      while(root_->left_ == NULL && root_->right_ == NULL) {
+      while(root_->left_ == nullptr && root_->right_ == nullptr) {
         if(cur_node->left_)
           cur_node = cur_node->left_;
         else if(cur_node->right_)
@@ -128,21 +128,21 @@ class RBTree {
         else {
           BbNode* p = cur_node->parent_;
           if(cur_node == cur_node->parent_->left_)
-            p->left_ = NULL;
+            p->left_ = nullptr;
           else
-            p->right_ = NULL;
+            p->right_ = nullptr;
 
           delete cur_node;
           cur_node = p;
         }
       }
       if (root_ == root_->parent_->left_)
-        root_->parent_->left_ = NULL;
+        root_->parent_->left_ = nullptr;
       else
-        root_->parent_->right_ = NULL;
+        root_->parent_->right_ = nullptr;
 
       delete root_;
-      root_ = NULL;
+      root_ = nullptr;
     }
 
   private:

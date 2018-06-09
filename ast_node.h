@@ -16,9 +16,8 @@ namespace AST {
     public:
       enum NodeKind {
         BaseNodeTy,
-          RootNodeTy,
-          FunctionNodeTy,
-          ParamsNodeTy, // function parameters
+          FunctionDeclTy,
+          VariableDeclTy,
           TypeNodeTy,
           StmtNodeTy,
             BlockNodeTy,
@@ -82,22 +81,6 @@ namespace AST {
       virtual void print();
   };
 
-
-  class RootNode : public BaseNode {
-    protected:
-
-    public:
-      RootNode() {
-        kind_ = RootNodeTy;
-      }
-      virtual ~RootNode() {}
-      virtual bool IsKindOf(NodeKind kind) {
-        if (kind == RootNodeTy || kind == BaseNodeTy)
-          return true;
-        return false;
-      }
-  };
-
   class TypeNode : public BaseNode {
     AST::Type* type_;
     public:
@@ -151,6 +134,89 @@ namespace AST {
       }
   };
 
+  class AbstractAssignNode : public ExprNode {
+    protected:
+      ExprNode* lhs_, *rhs_;
+
+    public:
+      AbstractAssignNode() {
+        kind_ = AbstractAssignNodeTy;
+      }
+      virtual ~AbstractAssignNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == AbstractAssignNodeTy|| kind == ExprNodeTy ||
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetLHS(ExprNode* lhs) { lhs_ = lhs; }
+      void SetRHS(ExprNode* rhs) { rhs_ = rhs; }
+
+      ExprNode* GetLHS() { return lhs_; }
+      ExprNode* GetRHS() { return rhs_; }
+  };
+
+  class AssignNode : public AbstractAssignNode {
+    public:
+      AssignNode() {
+        kind_ = AssignNodeTy;
+      }
+      AssignNode(ExprNode* lhs, ExprNode* rhs) {
+        kind_ = AssignNodeTy;
+        lhs_ = lhs;
+        rhs_ = rhs;
+      }
+      virtual ~AssignNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == AssignNodeTy || kind == AbstractAssignNodeTy|| 
+            kind == ExprNodeTy || kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class OpAssignNode : public AbstractAssignNode {
+    public:
+    enum AssignOp {
+      AssignAdd,      // +=
+      AssignSub,      // -=
+      AssignMul,      // *=
+      AssignDiv,      // /=
+      AssignMod,      // %=
+      AssignBitAnd,   // &=
+      AssignBitOr,    // |=
+      AssignBitXor,   // ^=
+      AssignBitShiftL,// <<==
+      AssignBitShiftR // >>==
+    };
+
+    protected:
+    AssignOp op_;
+    public:
+      OpAssignNode() {
+        kind_ = OpAssignNodeTy;
+      }
+      OpAssignNode(ExprNode* lhs, AssignOp op, ExprNode* rhs) {
+        kind_ = OpAssignNodeTy;
+        lhs_ = lhs;
+        op_ = op;
+        rhs_ = rhs;
+      }
+      virtual ~OpAssignNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == OpAssignNodeTy || kind == AbstractAssignNodeTy|| 
+            kind == ExprNodeTy || kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetOp(AssignOp op) { op_ = op; }
+  };
+
   class AddressNode : public ExprNode {
     ExprNode * expr_;
     public:
@@ -178,8 +244,8 @@ namespace AST {
     public:
       CastNode() {
         kind_ = CastNodeTy;
-        cast_type_ = NULL;
-        term_expr_ = NULL;
+        cast_type_ = nullptr;
+        term_expr_ = nullptr;
       }
 
       CastNode(ExprNode* term, TypeNode* castty) {
@@ -231,7 +297,7 @@ namespace AST {
 
       ExprNode* GetArg(int idx) {
         if (idx < 0 || idx >= count_)
-          return NULL;
+          return nullptr;
         return args_[idx];
       }
   };
@@ -594,6 +660,53 @@ namespace AST {
           return true;
         return false;
       }
+  };
+
+  class FunctionDecl : public BaseNode {
+    public:
+      FunctionDecl();
+      virtual ~FunctionDecl();
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == FunctionDeclTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class VariableDecl : public BaseNode {
+    bool is_static_;
+    Type* type_;
+    std::string name_;
+    ExprNode* initializer_;
+
+    public:
+      VariableDecl() {
+        is_static_ = false;
+        type_ = nullptr;
+        initializer_ = nullptr;
+      }
+      VariableDecl(Type* type, const char* name, ExprNode* init);
+      virtual ~VariableDecl();
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == VariableDeclTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetStorage(bool st) {is_static_ = st;}
+      void SetType(Type* type) { type_ = type; }
+      void SetName(const char* name) { name_ = name; }
+      void SetName(const char* name, int len);
+      void SetInit(ExprNode* init) { initializer_ = init; }
+  };
+
+  class Declarations {
+    private:
+      SimpleVector<VariableDecl*> vars_;
+      SimpleVector<FunctionDecl*> funcs_;
+    public:
+      Declarations() {}
+      ~Declarations() {}
   };
 
 

@@ -22,7 +22,7 @@ namespace AST {
   }
 
   CharType* CharType::Get(ASTContext* ac, IntegerType::eSign s) {
-    Type* ty = NULL;
+    Type* ty = nullptr;
     if (s == Signed)
       ty = ac->FindType("char");
     else 
@@ -37,7 +37,7 @@ namespace AST {
   }
 
   ShortType* ShortType::Get(ASTContext* ac, IntegerType::eSign s) {
-    Type* ty = NULL;
+    Type* ty = nullptr;
     if (s == Signed)
       ty = ac->FindType("short");
     else 
@@ -51,7 +51,7 @@ namespace AST {
   }
 
   IntType* IntType::Get(ASTContext* ac, IntegerType::eSign s) {
-    Type* ty = NULL;
+    Type* ty = nullptr;
     if (s == Signed)
       ty = ac->FindType("int");
     else 
@@ -65,7 +65,7 @@ namespace AST {
   }
 
   LongType* LongType::Get(ASTContext* ac, IntegerType::eSign s) {
-    Type* ty = NULL;
+    Type* ty = nullptr;
     if (s == Signed)
       ty = ac->FindType("long");
     else 

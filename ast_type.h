@@ -387,7 +387,7 @@ namespace AST {
       Type* base_type_;
     protected:
       PointerType() {
-        base_type_ = NULL;
+        base_type_ = nullptr;
         kind_ = PointerTy;
         is_incomplete_ = false;
       }

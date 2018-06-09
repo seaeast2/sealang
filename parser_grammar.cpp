@@ -80,12 +80,12 @@ namespace Parser {
       rules_[sel_fun_var_const_class_typedef] = {Select, {deffunc, defvars, defconst, defclass, typedef_ }};
     // defvars // variable definition. ex) int a = 0, b=19; 
     //   : storage type name ["=" expr] [("," name ["=" expr])*] ";" 
-    rules_[defvars] = {Sequence, {storage, type, name, opt_var_initialize, opt_rep_cm_name_dot_eq_expr, TokSemiColon }};
+    rules_[defvars] = {Sequence, {storage, type, name, opt_var_initialize, opt_rep_var_initialize, TokSemiColon }};
       rules_[opt_var_initialize] = {Options, {TokAssign, expr}}; // ["=" expr]
       // [("," name ["=" expr])*]
-      rules_[opt_rep_cm_name_dot_eq_expr] = {Options, {rep_cm_name_dot_eq_expr}}; 
+      rules_[opt_rep_var_initialize] = {Options, {rep_var_initialize}}; 
         // ("," name ["=" expr])*
-        rules_[rep_cm_name_dot_eq_expr] = {Repeat, {TokComma, name, opt_var_initialize}};
+        rules_[rep_var_initialize] = {Repeat, {TokComma, name, opt_var_initialize}};
         
     // defconst
     //   : <CONST> type name "=" expr ";"
@@ -505,7 +505,7 @@ namespace Parser {
       //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
       rules_[rep_reffunc] = {Repeat, {sel_reffunc}};
         // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
-        rules_[sel_reffunc] = {Select, {seq_post_inc, seq_post_dec, seq_array_reference, seq_dot_name, seq_arrow_name, seq_po_args_pc}};
+        rules_[sel_reffunc] = {Select, {seq_post_inc, seq_post_dec, seq_array_reference, seq_dot_name, seq_arrow_name, seq_fncall}};
           // "++"
           rules_[seq_post_inc] = {Sequence, {TokUnaryInc}};
           // "--"
@@ -517,7 +517,7 @@ namespace Parser {
           //"->" name
           rules_[seq_arrow_name] = {Sequence, {TokRightArrow, name}};
           //"(" args ")"
-          rules_[seq_po_args_pc] = {Sequence, {TokParenOpen, args, TokParenClose}};
+          rules_[seq_fncall] = {Sequence, {TokParenOpen, args, TokParenClose}};
      
     // args 
     //   : [expr ("," expr)*] 
@@ -543,6 +543,11 @@ namespace Parser {
       rule_actions_[i] = &SyntaxAnalyzer::DoNothing;
     }
 
+    rule_actions_[top_defs] = &SyntaxAnalyzer::TopDefs;
+
+    rule_actions_[defvars] = &SyntaxAnalyzer::DefVars;
+
+    rule_actions_[storage] = &SyntaxAnalyzer::Storage;
     rule_actions_[type] = &SyntaxAnalyzer::Type;
     rule_actions_[typeref] = &SyntaxAnalyzer::TypeRef;
       rule_actions_[seq_unassigned_array] = &SyntaxAnalyzer::Act_seq_unassigned_array; 
@@ -593,7 +598,7 @@ namespace Parser {
       rule_actions_[seq_array_reference] = &SyntaxAnalyzer::Act_seq_array_reference;
       rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
       rule_actions_[seq_arrow_name] = &SyntaxAnalyzer::Act_seq_arrow_name;
-      rule_actions_[seq_po_args_pc] = &SyntaxAnalyzer::Act_seq_po_args_pc;
+      rule_actions_[seq_fncall] = &SyntaxAnalyzer::Act_seq_fncall;
 
     rule_actions_[args] = &SyntaxAnalyzer::Args;
       rule_actions_[seq_args_expr] = &SyntaxAnalyzer::Act_seq_args_expr;
@@ -601,6 +606,12 @@ namespace Parser {
 
     rule_actions_[primary] = &SyntaxAnalyzer::Primary;
       rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
+
+    rule_actions_[expr] = &SyntaxAnalyzer::Expr;
+      rule_actions_[seq_assign_value] = &SyntaxAnalyzer::Act_seq_assign_value;
+      rule_actions_[seq_opassign_value] = &SyntaxAnalyzer::Act_seq_opassign_value;
+
+    rule_actions_[opassign_op] = &SyntaxAnalyzer::OpAssignOp;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

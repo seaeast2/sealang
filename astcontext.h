@@ -12,12 +12,12 @@ namespace AST {
   class ASTContext {
     protected:
       VecStr imports_;
-      RootNode* rootNode_;
+      Declarations* decls_;
 
       // type environment
       Environment<Type*> type_env_;
       // variable evironment
-      Environment<VariableNode*> var_evn_;
+      Environment<VariableDecl*> var_evn_;
 
     public:
       ASTContext();
@@ -27,7 +27,7 @@ namespace AST {
       VecStr::iterator import_begin();
       VecStr::iterator import_end();
       
-      RootNode* GetAstRoot() { return rootNode_; }
+      Declarations* GetDecl() { return decls_; }
 
       // Type environment control
       Type* FindType(const char* type_name);

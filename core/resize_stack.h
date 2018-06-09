@@ -14,7 +14,7 @@ class RSStack{
 
   public:
   RSStack() {
-    data_ = NULL;
+    data_ = nullptr;
     stack_size_ = 0;
     top_ = -1;
   }
