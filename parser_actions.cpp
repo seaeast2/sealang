@@ -10,6 +10,11 @@ namespace Parser {
 
   SyntaxAction::~SyntaxAction() {
   }
+
+  void SyntaxAction::ActOnImport(const string &ip) {
+    // TODO : Need to check if import path is right.
+    astctx_->AddImport(ip);
+  }
 };
 
 

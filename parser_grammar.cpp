@@ -78,6 +78,7 @@ namespace Parser {
     //     | typedef )* 
     rules_[top_defs] = {Repeat, {sel_fun_var_const_class_typedef}};
       rules_[sel_fun_var_const_class_typedef] = {Select, {deffunc, defvars, defconst, defclass, typedef_ }};
+
     // defvars // variable definition. ex) int a = 0, b=19; 
     //   : storage type name ["=" expr] [("," name ["=" expr])*] ";" 
     rules_[defvars] = {Sequence, {storage, type, name, opt_var_initialize, opt_rep_var_initialize, TokSemiColon }};
@@ -542,6 +543,8 @@ namespace Parser {
     for (int i = 0; i < MAX_RULES; i++) {
       rule_actions_[i] = &SyntaxAnalyzer::DoNothing;
     }
+
+    rule_actions_[compilation_unit] = &SyntaxAnalyzer::CompilationUnit;
 
     rule_actions_[top_defs] = &SyntaxAnalyzer::TopDefs;
 

@@ -10,7 +10,6 @@ namespace Parser {
     eResult res;
     int tok_pos;
 
-
     switch(rule.action_) {
       case Repeat:
         {
@@ -548,6 +547,63 @@ namespace Parser {
     return Error;
   }
 
+  // import_stmt 
+  //    : <IMPORT> name ("." name)* ";" 
+  // ex) import aaa.bbb.ccc;
+  eResult SyntaxAnalyzer::ImportStmt() {
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup start token position.
+    string import_path, tmp;
+    Token tok;
+
+    // check if first token is 'import'.
+    if (!tokenizer_->isToken(0, Lexer::TokImport))
+      return False;
+    tokenizer_->ConsumeToken(1); // Move next
+
+    // name("."name)* ";"
+    // check if identifier.
+    if (Name() != True) { // something wrong in path
+      err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
+          tok.line, tok.col, "Wrong import path");
+      return Error;
+    }
+
+    // insert first import path to string.
+    Token tok_name = tokenizer_->GetCurToken(0);
+    tokenizer_->ConsumeToken(1); // move next
+    tmp.assign(tok_name.c, tok_name.len);
+    import_path = tmp;
+
+    while(true) {
+      // "."name)* ";"
+      if (tokenizer_->isToken(0, Lexer::TokDot)) {
+        tokenizer_->ConsumeToken(1); // move next
+        // name)* ";"
+        if (Name() != True) { // something wrong in path
+          err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
+              tok.line, tok.col, "Wrong import path");
+          return Error;
+        }
+
+        import_path += "/";
+        tok_name = tokenizer_->GetCurToken(0);
+        tmp.assign(tok_name.c, tok_name.len);
+        import_path += tmp;
+        tokenizer_->ConsumeToken(1);
+      }
+      // ";"
+      else if (tokenizer_->isToken(0, Lexer::TokSemiColon)) {
+        tokenizer_->ConsumeToken(1);
+        break;
+      }
+      else
+        return Error;// some error on it
+    }
+
+    action_->ActOnImport(import_path);
+    return True;
+  }
+
   eResult SyntaxAnalyzer::Block(void) {
     return True;
   }
@@ -639,7 +695,7 @@ namespace Parser {
       return Error;
     }
 
-    pi_expr.rule_name_ = RuleName::term; // mark pi with term.
+    SetRuleNameForPI(RuleName::term);// mark pi with term.
     return True;
   }
 
@@ -1137,7 +1193,7 @@ namespace Parser {
         pi_expr.rule_name_ != RuleName::expr10)
       return Error;
 
-    pi_expr.rule_name_ = RuleName::expr; // mark pi with term.
+    SetRuleNameForPI(RuleName::expr);
     return True;
   }
 
@@ -1174,8 +1230,7 @@ namespace Parser {
       new AST::AssignNode((AST::ExprNode*)lhs, (AST::ExprNode*)rhs);
     PushNode(assign_node, RuleName::seq_assign_value);
 
-    pi_expr = parse_stack_.Top();
-    pi_expr.rule_name_ =  seq_assign_value;
+    SetRuleNameForPI(RuleName::seq_assign_value);
     return True;;
   }
 
@@ -1257,8 +1312,7 @@ namespace Parser {
       new AST::OpAssignNode((AST::ExprNode*)lhs, op, (AST::ExprNode*)rhs);
     PushNode(opassign, RuleName::seq_opassign_value);
 
-    pi_expr = parse_stack_.Top();
-    pi_expr.rule_name_ =  seq_opassign_value;
+    SetRuleNameForPI(RuleName::seq_opassign_value);
     return True;
   }
 
@@ -1444,7 +1498,10 @@ namespace Parser {
 
   void SyntaxAnalyzer::SetRuleNameForPI(RuleName rname) {
     ParseInfo pi = parse_stack_.Top();
+    parse_stack_.Pop();
+
     pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
   }
 
   void SyntaxAnalyzer::DebugPrint(void) {
