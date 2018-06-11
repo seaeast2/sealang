@@ -276,6 +276,63 @@ namespace Parser {
     return True;
   }
 
+  // import_stmt 
+  //    : <IMPORT> name ("." name)* ";" 
+  // ex) import aaa.bbb.ccc;
+  eResult SyntaxAnalyzer::ImportStmt() {
+    int cur_tok_pos = tokenizer_->GetTokPos(); // backup start token position.
+    std::string import_path, tmp;
+    Token tok;
+
+    // check if first token is 'import'.
+    if (!tokenizer_->isToken(0, Lexer::TokImport))
+      return False;
+    tokenizer_->ConsumeToken(1); // Move next
+
+    // name("."name)* ";"
+    // check if identifier.
+    if (Name() != True) { // something wrong in path
+      err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
+          tok.line, tok.col, "Wrong import path");
+      return Error;
+    }
+
+    // insert first import path to string.
+    Token tok_name = tokenizer_->GetCurToken(0);
+    tokenizer_->ConsumeToken(1); // move next
+    tmp.assign(tok_name.c, tok_name.len);
+    import_path = tmp;
+
+    while(true) {
+      // "."name)* ";"
+      if (tokenizer_->isToken(0, Lexer::TokDot)) {
+        tokenizer_->ConsumeToken(1); // move next
+        // name)* ";"
+        if (Name() != True) { // something wrong in path
+          err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
+              tok.line, tok.col, "Wrong import path");
+          return Error;
+        }
+
+        import_path += "/";
+        tok_name = tokenizer_->GetCurToken(0);
+        tmp.assign(tok_name.c, tok_name.len);
+        import_path += tmp;
+        tokenizer_->ConsumeToken(1);
+      }
+      // ";"
+      else if (tokenizer_->isToken(0, Lexer::TokSemiColon)) {
+        tokenizer_->ConsumeToken(1);
+        break;
+      }
+      else
+        return Error;// some error on it
+    }
+
+    action_->ActOnImport(import_path);
+    return True;
+  }
+
   eResult SyntaxAnalyzer::TopDefs(void) {
     return True;
   }
@@ -547,62 +604,6 @@ namespace Parser {
     return Error;
   }
 
-  // import_stmt 
-  //    : <IMPORT> name ("." name)* ";" 
-  // ex) import aaa.bbb.ccc;
-  eResult SyntaxAnalyzer::ImportStmt() {
-    int cur_tok_pos = tokenizer_->GetTokPos(); // backup start token position.
-    string import_path, tmp;
-    Token tok;
-
-    // check if first token is 'import'.
-    if (!tokenizer_->isToken(0, Lexer::TokImport))
-      return False;
-    tokenizer_->ConsumeToken(1); // Move next
-
-    // name("."name)* ";"
-    // check if identifier.
-    if (Name() != True) { // something wrong in path
-      err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
-          tok.line, tok.col, "Wrong import path");
-      return Error;
-    }
-
-    // insert first import path to string.
-    Token tok_name = tokenizer_->GetCurToken(0);
-    tokenizer_->ConsumeToken(1); // move next
-    tmp.assign(tok_name.c, tok_name.len);
-    import_path = tmp;
-
-    while(true) {
-      // "."name)* ";"
-      if (tokenizer_->isToken(0, Lexer::TokDot)) {
-        tokenizer_->ConsumeToken(1); // move next
-        // name)* ";"
-        if (Name() != True) { // something wrong in path
-          err_diag_->Print(ErrorDiag::Err_Parser_NoIdentifier, 
-              tok.line, tok.col, "Wrong import path");
-          return Error;
-        }
-
-        import_path += "/";
-        tok_name = tokenizer_->GetCurToken(0);
-        tmp.assign(tok_name.c, tok_name.len);
-        import_path += tmp;
-        tokenizer_->ConsumeToken(1);
-      }
-      // ";"
-      else if (tokenizer_->isToken(0, Lexer::TokSemiColon)) {
-        tokenizer_->ConsumeToken(1);
-        break;
-      }
-      else
-        return Error;// some error on it
-    }
-
-    action_->ActOnImport(import_path);
-    return True;
-  }
 
   eResult SyntaxAnalyzer::Block(void) {
     return True;
@@ -1323,14 +1324,142 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Expr10(void) {
+    ParseInfo pi_expr9, pi_ternary;
+    AST::CondExprNode* cond_expr = nullptr;
+
+    // check if first expr is ternary op.
+    pi_ternary = parse_stack_.Top();
+    if (pi_ternary.type_ == ParseInfo::ASTNode && 
+        pi_ternary.rule_name_ == RuleName::opt_ternaryop) {
+      parse_stack_.Pop();
+      cond_expr = (AST::CondExprNode*)pi_ternary.data_.node_;
+    }
+
+    // Read condition expr
+    pi_expr9 = parse_stack_.Top();
+    if (pi_expr9.type_ != ParseInfo::ASTNode ||
+        pi_expr9.rule_name_ != RuleName::expr9) {
+      return Error;
+    }
+
+    if (cond_expr) {
+      parse_stack_.Pop(); // pop expr9
+      cond_expr->SetCond((AST::ExprNode*)pi_expr9.data_.node_);
+      PushNode(cond_expr, expr10);
+    }
+    else
+      SetRuleNameForPI(RuleName::expr10); // just change rule name.
+
+    return True;
+  }
+
+  // ["?" expr ":" expr10] 
+  eResult SyntaxAnalyzer::Act_opt_ternaryop(void) {
+    ParseInfo pi_then, pi_else;
+
+    // Read else expr
+    pi_else = parse_stack_.Top();
+    if (pi_else.type_ != ParseInfo::ASTNode || 
+        pi_else.rule_name_ != RuleName::expr10)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read then expr
+    pi_then = parse_stack_.Top();
+    if (pi_then.type_ != ParseInfo::ASTNode || 
+        pi_then.rule_name_ != RuleName::expr)
+      return Error;
+    parse_stack_.Pop();
+
+
+    // Create Conditional expression node
+    // Cond expr will be set up expr10 action.
+    AST::CondExprNode* cond_expr = new AST::CondExprNode(nullptr, 
+        (AST::ExprNode*)pi_then.data_.node_, (AST::ExprNode*)pi_else.data_.node_);
+
+    PushNode(cond_expr, RuleName::opt_ternaryop);
     return True;
   }
 
   eResult SyntaxAnalyzer::Expr9(void) {
+    ParseInfo pi_expr8;
+
+    // Check if top is right.
+    pi_expr8 = parse_stack_.Top();
+    if (pi_expr8.type_ != ParseInfo::ASTNode ||
+        (pi_expr8.rule_name_ != RuleName::expr8) && 
+        (pi_expr8.rule_name_ != RuleName::rep_or_expr8))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr9);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_rep_or_expr8(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr8)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr8 &&
+         pi_lhs.rule_name_ != RuleName::rep_or_expr8))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::LogicalOrNode* logic_or = 
+      new AST::LogicalOrNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                             (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(logic_or, RuleName::rep_or_expr8);
     return True;
   }
 
   eResult SyntaxAnalyzer::Expr8(void) {
+    ParseInfo pi_expr7;
+
+    // Check if top is right.
+    pi_expr7 = parse_stack_.Top();
+    if (pi_expr7.type_ != ParseInfo::ASTNode ||
+        (pi_expr7.rule_name_ != RuleName::expr7) && 
+        (pi_expr7.rule_name_ != RuleName::rep_and_expr7))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr9);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_rep_and_expr7(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr7)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr7 &&
+         pi_lhs.rule_name_ != RuleName::rep_and_expr7))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::LogicalAndNode* logic_and = 
+      new AST::LogicalAndNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                             (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(logic_and, RuleName::rep_and_expr7);
     return True;
   }
 

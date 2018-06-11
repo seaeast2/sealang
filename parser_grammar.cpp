@@ -59,12 +59,11 @@ namespace Parser {
     // import_stmts  
     //   : (import_stmt)* 
     rules_[import_stmts] = {Repeat, {import_stmt}};
-
-    // import_stmt 
-    //   : <IMPORT> name ("." name)* ";" 
-    rules_[import_stmt] = {Sequence, {TokImport, name, rep_dot_name, TokSemiColon}};
-      // ("." name)*
-      rules_[rep_dot_name] = {Repeat, {TokDot, name}};
+      // import_stmt 
+      //   : <IMPORT> name ("." name)* ";" 
+      rules_[import_stmt] = {Sequence, {TokImport, name, rep_dot_name, TokSemiColon}};
+        // ("." name)*
+        rules_[rep_dot_name] = {Repeat, {TokDot, name}};
 
     // name 
     //   : <IDENTIFIER> 
@@ -546,6 +545,9 @@ namespace Parser {
 
     rule_actions_[compilation_unit] = &SyntaxAnalyzer::CompilationUnit;
 
+    rule_actions_[import_stmts] = &SyntaxAnalyzer::ImportStmts;
+      rule_actions_[import_stmt] = &SyntaxAnalyzer::ImportStmt;
+
     rule_actions_[top_defs] = &SyntaxAnalyzer::TopDefs;
 
     rule_actions_[defvars] = &SyntaxAnalyzer::DefVars;
@@ -579,6 +581,7 @@ namespace Parser {
       rule_actions_[seq_float] = &SyntaxAnalyzer::Act_seq_float;
       rule_actions_[seq_double] = &SyntaxAnalyzer::Act_seq_double;
       rule_actions_[seq_class_identifier] = &SyntaxAnalyzer::Act_seq_class_identifier;
+
 
     rule_actions_[name] = &SyntaxAnalyzer::Name;
     rule_actions_[term] = &SyntaxAnalyzer::Term;
@@ -615,6 +618,15 @@ namespace Parser {
       rule_actions_[seq_opassign_value] = &SyntaxAnalyzer::Act_seq_opassign_value;
 
     rule_actions_[opassign_op] = &SyntaxAnalyzer::OpAssignOp;
+
+    rule_actions_[expr10] = &SyntaxAnalyzer::Expr10;
+      rule_actions_[opt_ternaryop] = &SyntaxAnalyzer::Act_opt_ternaryop;
+
+    rule_actions_[expr9] = &SyntaxAnalyzer::Expr9;
+      rule_actions_[rep_or_expr8] = &SyntaxAnalyzer::Act_rep_or_expr8;
+
+    rule_actions_[expr8] = &SyntaxAnalyzer::Expr8;
+      rule_actions_[rep_and_expr7] = &SyntaxAnalyzer::Act_rep_and_expr7;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

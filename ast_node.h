@@ -238,6 +238,76 @@ namespace AST {
       }
   };
 
+  class BinaryOpNode : public ExprNode {
+    protected:
+      ExprNode *left_, *right_;
+    public:
+      BinaryOpNode() {
+        kind_ = BinaryOpNodeTy;
+      }
+      BinaryOpNode(ExprNode* left, ExprNode* right) {
+        kind_ = BinaryOpNodeTy;
+        left_ = left;
+        right_ = right;
+      }
+      virtual ~BinaryOpNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == BinaryOpNodeTy || kind == ExprNodeTy ||
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetLeft(ExprNode* left) { left_ = left; }
+      void SetRight(ExprNode* right) { right_ = right; }
+      ExprNode* GetLeft() { return left_; }
+      ExprNode* GetRight() { return right_; }
+
+  };
+
+  class LogicalAndNode : public BinaryOpNode {
+    public:
+      LogicalAndNode() {
+        kind_ = LogicalAndNodeTy;
+      }
+      LogicalAndNode(ExprNode* left, ExprNode* right) {
+        kind_ = LogicalAndNodeTy;
+        left_ = left;
+        right_ = right;
+      }
+      virtual ~LogicalAndNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == LogicalAndNodeTy ||
+            kind == BinaryOpNodeTy || kind == ExprNodeTy ||
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class LogicalOrNode : public BinaryOpNode {
+    public:
+      LogicalOrNode() {
+        kind_ = LogicalOrNodeTy;
+      }
+      LogicalOrNode(ExprNode* left, ExprNode* right) {
+        kind_ = LogicalOrNodeTy;
+        left_ = left;
+        right_ = right;
+      }
+      virtual ~LogicalOrNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == LogicalOrNodeTy ||
+            kind == BinaryOpNodeTy || kind == ExprNodeTy ||
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
   class CastNode : public ExprNode {
     TypeNode * cast_type_;
     ExprNode * term_expr_;
@@ -263,6 +333,39 @@ namespace AST {
           return true;
         return false;
       }
+  };
+
+  // therary operation.
+  class CondExprNode : public ExprNode {
+    ExprNode* cond_expr_, *then_expr_, *else_expr_;
+    public:
+      CondExprNode() {
+        kind_ = CondExprNodeTy;
+        cond_expr_ = then_expr_ = else_expr_ = nullptr;
+      }
+      CondExprNode(ExprNode* cond_expr, ExprNode* then_expr, ExprNode* else_expr) {
+        kind_ = CondExprNodeTy;
+
+        cond_expr_ = cond_expr;
+        then_expr_ = then_expr;
+        else_expr_ = else_expr;
+      }
+      virtual ~CondExprNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == CondExprNodeTy|| kind == ExprNodeTy ||
+            kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetCond(ExprNode* cond_expr) { cond_expr_ = cond_expr; }
+      void SetThen(ExprNode* then_expr) { then_expr_ = then_expr; }
+      void SetElse(ExprNode* else_expr) { else_expr_ = else_expr; }
+
+      ExprNode* GetCond() { return cond_expr_; }
+      ExprNode* GetThen() { return then_expr_; }
+      ExprNode* GetElse() { return else_expr_; }
   };
 
   class ArgsNode : public ExprNode {

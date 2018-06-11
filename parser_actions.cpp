@@ -1,3 +1,4 @@
+#include <cstring>
 #include "parser_actions.h"
 
 namespace Parser {
@@ -11,7 +12,7 @@ namespace Parser {
   SyntaxAction::~SyntaxAction() {
   }
 
-  void SyntaxAction::ActOnImport(const string &ip) {
+  void SyntaxAction::ActOnImport(const std::string &ip) {
     // TODO : Need to check if import path is right.
     astctx_->AddImport(ip);
   }

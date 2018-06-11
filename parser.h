@@ -99,8 +99,11 @@ namespace Parser {
       seq_opassign_value, // term opassign_op expr 
     opassign_op,
     expr10,
+      opt_ternaryop,// ["?" expr ":" expr10] 
     expr9,
+      rep_or_expr8, //("||" expr8)* 
     expr8,
+      rep_and_expr7,// ("&&" expr7)* 
     expr7,
     expr6,
     expr5,
@@ -147,9 +150,6 @@ namespace Parser {
     opt_expr, // [expr]
     seq_return_semicolon, // <RETURN> ";"
     seq_return_expr_semicolon, // <RETURN> expr ";"
-    opt_ternaryop,// ["?" expr ":" expr10] 
-    rep_or_expr8, //("||" expr8)* 
-    rep_and_expr7,// ("&&" expr7)* 
     rep_op_expr6,
     sel_op_expr6,
     seq_gr_expr6, // ">" expr6  
@@ -264,7 +264,7 @@ namespace Parser {
       eResult CompilationUnit(void); // compilation_unit
       
       eResult ImportStmts(void); // import_stmts
-      eResult ImportStmt(void); // import_stmt
+        eResult ImportStmt(void); // import_stmt
 
       eResult TopDefs(void); // top_defs : Top definitions 
       eResult DefFunc(void); // deffunc : function definition
@@ -341,9 +341,15 @@ namespace Parser {
         eResult Act_seq_opassign_value(void);
 
       eResult OpAssignOp(void); // opassign_op
+      
       eResult Expr10(void); // expr10
+        eResult Act_opt_ternaryop(void); // ["?" expr ":" expr10]
+
       eResult Expr9(void); // expr9
+        eResult Act_rep_or_expr8(void);//("||" expr8)* 
+
       eResult Expr8(void); // expr8
+        eResult Act_rep_and_expr7(void);// ("&&" expr7)* 
       eResult Expr7(void); // expr7
       eResult Expr6(void); // expr6
       eResult Expr5(void); // expr5
