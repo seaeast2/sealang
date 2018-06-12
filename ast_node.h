@@ -239,14 +239,27 @@ namespace AST {
   };
 
   class BinaryOpNode : public ExprNode {
+    public:
+      enum BinOp {
+        LogicOr,      // ||
+        LogicAnd,     // &&
+        GreatorThan,  // >
+        LessThan,     // <
+        GreatorThanEq,// >=
+        LessThanEq,   // <=
+        Equal,        // ==
+        NotEqual     // !=
+      };
     protected:
+      BinOp   bin_op_;
       ExprNode *left_, *right_;
     public:
       BinaryOpNode() {
         kind_ = BinaryOpNodeTy;
       }
-      BinaryOpNode(ExprNode* left, ExprNode* right) {
+      BinaryOpNode(ExprNode* left, BinOp op, ExprNode* right) {
         kind_ = BinaryOpNodeTy;
+        bin_op_ = op;
         left_ = left;
         right_ = right;
       }
@@ -259,20 +272,26 @@ namespace AST {
         return false;
       }
 
+      void SetOp(BinOp op) { bin_op_ = op; }
       void SetLeft(ExprNode* left) { left_ = left; }
       void SetRight(ExprNode* right) { right_ = right; }
+
+      BinOp     GetOp() { return bin_op_; }
       ExprNode* GetLeft() { return left_; }
       ExprNode* GetRight() { return right_; }
-
   };
 
   class LogicalAndNode : public BinaryOpNode {
     public:
       LogicalAndNode() {
         kind_ = LogicalAndNodeTy;
+
+        bin_op_ = BinaryOpNode::LogicAnd;
       }
       LogicalAndNode(ExprNode* left, ExprNode* right) {
         kind_ = LogicalAndNodeTy;
+
+        bin_op_ = BinaryOpNode::LogicAnd;
         left_ = left;
         right_ = right;
       }
@@ -291,9 +310,11 @@ namespace AST {
     public:
       LogicalOrNode() {
         kind_ = LogicalOrNodeTy;
+        bin_op_ = BinaryOpNode::LogicOr;
       }
       LogicalOrNode(ExprNode* left, ExprNode* right) {
         kind_ = LogicalOrNodeTy;
+        bin_op_ = BinaryOpNode::LogicOr;
         left_ = left;
         right_ = right;
       }

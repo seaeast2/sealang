@@ -349,13 +349,13 @@ namespace Parser {
       rules_[rep_and_expr7] = {Repeat, {TokConAnd, expr7}};
      
     // expr7  
-    //   : expr7 (   ">" expr6  
-    //              | "<" expr6 
-    //              | ">=" expr6 
-    //              | "<=" expr6 
-    //              | "==" expr6 
-    //              | "!=" expr6 
-    //              )* 
+    //   : expr7 ( ">" expr6  
+    //           | "<" expr6 
+    //           | ">=" expr6 
+    //           | "<=" expr6 
+    //           | "==" expr6 
+    //           | "!=" expr6 )* 
+    //
     rules_[expr7] = {Sequence, {expr7, rep_op_expr6}};
       //(sel_op_expr6)*
       rules_[rep_op_expr6] = {Repeat, {sel_op_expr6}};
@@ -627,6 +627,14 @@ namespace Parser {
 
     rule_actions_[expr8] = &SyntaxAnalyzer::Expr8;
       rule_actions_[rep_and_expr7] = &SyntaxAnalyzer::Act_rep_and_expr7;
+
+    rule_actions_[expr7] = &SyntaxAnalyzer::Expr7;
+      rule_actions_[seq_gr_expr6] = &SyntaxAnalyzer::Act_seq_gr_expr6;
+      rule_actions_[seq_ls_expr6] = &SyntaxAnalyzer::Act_seq_ls_expr6;
+      rule_actions_[seq_geq_expr6] = &SyntaxAnalyzer::Act_seq_geq_expr6;
+      rule_actions_[seq_leq_expr6] = &SyntaxAnalyzer::Act_seq_leq_expr6;
+      rule_actions_[seq_eq_expr6] = &SyntaxAnalyzer::Act_seq_eq_expr6;
+      rule_actions_[seq_neq_expr6] = &SyntaxAnalyzer::Act_seq_neq_expr6;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

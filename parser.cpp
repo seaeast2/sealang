@@ -1464,6 +1464,219 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Expr7(void) {
+    ParseInfo pi_expr7;
+
+    // Check if top is right.
+    pi_expr7 = parse_stack_.Top();
+    if (pi_expr7.type_ != ParseInfo::ASTNode ||
+        (pi_expr7.rule_name_ != RuleName::expr7 &&
+         pi_expr7.rule_name_ != RuleName::seq_gr_expr6 &&
+         pi_expr7.rule_name_ != RuleName::seq_ls_expr6 &&
+         pi_expr7.rule_name_ != RuleName::seq_geq_expr6 &&
+         pi_expr7.rule_name_ != RuleName::seq_leq_expr6 &&
+         pi_expr7.rule_name_ != RuleName::seq_eq_expr6 &&
+         pi_expr7.rule_name_ != RuleName::seq_neq_expr6 ))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr7);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_gr_expr6(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr6)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr7 &&
+         pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* greator = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::GreatorThan,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(greator, RuleName::seq_gr_expr6);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_ls_expr6(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr6)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr7 &&
+         pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* less = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::LessThan,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(less, RuleName::seq_ls_expr6);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_geq_expr6(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr6)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr7 &&
+         pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* gr_eq = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::GreatorThanEq,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(gr_eq, RuleName::seq_geq_expr6);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_leq_expr6(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr6)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr7 &&
+         pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* ls_eq = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::LessThanEq,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(ls_eq, RuleName::seq_leq_expr6);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_eq_expr6(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr6)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr7 &&
+         pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* eq = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::Equal,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(eq, RuleName::seq_eq_expr6);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_neq_expr6(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr6)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr7 &&
+         pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* neq = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::NotEqual,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(neq, RuleName::seq_neq_expr6);
     return True;
   }
 

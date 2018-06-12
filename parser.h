@@ -105,6 +105,12 @@ namespace Parser {
     expr8,
       rep_and_expr7,// ("&&" expr7)* 
     expr7,
+      seq_gr_expr6, // ">" expr6  
+      seq_ls_expr6, // "<" expr6 
+      seq_geq_expr6,// ">=" expr6 
+      seq_leq_expr6,// "<=" expr6 
+      seq_eq_expr6, // "==" expr6 
+      seq_neq_expr6,// "!=" expr6 
     expr6,
     expr5,
     expr4,
@@ -152,12 +158,6 @@ namespace Parser {
     seq_return_expr_semicolon, // <RETURN> expr ";"
     rep_op_expr6,
     sel_op_expr6,
-    seq_gr_expr6, // ">" expr6  
-    seq_ls_expr6, // "<" expr6 
-    seq_geq_expr6,// ">=" expr6 
-    seq_leq_expr6,// "<=" expr6 
-    seq_eq_expr6, // "==" expr6 
-    seq_neq_expr6,// "!=" expr6 
     rep_bitor_expr5, // ("|" expr5)* 
     rep_bitxor_expr4,// ("^" expr4)* 
     rep_bitand_expr3,// ("&" expr3)* 
@@ -350,7 +350,14 @@ namespace Parser {
 
       eResult Expr8(void); // expr8
         eResult Act_rep_and_expr7(void);// ("&&" expr7)* 
+
       eResult Expr7(void); // expr7
+        eResult Act_seq_gr_expr6(void); // ">" expr6  
+        eResult Act_seq_ls_expr6(void); // "<" expr6 
+        eResult Act_seq_geq_expr6(void);// ">=" expr6 
+        eResult Act_seq_leq_expr6(void);// "<=" expr6 
+        eResult Act_seq_eq_expr6(void); // "==" expr6 
+        eResult Act_seq_neq_expr6(void);// "!=" expr6 
       eResult Expr6(void); // expr6
       eResult Expr5(void); // expr5
       eResult Expr4(void); // expr4
