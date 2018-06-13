@@ -682,6 +682,10 @@ namespace Parser {
     return Error;
   }
 
+  eResult SyntaxAnalyzer::DefConst(void) {
+    return Error;
+  }
+
   eResult SyntaxAnalyzer::DefVarList(void) {
     return True;
   }
@@ -691,12 +695,14 @@ namespace Parser {
     // actually do nothing
     ParseInfo pi_expr = parse_stack_.Top();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
-        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+        !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy) ||
+        (pi_expr.rule_name_ != RuleName::seq_type_term && 
+         pi_expr.rule_name_ != RuleName::unary) {
       assert("Error on term casting");
       return Error;
     }
 
-    SetRuleNameForPI(RuleName::term);// mark pi with term.
+    SetRuleNameForPI(RuleName::term);// mark top with term.
     return True;
   }
 
@@ -704,21 +710,23 @@ namespace Parser {
   eResult SyntaxAnalyzer::Act_seq_type_term(void) {
     // get term
     ParseInfo pi_term = parse_stack_.Top();
-    parse_stack_.Pop();
     if (pi_term.type_ != ParseInfo::ASTNode || 
-        !pi_term.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+        !pi_term.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy) ||
+        pi_term.rule_name_ != RuleName::term) {
       assert("Error on term casting");
       return Error;
     }
+    parse_stack_.Pop();
 
     // get type
     ParseInfo pi_type = parse_stack_.Top();
-    parse_stack_.Pop();
     if (pi_type.type_ != ParseInfo::ASTNode || 
-        !pi_type.data_.node_->IsKindOf(AST::BaseNode::TypeNodeTy)) {
+        !pi_type.data_.node_->IsKindOf(AST::BaseNode::TypeNodeTy) ||
+        pi_type.rule_name_ != RuleName::type) {
       assert("Error on term TypeNode");
       return Error;
     }
+    parse_stack_.Pop();
 
     AST::CastNode* node = 
       new AST::CastNode((AST::ExprNode*)pi_term.data_.node_,
@@ -1981,6 +1989,108 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Expr1(void) {
+    ParseInfo pi_term;
+
+    // Check if top is right.
+    pi_term= parse_stack_.Top();
+    if (pi_term.type_ != ParseInfo::ASTNode ||
+        (pi_term.rule_name_ != RuleName::term &&
+         pi_term.rule_name_ != RuleName::seq_mul_term &&
+         pi_term.rule_name_ != RuleName::seq_div_term &&
+         pi_term.rule_name_ != RuleName::seq_mod_term))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr1);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_mul_term(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::term)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::term &&
+         pi_lhs.rule_name_ != RuleName::seq_mul_term &&
+         pi_lhs.rule_name_ != RuleName::seq_div_term &&
+         pi_lhs.rule_name_ != RuleName::seq_mod_term))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bin_mul = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BinMul,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bin_mul, RuleName::seq_mul_term);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_div_term(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::term)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::term &&
+         pi_lhs.rule_name_ != RuleName::seq_mul_term &&
+         pi_lhs.rule_name_ != RuleName::seq_div_term &&
+         pi_lhs.rule_name_ != RuleName::seq_mod_term))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bin_div = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BinDiv,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bin_div, RuleName::seq_div_term);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_mod_term(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::term)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::term &&
+         pi_lhs.rule_name_ != RuleName::seq_mul_term &&
+         pi_lhs.rule_name_ != RuleName::seq_div_term &&
+         pi_lhs.rule_name_ != RuleName::seq_mod_term))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bin_mod = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BinMod,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bin_mod, RuleName::seq_mod_term);
     return True;
   }
 

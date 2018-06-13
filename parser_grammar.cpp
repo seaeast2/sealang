@@ -556,6 +556,8 @@ namespace Parser {
 
     rule_actions_[defvars] = &SyntaxAnalyzer::DefVars;
 
+    rule_actions_[defconst] = &SyntaxAnalyzer::DefConst;
+
     rule_actions_[storage] = &SyntaxAnalyzer::Storage;
     rule_actions_[type] = &SyntaxAnalyzer::Type;
     rule_actions_[typeref] = &SyntaxAnalyzer::TypeRef;
@@ -657,6 +659,11 @@ namespace Parser {
     rule_actions_[expr2] = &SyntaxAnalyzer::Expr2;
       rule_actions_[seq_sum_expr1] = &SyntaxAnalyzer::Act_seq_sum_expr1;
       rule_actions_[seq_sub_expr1] = &SyntaxAnalyzer::Act_seq_sub_expr1;
+
+    rule_actions_[expr1] = &SyntaxAnalyzer::Expr1;
+      rule_actions_[seq_mul_term] = &SyntaxAnalyzer::Act_seq_mul_term;
+      rule_actions_[seq_div_term] = &SyntaxAnalyzer::Act_seq_div_term;
+      rule_actions_[seq_mod_term] = &SyntaxAnalyzer::Act_seq_mod_term;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

@@ -130,6 +130,11 @@ namespace Parser {
           seq_sum_expr1,// "+" expr1   
           seq_sub_expr1,// "-" expr1
     expr1,
+      rep_muldivmod_term,
+        sel_muldivmod_term,
+          seq_mul_term,// "*" term  
+          seq_div_term,// "/" term 
+          seq_mod_term,// "%" term
     term,
       seq_type_term, //"(" type ")" term
     unary,
@@ -170,11 +175,6 @@ namespace Parser {
     opt_expr, // [expr]
     seq_return_semicolon, // <RETURN> ";"
     seq_return_expr_semicolon, // <RETURN> expr ";"
-    rep_muldivmod_term,
-    sel_muldivmod_term,
-    seq_mul_term,// "*" term  
-    seq_div_term,// "/" term 
-    seq_mod_term,// "%" term
     rep_case_clause,// (case_clause)*
     opt_default_clause,// [default_clause]
 
@@ -270,6 +270,7 @@ namespace Parser {
       eResult TopDefs(void); // top_defs : Top definitions 
       eResult DefFunc(void); // deffunc : function definition
       eResult DefVars(void); // defvars : variable definition
+      eResult DefConst(void); // defconst : constant
       eResult DefVarList(void); // defvar_list
 
       eResult Name(void); // name : check if identifier
@@ -373,6 +374,9 @@ namespace Parser {
         eResult Act_seq_sum_expr1(void);
         eResult Act_seq_sub_expr1(void);
       eResult Expr1(void); // expr1
+        eResult Act_seq_mul_term(void);
+        eResult Act_seq_div_term(void);
+        eResult Act_seq_mod_term(void);
 
       eResult Stmts(void); // stmts
       eResult Stmt(void); // stmt

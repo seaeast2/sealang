@@ -18,6 +18,7 @@ namespace AST {
         BaseNodeTy,
           FunctionDeclTy,
           VariableDeclTy,
+          ConstantDeclTy,
           TypeNodeTy,
           StmtNodeTy,
             BlockNodeTy,
@@ -255,7 +256,10 @@ namespace AST {
         BitShiftLeft, // <<
         BitShiftRight,// >>
         BinSum,       // +
-        BinSub        // -
+        BinSub,       // -
+        BinMul,       // *
+        BinDiv,       // /
+        BinMod        // %
       };
     protected:
       BinOp   bin_op_;
@@ -825,6 +829,30 @@ namespace AST {
       }
 
       void SetStorage(bool st) {is_static_ = st;}
+      void SetType(Type* type) { type_ = type; }
+      void SetName(const char* name) { name_ = name; }
+      void SetName(const char* name, int len);
+      void SetInit(ExprNode* init) { initializer_ = init; }
+  };
+
+  class ConstantDecl : public BaseNode {
+    Type* type_;
+    std::string name_;
+    ExprNode* initializer_;
+
+    public:
+      ConstantDecl() {
+        type_ = nullptr;
+        initializer_ = nullptr;
+      }
+      ConstantDecl(Type* type, const char* name, ExprNode* init);
+      virtual ~ConstantDecl();
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ConstantDeclTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
       void SetType(Type* type) { type_ = type; }
       void SetName(const char* name) { name_ = name; }
       void SetName(const char* name, int len);
