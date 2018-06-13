@@ -419,12 +419,12 @@ namespace Parser {
     rules_[expr2] = {Sequence, {expr1, rep_sumsub_expr1}};
       // ( "+" expr1 | "-" expr1)* 
       rules_[rep_sumsub_expr1] = {Repeat, {sel_sumsub_expr1}};
-      // "+" expr1 | "-" expr1 
-      rules_[sel_sumsub_expr1] = {Repeat, {seq_sum_expr1, seq_sub_expr1}};
-        // "+" expr1
-        rules_[seq_sum_expr1] = {Sequence, {TokAdd, expr1}};
-        // "-" expr1
-        rules_[seq_sub_expr1] = {Sequence, {TokSub, expr1}};
+        // "+" expr1 | "-" expr1 
+        rules_[sel_sumsub_expr1] = {Repeat, {seq_sum_expr1, seq_sub_expr1}};
+          // "+" expr1
+          rules_[seq_sum_expr1] = {Sequence, {TokAdd, expr1}};
+          // "-" expr1
+          rules_[seq_sub_expr1] = {Sequence, {TokSub, expr1}};
      
     // expr1 
     //   : term (  "*" term  
@@ -653,6 +653,10 @@ namespace Parser {
     rule_actions_[expr3] = &SyntaxAnalyzer::Expr3;
       rule_actions_[seq_rshft_expr2] = &SyntaxAnalyzer::Act_seq_rshft_expr2;
       rule_actions_[seq_lshft_expr2] = &SyntaxAnalyzer::Act_seq_lshft_expr2;
+
+    rule_actions_[expr2] = &SyntaxAnalyzer::Expr2;
+      rule_actions_[seq_sum_expr1] = &SyntaxAnalyzer::Act_seq_sum_expr1;
+      rule_actions_[seq_sub_expr1] = &SyntaxAnalyzer::Act_seq_sub_expr1;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

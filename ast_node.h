@@ -254,6 +254,8 @@ namespace AST {
         BitXor,       // ^
         BitShiftLeft, // <<
         BitShiftRight,// >>
+        BinSum,       // +
+        BinSub        // -
       };
     protected:
       BinOp   bin_op_;

@@ -1863,7 +1863,8 @@ namespace Parser {
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr2 &&
-         pi_lhs.rule_name_ != RuleName::seq_rshft_expr2))
+         pi_lhs.rule_name_ != RuleName::seq_rshft_expr2 &&
+         pi_lhs.rule_name_ != RuleName::seq_lshft_expr2))
       return Error;
     parse_stack_.Pop();
 
@@ -1891,6 +1892,7 @@ namespace Parser {
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr2 &&
+         pi_lhs.rule_name_ != RuleName::seq_rshft_expr2 &&
          pi_lhs.rule_name_ != RuleName::seq_lshft_expr2))
       return Error;
     parse_stack_.Pop();
@@ -1901,11 +1903,80 @@ namespace Parser {
                             AST::BinaryOpNode::BitShiftLeft,
                             (AST::ExprNode*)pi_rhs.data_.node_);
 
-    PushNode(bit_and, RuleName::seq_lshft_expr2);
+    PushNode(bit_shift_left, RuleName::seq_lshft_expr2);
     return True;
   }
 
   eResult SyntaxAnalyzer::Expr2(void) {
+    ParseInfo pi_expr1;
+
+    // Check if top is right.
+    pi_expr1 = parse_stack_.Top();
+    if (pi_expr1.type_ != ParseInfo::ASTNode ||
+        (pi_expr1.rule_name_ != RuleName::expr1 &&
+         pi_expr1.rule_name_ != RuleName::seq_sum_expr1&&
+         pi_expr1.rule_name_ != RuleName::seq_sub_expr1))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr2);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_sum_expr1(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr1)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr1 &&
+         pi_lhs.rule_name_ != RuleName::seq_sum_expr1 &&
+         pi_lhs.rule_name_ != RuleName::seq_sub_expr1))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bin_sum = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BinSum,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bin_sum, RuleName::seq_sum_expr1);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_sub_expr1(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr1)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr1 &&
+         pi_lhs.rule_name_ != RuleName::seq_sum_expr1 &&
+         pi_lhs.rule_name_ != RuleName::seq_sub_expr1))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bin_sub = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BinSub,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bin_sub, RuleName::seq_sub_expr1);
     return True;
   }
 

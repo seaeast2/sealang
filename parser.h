@@ -125,6 +125,10 @@ namespace Parser {
           seq_rshft_expr2,  // ">>" expr2
           seq_lshft_expr2,  // "<<" expr2
     expr2,
+      rep_sumsub_expr1,// ( "+" expr1 | "-" expr1)* 
+        sel_sumsub_expr1,// "+" expr1 | "-" expr1 
+          seq_sum_expr1,// "+" expr1   
+          seq_sub_expr1,// "-" expr1
     expr1,
     term,
       seq_type_term, //"(" type ")" term
@@ -166,10 +170,6 @@ namespace Parser {
     opt_expr, // [expr]
     seq_return_semicolon, // <RETURN> ";"
     seq_return_expr_semicolon, // <RETURN> expr ";"
-    rep_sumsub_expr1,// ( "+" expr1 | "-" expr1)* 
-    sel_sumsub_expr1,// "+" expr1 | "-" expr1 
-    seq_sum_expr1,// "+" expr1   
-    seq_sub_expr1,// "-" expr1
     rep_muldivmod_term,
     sel_muldivmod_term,
     seq_mul_term,// "*" term  
@@ -370,6 +370,8 @@ namespace Parser {
         eResult Act_seq_rshft_expr2(void);
         eResult Act_seq_lshft_expr2(void);
       eResult Expr2(void); // expr2
+        eResult Act_seq_sum_expr1(void);
+        eResult Act_seq_sub_expr1(void);
       eResult Expr1(void); // expr1
 
       eResult Stmts(void); // stmts
