@@ -105,16 +105,25 @@ namespace Parser {
     expr8,
       rep_and_expr7,// ("&&" expr7)* 
     expr7,
-      seq_gr_expr6, // ">" expr6  
-      seq_ls_expr6, // "<" expr6 
-      seq_geq_expr6,// ">=" expr6 
-      seq_leq_expr6,// "<=" expr6 
-      seq_eq_expr6, // "==" expr6 
-      seq_neq_expr6,// "!=" expr6 
-    expr6,
-    expr5,
-    expr4,
-    expr3,
+      rep_op_expr6,
+        sel_op_expr6,
+          seq_gr_expr6, // ">" expr6  
+          seq_ls_expr6, // "<" expr6 
+          seq_geq_expr6,// ">=" expr6 
+          seq_leq_expr6,// "<=" expr6 
+          seq_eq_expr6, // "==" expr6 
+          seq_neq_expr6,// "!=" expr6 
+    expr6, // expr5 ("|" expr5)* 
+      rep_bitor_expr5, // ("|" expr5)* 
+    expr5, // expr4 ("^" expr4)* 
+      rep_bitxor_expr4,// ("^" expr4)* 
+    expr4,// expr3 ("&" expr3)* 
+      rep_bitand_expr3,// ("&" expr3)* 
+    expr3,// expr2 ( ">>" expr2 | "<<" expr2)* 
+      rep_shift_expr2,      // ( ">>" expr2 | "<<" expr2)*
+        sel_shift_expr2,    // ">>" expr2 | "<<" expr2
+          seq_rshft_expr2,  // ">>" expr2
+          seq_lshft_expr2,  // "<<" expr2
     expr2,
     expr1,
     term,
@@ -125,6 +134,7 @@ namespace Parser {
       seq_pos_term,// "+" term 
       seq_neg_term,// "-" term
       seq_not_term,// "!" term 
+      seq_bitnot_term,// "~" term 
       seq_ptr_term,// "*" term
       seq_adr_term,// "&" term 
       seq_sizeof_type,// <SIZEOF> "(" type ")"
@@ -156,15 +166,6 @@ namespace Parser {
     opt_expr, // [expr]
     seq_return_semicolon, // <RETURN> ";"
     seq_return_expr_semicolon, // <RETURN> expr ";"
-    rep_op_expr6,
-    sel_op_expr6,
-    rep_bitor_expr5, // ("|" expr5)* 
-    rep_bitxor_expr4,// ("^" expr4)* 
-    rep_bitand_expr3,// ("&" expr3)* 
-    rep_shift_expr2,// ( ">>" expr2 | "<<" expr2)*
-    sel_shift_expr2,// ">>" expr2 | "<<" expr2
-    seq_rshft_expr2,// ">>" expr2
-    seq_lshft_expr2, // "<<" expr2
     rep_sumsub_expr1,// ( "+" expr1 | "-" expr1)* 
     sel_sumsub_expr1,// "+" expr1 | "-" expr1 
     seq_sum_expr1,// "+" expr1   
@@ -319,6 +320,7 @@ namespace Parser {
         eResult Act_seq_pos_term(void);// "+" term 
         eResult Act_seq_neg_term(void);// "-" term
         eResult Act_seq_not_term(void);// "!" term 
+        eResult Act_seq_bitnot_term(void);// "~" term 
         eResult Act_seq_ptr_term(void);// "*" term
         eResult Act_seq_adr_term(void);// "&" term 
         eResult Act_seq_sizeof_type(void);// <SIZEOF> "(" type ")"
@@ -359,9 +361,14 @@ namespace Parser {
         eResult Act_seq_eq_expr6(void); // "==" expr6 
         eResult Act_seq_neq_expr6(void);// "!=" expr6 
       eResult Expr6(void); // expr6
+        eResult Act_rep_bitor_expr5(void);// ("|" expr5)* 
       eResult Expr5(void); // expr5
+        eResult Act_rep_bitxor_expr4(void);
       eResult Expr4(void); // expr4
+        eResult Act_rep_bitand_expr3(void);
       eResult Expr3(void); // expr3
+        eResult Act_seq_rshft_expr2(void);
+        eResult Act_seq_lshft_expr2(void);
       eResult Expr2(void); // expr2
       eResult Expr1(void); // expr1
 

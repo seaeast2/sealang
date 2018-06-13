@@ -407,12 +407,12 @@ namespace Parser {
     rules_[expr3] = {Sequence, {expr2, rep_shift_expr2}};
       // ( ">>" expr2 | "<<" expr2)*
       rules_[rep_shift_expr2] = {Repeat, {sel_shift_expr2}};
-      // ">>" expr2 | "<<" expr2
-      rules_[sel_shift_expr2] = {Select, {seq_rshft_expr2, seq_lshft_expr2}};
-        // ">>" expr2
-        rules_[seq_rshft_expr2] = {Sequence, {TokBitShiftR, expr2}};
-        // "<<" expr2
-        rules_[seq_lshft_expr2] = {Sequence, {TokBitShiftL, expr2}};
+        // ">>" expr2 | "<<" expr2
+        rules_[sel_shift_expr2] = {Select, {seq_rshft_expr2, seq_lshft_expr2}};
+          // ">>" expr2
+          rules_[seq_rshft_expr2] = {Sequence, {TokBitShiftR, expr2}};
+          // "<<" expr2
+          rules_[seq_lshft_expr2] = {Sequence, {TokBitShiftL, expr2}};
      
     // expr2 
     //   : expr1 ( "+" expr1 | "-" expr1)* 
@@ -460,6 +460,7 @@ namespace Parser {
     //   | "+" term                   // unary +, positive 
     //   | "-" term                   // unary -, negative 
     //   | "!" term                   // Logical negation 
+    //   | "~" term                   // bit negation 
     //   | "*" term                   // Pointer reference 
     //   | "&" term                   // adress operator 
     //   | <SIZEOF> "(" type ")"      // sizeof(type) 
@@ -470,6 +471,7 @@ namespace Parser {
                               seq_pos_term,
                               seq_neg_term,
                               seq_not_term,
+                              seq_bitnot_term,
                               seq_ptr_term,
                               seq_adr_term,
                               seq_sizeof_type,
@@ -483,7 +485,9 @@ namespace Parser {
       // "-" term
       rules_[seq_neg_term] = {Sequence, {TokSub, term}};
       // "!" term 
-      rules_[seq_not_term] = {Sequence, {TokConNot, term}};
+      rules_[seq_not_term] = {Sequence, {TokBitNot, term}};
+      // "~" term 
+      rules_[seq_bitnot_term] = {Sequence, {TokConNot, term}};
       // "*" term
       rules_[seq_ptr_term] = {Sequence, {TokMul, term}};
       // "&" term 
@@ -593,6 +597,7 @@ namespace Parser {
       rule_actions_[seq_pos_term] = &SyntaxAnalyzer::Act_seq_pos_term;
       rule_actions_[seq_neg_term] = &SyntaxAnalyzer::Act_seq_neg_term;
       rule_actions_[seq_not_term] = &SyntaxAnalyzer::Act_seq_not_term;
+      rule_actions_[seq_bitnot_term] = &SyntaxAnalyzer::Act_seq_bitnot_term;
       rule_actions_[seq_ptr_term] = &SyntaxAnalyzer::Act_seq_ptr_term;
       rule_actions_[seq_adr_term] = &SyntaxAnalyzer::Act_seq_adr_term;
       rule_actions_[seq_sizeof_type] = &SyntaxAnalyzer::Act_seq_sizeof_type;
@@ -635,6 +640,19 @@ namespace Parser {
       rule_actions_[seq_leq_expr6] = &SyntaxAnalyzer::Act_seq_leq_expr6;
       rule_actions_[seq_eq_expr6] = &SyntaxAnalyzer::Act_seq_eq_expr6;
       rule_actions_[seq_neq_expr6] = &SyntaxAnalyzer::Act_seq_neq_expr6;
+
+    rule_actions_[expr6] = &SyntaxAnalyzer::Expr6;
+      rule_actions_[rep_bitor_expr5] = &SyntaxAnalyzer::Act_rep_bitor_expr5;
+
+    rule_actions_[expr5] = &SyntaxAnalyzer::Expr5;
+      rule_actions_[rep_bitxor_expr4] = &SyntaxAnalyzer::Act_rep_bitxor_expr4;
+
+    rule_actions_[expr4] = &SyntaxAnalyzer::Expr4;
+      rule_actions_[rep_bitand_expr3] = &SyntaxAnalyzer::Act_rep_bitand_expr3;
+
+    rule_actions_[expr3] = &SyntaxAnalyzer::Expr3;
+      rule_actions_[seq_rshft_expr2] = &SyntaxAnalyzer::Act_seq_rshft_expr2;
+      rule_actions_[seq_lshft_expr2] = &SyntaxAnalyzer::Act_seq_lshft_expr2;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

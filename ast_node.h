@@ -248,7 +248,12 @@ namespace AST {
         GreatorThanEq,// >=
         LessThanEq,   // <=
         Equal,        // ==
-        NotEqual     // !=
+        NotEqual,     // !=
+        BitOr,        // |
+        BitAnd,       // &
+        BitXor,       // ^
+        BitShiftLeft, // <<
+        BitShiftRight,// >>
       };
     protected:
       BinOp   bin_op_;

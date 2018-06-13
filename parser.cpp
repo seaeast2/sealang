@@ -737,11 +737,22 @@ namespace Parser {
     }
 
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ != ParseInfo::ASTNode) {
+    if (pi.type_ != ParseInfo::ASTNode || 
+       (pi.rule_name_ != RuleName::seq_preinc_unary && 
+        pi.rule_name_ != RuleName::seq_predec_unary &&
+        pi.rule_name_ != RuleName::seq_pos_term &&
+        pi.rule_name_ != RuleName::seq_neg_term &&
+        pi.rule_name_ != RuleName::seq_not_term &&
+        pi.rule_name_ != RuleName::seq_bitnot_term &&
+        pi.rule_name_ != RuleName::seq_ptr_term &&
+        pi.rule_name_ != RuleName::seq_adr_term &&
+        pi.rule_name_ != RuleName::seq_sizeof_type &&
+        pi.rule_name_ != RuleName::seq_sizeof_unary)) {
       assert("Error on Postfix() : Needed ASTNode in stack!");
       return Error;
     }
 
+    SetRuleNameForPI(RuleName::unary);
     return True;
   }
 
@@ -827,6 +838,23 @@ namespace Parser {
       new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::Not);
 
     PushNode(node, RuleName::seq_not_term);
+    return True;
+  }
+
+  // "~" term 
+  eResult SyntaxAnalyzer::Act_seq_bitnot_term(void) {
+    ParseInfo pi_expr = parse_stack_.Top();
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        pi_expr.rule_name_ != RuleName::term) {
+      assert("Error on unary positive");
+      return Error;
+    }
+    parse_stack_.Pop();
+
+    AST::UnaryOpNode* node = 
+      new AST::UnaryOpNode((AST::ExprNode*)pi_expr.data_.node_, AST::UnaryOpNode::BitNot);
+
+    PushNode(node, RuleName::seq_bitnot_term);
     return True;
   }
 
@@ -1681,18 +1709,199 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Expr6(void) {
+    ParseInfo pi_expr5;
+
+    // Check if top is right.
+    pi_expr5 = parse_stack_.Top();
+    if (pi_expr5.type_ != ParseInfo::ASTNode ||
+        (pi_expr5.rule_name_ != RuleName::expr5 &&
+         pi_expr5.rule_name_ != RuleName::rep_bitor_expr5))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr6);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_rep_bitor_expr5(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr5)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr5 &&
+         pi_lhs.rule_name_ != RuleName::rep_bitor_expr5))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bit_or = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BitOr,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bit_or, RuleName::rep_bitor_expr5);
     return True;
   }
 
   eResult SyntaxAnalyzer::Expr5(void) {
+    ParseInfo pi_expr4;
+
+    // Check if top is right.
+    pi_expr4 = parse_stack_.Top();
+    if (pi_expr4.type_ != ParseInfo::ASTNode ||
+        (pi_expr4.rule_name_ != RuleName::expr4 &&
+         pi_expr4.rule_name_ != RuleName::rep_bitxor_expr4))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr5);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_rep_bitxor_expr4(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr4)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr4 &&
+         pi_lhs.rule_name_ != RuleName::rep_bitxor_expr4))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bit_xor = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BitOr,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bit_xor, RuleName::rep_bitxor_expr4);
     return True;
   }
 
   eResult SyntaxAnalyzer::Expr4(void) {
+    ParseInfo pi_expr3;
+
+    // Check if top is right.
+    pi_expr3 = parse_stack_.Top();
+    if (pi_expr3.type_ != ParseInfo::ASTNode ||
+        (pi_expr3.rule_name_ != RuleName::expr3 &&
+         pi_expr3.rule_name_ != RuleName::rep_bitand_expr3))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr4);
+    return True;
+  }
+  
+  eResult SyntaxAnalyzer::Act_rep_bitand_expr3(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr3)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr3 &&
+         pi_lhs.rule_name_ != RuleName::rep_bitand_expr3))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bit_and = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BitAnd,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bit_and, RuleName::rep_bitand_expr3);
     return True;
   }
 
   eResult SyntaxAnalyzer::Expr3(void) {
+    ParseInfo pi_expr2;
+
+    // Check if top is right.
+    pi_expr2 = parse_stack_.Top();
+    if (pi_expr2.type_ != ParseInfo::ASTNode ||
+        (pi_expr2.rule_name_ != RuleName::expr3 &&
+         pi_expr2.rule_name_ != RuleName::seq_rshft_expr2&&
+         pi_expr2.rule_name_ != RuleName::seq_lshft_expr2))
+      return Error;
+
+    SetRuleNameForPI(RuleName::expr3);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_rshft_expr2(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr2)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr2 &&
+         pi_lhs.rule_name_ != RuleName::seq_rshft_expr2))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bit_shift_right = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BitShiftRight,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bit_shift_right, RuleName::seq_rshft_expr2);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_lshft_expr2(void) {
+    ParseInfo pi_lhs, pi_rhs;
+
+    // Read right side expr
+    pi_rhs = parse_stack_.Top();
+    if (pi_rhs.type_ != ParseInfo::ASTNode ||
+        pi_rhs.rule_name_ != RuleName::expr2)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read left side expr
+    pi_lhs = parse_stack_.Top();
+    if (pi_lhs.type_ != ParseInfo::ASTNode ||
+        (pi_lhs.rule_name_ != RuleName::expr2 &&
+         pi_lhs.rule_name_ != RuleName::seq_lshft_expr2))
+      return Error;
+    parse_stack_.Pop();
+
+    //Create node
+    AST::BinaryOpNode* bit_shift_left = 
+      new AST::BinaryOpNode((AST::ExprNode*)pi_lhs.data_.node_, 
+                            AST::BinaryOpNode::BitShiftLeft,
+                            (AST::ExprNode*)pi_rhs.data_.node_);
+
+    PushNode(bit_and, RuleName::seq_lshft_expr2);
     return True;
   }
 
