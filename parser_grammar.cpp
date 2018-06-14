@@ -554,6 +554,8 @@ namespace Parser {
 
     rule_actions_[top_defs] = &SyntaxAnalyzer::TopDefs;
 
+    rule_actions_[deffunc] = &SyntaxAnalyzer::DefFunc;
+
     rule_actions_[defvars] = &SyntaxAnalyzer::DefVars;
 
     rule_actions_[defconst] = &SyntaxAnalyzer::DefConst;

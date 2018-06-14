@@ -120,6 +120,22 @@ namespace AST {
       }
   };
 
+  class BlockNode : public StmtNode {
+    protected:
+
+    public:
+      BlockNode() {
+        kind_ = BlockNodeTy;
+      }
+
+      virtual ~BlockNode() {}
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == BlockNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
   class ExprNode : public StmtNode {
     public:
       ExprNode() {
@@ -800,7 +816,8 @@ namespace AST {
   class FunctionDecl : public BaseNode {
     public:
       FunctionDecl();
-      virtual ~FunctionDecl();
+      virtual ~FunctionDecl() {}
+
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == FunctionDeclTy || kind == BaseNodeTy)
           return true;
@@ -821,7 +838,7 @@ namespace AST {
         initializer_ = nullptr;
       }
       VariableDecl(Type* type, const char* name, ExprNode* init);
-      virtual ~VariableDecl();
+      virtual ~VariableDecl() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == VariableDeclTy || kind == BaseNodeTy)
           return true;
@@ -846,7 +863,8 @@ namespace AST {
         initializer_ = nullptr;
       }
       ConstantDecl(Type* type, const char* name, ExprNode* init);
-      virtual ~ConstantDecl();
+      virtual ~ConstantDecl() {}
+
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ConstantDeclTy || kind == BaseNodeTy)
           return true;
@@ -861,8 +879,9 @@ namespace AST {
 
   class Declarations {
     private:
-      SimpleVector<VariableDecl*> vars_;
-      SimpleVector<FunctionDecl*> funcs_;
+      SimpleVector<FunctionDecl*> functions_;
+      SimpleVector<ConstantDecl*> constants_;
+      SimpleVector<VariableDecl*> variables_;
     public:
       Declarations() {}
       ~Declarations() {}

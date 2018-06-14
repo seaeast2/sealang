@@ -340,9 +340,11 @@ namespace Parser {
   eResult SyntaxAnalyzer::Name(void) {
     // check if stack top is Identifier.
     ParseInfo pi = parse_stack_.Top();
-    if(pi.type_ == ParseInfo::Identifier)
-      return True;
-    return Error;
+    if(pi.type_ != ParseInfo::Identifier)
+      return Error;
+
+    SetRuleNameForPI(RuleName::name);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Storage(void) {
@@ -355,84 +357,129 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Type(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ == ParseInfo::ASTType)
-      return True;
-    return Error;
+    if (pi.type_ != ParseInfo::ASTType || 
+        pi.rule_name_ != RuleName::typeref)
+      return Error;
+
+    SetRuleNameForPI(RuleName::type);
+    return True;
   }
 
   eResult SyntaxAnalyzer::TypeRef(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ == ParseInfo::ASTType)
-      return True;
-    return Error;
+    if (pi.type_ != ParseInfo::ASTType || 
+         (pi.rule_name_ != RuleName::typeref_base && 
+          pi.rule_name_ != RuleName::seq_unassigned_array &&
+          pi.rule_name_ != RuleName::seq_assigned_array &&
+          pi.rule_name_ != RuleName::seq_ptr &&
+          pi.rule_name_ != RuleName::seq_func))
+      return Error;
+
+    SetRuleNameForPI(RuleName::typeref);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_unassigned_array(void) {
     ParseInfo pi = parse_stack_.Top();
+    
+    // Read base type
+    if (pi.type_ != ParseInfo::ASTType || 
+         (pi.rule_name_ != RuleName::typeref_base && 
+          pi.rule_name_ != RuleName::seq_unassigned_array &&
+          pi.rule_name_ != RuleName::seq_assigned_array &&
+          pi.rule_name_ != RuleName::seq_ptr &&
+          pi.rule_name_ != RuleName::seq_func))
+      return Error;
     parse_stack_.Pop();
-    if (pi.type_ == ParseInfo::ASTType) {
-      AST::Type* basety = pi.data_.type_;
-      AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety);
-      PushType((AST::Type*)arrty, RuleName::seq_unassigned_array);
-      return True;
-    }
-    return Error;
+
+    AST::Type* basety = pi.data_.type_;
+    AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety);
+    PushType((AST::Type*)arrty, RuleName::seq_unassigned_array);
   }
+
   eResult SyntaxAnalyzer::Act_seq_assigned_array(void) {
     ParseInfo pi_basety, pi_int;  
+
+    // Read array size
     pi_int = parse_stack_.Top();
-    if (pi_int.type_ == ParseInfo::Integer) {
-      parse_stack_.Pop();
-      pi_basety = parse_stack_.Top();
-      parse_stack_.Pop();
-      if (pi_basety.type_ == ParseInfo::ASTType) {
-        AST::Type* basety = pi_basety.data_.type_;
-        long size = pi_int.data_.integer_;
-        if (size < 0) {
-          // invalid array size.
-          return Error;
-        }
-        AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety, size);
-        PushType((AST::Type*)arrty, RuleName::seq_assigned_array);
-        return True;
-      }
-    }
-    return Error;
+    if (pi_int.type_ != ParseInfo::Integer)
+      return Error;
+    parse_stack_.Pop();
+    
+    // Read base type
+    pi_basety = parse_stack_.Top();
+    if (pi_basety.type_ != ParseInfo::ASTType ||
+         (pi_basety.rule_name_ != RuleName::typeref_base && 
+          pi_basety.rule_name_ != RuleName::seq_unassigned_array &&
+          pi_basety.rule_name_ != RuleName::seq_assigned_array &&
+          pi_basety.rule_name_ != RuleName::seq_ptr &&
+          pi_basety.rule_name_ != RuleName::seq_func))
+      return Error;
+    parse_stack_.Pop();
+
+    AST::Type* basety = pi_basety.data_.type_;
+    
+    long array_size = pi_int.data_.integer_;
+    if (array_size < 0)
+        return Error; // invalid array size
+
+    AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety, array_size);
+    PushType((AST::Type*)arrty, RuleName::seq_assigned_array);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_ptr(void) {
     ParseInfo pi_basety;
-    pi_basety = parse_stack_.Top();
-    if (pi_basety.type_ == ParseInfo::ASTType) {
-      parse_stack_.Pop();
-      AST::Type* basety = pi_basety.data_.type_;
 
-      AST::PointerType* ptrty = AST::PointerType::Get(action_->GetContext(), basety);
-      PushType((AST::Type*)ptrty, RuleName::seq_ptr);
-      return True;
-    }
-    return Error;
+    // read base type
+    pi_basety = parse_stack_.Top();
+    if (pi_basety.type_ == ParseInfo::ASTType ||
+       (pi_basety.rule_name_ != RuleName::typeref_base && 
+        pi_basety.rule_name_ != RuleName::seq_unassigned_array &&
+        pi_basety.rule_name_ != RuleName::seq_assigned_array &&
+        pi_basety.rule_name_ != RuleName::seq_ptr &&
+        pi_basety.rule_name_ != RuleName::seq_func))
+      return Error;
+    parse_stack_.Pop();
+
+    AST::Type* basety = pi_basety.data_.type_;
+
+    AST::PointerType* ptrty = AST::PointerType::Get(action_->GetContext(), basety);
+    PushType((AST::Type*)ptrty, RuleName::seq_ptr);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_func(void) {
     ParseInfo pi_params, pi_retty;
-    pi_params = parse_stack_.Top();
-    if (pi_params.type_ == ParseInfo::TypeList) {
-      parse_stack_.Pop();
-      SimpleVector<AST::Type*>* params = pi_params.data_.types_;
 
-      pi_retty = parse_stack_.Top();
-      if (pi_retty.type_ == ParseInfo::ASTType) {
-        parse_stack_.Pop();
-        AST::Type* retty = pi_retty.data_.type_;
-        AST::FunctionType* fnty = AST::FunctionType::Get(action_->GetContext(), retty, *params);
-        PushType((AST::Type*)fnty, RuleName::seq_func);
-        delete params; // delete parameter type list container.
-        return True;
-      }
-      return Error; // TODO : Need to error message for invalid return type.
-    }
-    return Error; // TODO : Need to error message for invalid parameter types
+    // Read param list
+    pi_params = parse_stack_.Top();
+    if (pi_params.type_ != ParseInfo::TypeList || 
+        pi_params.rule_name_ != param_typerefs) 
+      return Error;
+    parse_stack_.Pop();
+
+    SimpleVector<AST::Type*>* params = pi_params.data_.types_;
+
+    // Read return type
+    pi_retty = parse_stack_.Top();
+    if (pi_retty.type_ != ParseInfo::ASTType || 
+       (pi_retty.rule_name_ != RuleName::typeref_base && 
+        pi_retty.rule_name_ != RuleName::seq_unassigned_array &&
+        pi_retty.rule_name_ != RuleName::seq_assigned_array &&
+        pi_retty.rule_name_ != RuleName::seq_ptr &&
+        pi_retty.rule_name_ != RuleName::seq_func))
+      return Error;
+    parse_stack_.Pop();
+
+    AST::Type* retty = pi_retty.data_.type_; // get return type
+
+    // create function type
+    AST::FunctionType* fnty = AST::FunctionType::Get(action_->GetContext(), retty, *params);
+    PushType((AST::Type*)fnty, RuleName::seq_func);
+    
+    delete params; // delete parameter type list container.
+    return True;
   }
 
   eResult SyntaxAnalyzer::TypeRefBase(void) {
@@ -622,6 +669,14 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::DefFunc(void) {
+    ParseInfo pi_block, pi_params, pi_name, pi_type, pi_storage;
+
+    // Read Block
+    pi_block = parse_stack_.Top();
+    if (pi_block.type_ != ParseInfo::ASTNode || 
+        pi_block.rule_name_ != RuleName::block)
+      return Error;
+
     return True;
   }
 
@@ -683,7 +738,37 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::DefConst(void) {
-    return Error;
+    ParseInfo pi_expr, pi_name, pi_type;
+    
+    // Read constant initializer
+    pi_expr = parse_stack_.Top();
+    if(pi_expr.type_ != ParseInfo::ASTNode || 
+       pi_expr.rule_name_ != RuleName::expr)
+      return Error;
+    parse_stack_.Pop();
+    
+    // Read name 
+    pi_name = parse_stack_.Top();
+    if(pi_name.type_ != ParseInfo::Identifier || 
+       pi_name.rule_name_ != RuleName::name)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read type 
+    pi_type = parse_stack_.Top();
+    if(pi_type.type_ != ParseInfo::ASTType || 
+       pi_type.rule_name_ != RuleName::type)
+      return Error;
+    parse_stack_.Pop();
+
+    char* const_name = new char[pi_name.cstr_len_+1];
+    strncpy(const_name, pi_name.data_.cstr_, pi_name.cstr_len_);
+    AST::ConstantDecl* constdecl = new AST::ConstantDecl(pi_type.data_.type_,
+        const_name, (AST::ExprNode*)pi_expr.data_.node_);
+    delete[] const_name;
+
+    PushNode(constdecl, RuleName::defconst);
+    return True;
   }
 
   eResult SyntaxAnalyzer::DefVarList(void) {
@@ -697,7 +782,7 @@ namespace Parser {
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy) ||
         (pi_expr.rule_name_ != RuleName::seq_type_term && 
-         pi_expr.rule_name_ != RuleName::unary) {
+         pi_expr.rule_name_ != RuleName::unary)) {
       assert("Error on term casting");
       return Error;
     }
