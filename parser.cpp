@@ -577,28 +577,29 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::ParamTypeRefs(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ != ParseInfo::TypeList)
-      return Error;
     
-    if (pi.rule_name_ != RuleName::seq_param_void &&
-        pi.rule_name_ != RuleName::seq_param_type_list)
+    if (pi.type_ != ParseInfo::TypeList ||
+        (pi.rule_name_ != RuleName::seq_param_type_void &&
+        pi.rule_name_ != RuleName::seq_param_type_list))
       return Error;
 
     SetRuleNameForPI(RuleName::param_typerefs);
     return True;
   }
 
-  eResult SyntaxAnalyzer::Act_seq_param_void(void) {
+  eResult SyntaxAnalyzer::Act_seq_param_type_void(void) {
     AST::Type* ty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
     SimpleVector<AST::Type*>* params = new SimpleVector<AST::Type*>();
     params->PushBack(ty);
-    PushTypeList(params, RuleName::seq_param_void);
+    PushTypeList(params, RuleName::seq_param_type_void);
     return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_param_type_list(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ != ParseInfo::TypeList)
+    if (pi.type_ != ParseInfo::TypeList || 
+        (pi.rule_name_ != RuleName::rep_param_comma_type && 
+         pi.rule_name_ != RuleName::opt_vararg_type))
       return Error;
 
     SetRuleNameForPI(RuleName::seq_param_type_list);
@@ -606,79 +607,259 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Act_rep_param_comma_type(void) {
-    ParseInfo pi_type = parse_stack_.Top();
-    if (pi_type.type_ == ParseInfo::ASTType) {
-      parse_stack_.Pop();
-      ParseInfo pi_type_list = parse_stack_.Top();
-      if (pi_type_list.type_ == ParseInfo::TypeList) {
-        parse_stack_.Pop();
-        SimpleVector<AST::Type*>* params = pi_type_list.data_.types_;
-        params->PushBack(pi_type.data_.type_);
-        PushTypeList(params, RuleName::rep_param_comma_type);
-        return True;
-      }
-    }
-    return Error;
-  }
-
-  eResult SyntaxAnalyzer::Act_opt_vararg_type(void) {
-    // It indicates this function has vararg type.
-    ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ == ParseInfo::TypeList) {
-      parse_stack_.Pop();
-      SimpleVector<AST::Type*>* params = pi.data_.types_;
-      AST::Type* ty = (AST::Type*)AST::VarArgType::Get(action_->GetContext());
-      params->PushBack(ty);
-      PushTypeList(params, RuleName::opt_vararg_type);
-      return True;
-    }
-    return Error;
-  }
-
-  eResult SyntaxAnalyzer::ParamType(void) {
-    // This indicates this is first parameter type.
-    ParseInfo pi_type = parse_stack_.Top();
+    ParseInfo pi_type, pi_type_list;
     SimpleVector<AST::Type*>* params = nullptr;
-    if (pi_type.type_ == ParseInfo::ASTType) {
-      parse_stack_.Pop();
 
-      params = new SimpleVector<AST::Type*>();
+    // read type
+    if (pi_type.type_ != ParseInfo::ASTType ||
+        pi_type.rule_name_ != RuleName::type)
+      return Error;
+    parse_stack_.Pop();
 
-      params->PushBack(pi_type.data_.type_);
-      PushTypeList(params, RuleName::param_type);
-      return True;
+    pi_type_list = parse_stack_.Top();
+    if (pi_type_list.type_ == ParseInfo::TypeList &&
+        pi_type_list.rule_name_ == RuleName::rep_param_comma_type) {
+      params = pi_type_list.data_.types_;
     }
-    return Error;
-  }
+    else if(pi_type_list.type_ == ParseInfo::ASTType && 
+        pi_type_list.rule_name_ == RuleName::type) {
+      // in case this is just first param type
+      params = new SimpleVector<AST::Type*>();
+      params->PushBack(pi_type_list.data_.type_);
+    }
+    else
+      return Error;
+    parse_stack_.Pop();
 
+    params->PushBack(pi_type.data_.type_);// push new param type
 
-  eResult SyntaxAnalyzer::Block(void) {
+    PushTypeList(params, RuleName::rep_param_comma_type);
     return True;
   }
 
-  eResult SyntaxAnalyzer::Param(void) {
-    return False;
-  }
+  eResult SyntaxAnalyzer::Act_opt_vararg_type(void) {
+    ParseInfo pi = parse_stack_.Top();
 
-  eResult SyntaxAnalyzer::FixedParams(void) {
-    return False;
-  }
+    // read param list
+    if (pi.type_ != ParseInfo::TypeList ||
+        pi.rule_name_ != RuleName::rep_param_comma_type)
+      return Error;
+    parse_stack_.Pop();
 
-  eResult SyntaxAnalyzer::Params(void) {
+    SimpleVector<AST::Type*>* params = pi.data_.types_;
+    AST::Type* ty = (AST::Type*)AST::VarArgType::Get(action_->GetContext());
+    params->PushBack(ty);
+    
+    PushTypeList(params, RuleName::opt_vararg_type);
     return True;
   }
 
   eResult SyntaxAnalyzer::DefFunc(void) {
     ParseInfo pi_block, pi_params, pi_name, pi_type, pi_storage;
+    AST::BlockNode* body;
+    SimpleVector<AST::ParamNode*>* parms;
+    char* fn_name;
+    AST::Type* ret_type;
 
-    // Read Block
+    // Read block (function body)
     pi_block = parse_stack_.Top();
     if (pi_block.type_ != ParseInfo::ASTNode || 
         pi_block.rule_name_ != RuleName::block)
       return Error;
+    parse_stack_.Pop();
+    body = (AST::BlockNode*)pi_block.data_.node_;
+    
+    // Read params
+    pi_params = parse_stack_.Top();
+    if (pi_params.type_ != ParseInfo::ParamList || 
+        pi_params.rule_name_ != RuleName::params)
+      return Error;
+    parse_stack_.Pop();
+    parms = pi_params.data_.params_;
+
+    // Read name
+    pi_name = parse_stack_.Top();
+    if (pi_name.type_ != ParseInfo::Identifier || 
+        pi_name.rule_name_ != RuleName::name)
+      return Error;
+    parse_stack_.Pop();
+    fn_name = new char[pi_name.cstr_len_+1];
+    strncpy(fn_name, pi_name.data_.cstr_, pi_name.cstr_len_);
+
+    // Read type
+    pi_type = parse_stack_.Top();
+    if (pi_type.type_ != ParseInfo::ASTType || 
+        pi_type.rule_name_ != RuleName::typeref)
+      return Error;
+    parse_stack_.Pop();
+    ret_type = pi_type.data_.type_;
+
+    // Read pi_storage
+    bool is_storage = false;
+    pi_storage = parse_stack_.Top();
+    if (pi_storage.type_ == ParseInfo::StorageInfo && 
+        pi_storage.rule_name_ == RuleName::storage) {
+      // in case there is storage info
+      parse_stack_.Pop();
+      is_storage = true;
+    }
+
+    // create function 
+    AST::FunctionDecl* func = new AST::FunctionDecl(is_storage, ret_type, parms, body);
+
+    PushNode(func, RuleName::deffunc);
+    return True;
+  }
+
+  // <<== working
+  eResult SyntaxAnalyzer::Block(void) {
+    return True;
+  }
+
+  // <<== working
+  eResult SyntaxAnalyzer::DefClass(void) {
+    ParseInfo pi_class_member;
 
     return True;
   }
+
+  eResult SyntaxAnalyzer::Act_seq_class_member_variable(void) {
+    ParseInfo pi_vars = parse_stack_.Top();
+
+    // Read class memeber variable
+    if (pi_vars.type_ != ParseInfo::ASTNode || 
+        pi_vars.rule_name_ != RuleName::defvars)
+      return Error;
+
+    SetRuleNameForPI(RuleName::seq_class_member_variable);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_class_member_function(void) {
+    ParseInfo pi_func = parse_stack_.Top();
+
+    // Read class memeber variable
+    if (pi_func.type_ != ParseInfo::ASTNode || 
+        pi_func.rule_name_ != RuleName::deffunc)
+      return Error;
+
+    SetRuleNameForPI(RuleName::seq_class_member_function);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Param(void) {
+    ParseInfo pi_type, pi_name;
+
+    // Read name
+    pi_name = parse_stack_.Top();
+    if (pi_name.type_ != ParseInfo::Identifier ||
+        pi_name.rule_name_ != RuleName::name)
+      return Error;
+    parse_stack_.Pop();
+
+    // Read type
+    pi_type = parse_stack_.Top();
+    if (pi_type.type_ != ParseInfo::ASTType ||
+        pi_type.rule_name_ != RuleName::type)
+      return Error;
+    parse_stack_.Pop();
+
+    char* param_name = new char[pi_name.cstr_len_+1];
+    strncpy(param_name, pi_name.data_.cstr_, pi_name.cstr_len_);
+    AST::ParamNode* param_node = new AST::ParamNode(pi_type.data_.type_, param_name, false);
+    delete param_name;
+
+    PushNode(param_node, RuleName::param);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Params(void) {
+    ParseInfo pi = parse_stack_.Top();
+
+    // confirm param list 
+    if (pi.type_ != ParseInfo::ParamList ||
+       (pi.rule_name_ != RuleName::seq_param_void &&
+        pi.rule_name_ != RuleName::seq_param_list))
+      return Error;
+
+    SetRuleNameForPI(RuleName::params);
+    return True;
+  }
+        
+  eResult SyntaxAnalyzer::Act_seq_param_void(void) {
+    SimpleVector<AST::ParamNode*>* params = new SimpleVector<AST::ParamNode*>();
+
+    AST::VoidType* voidty = AST::VoidType::Get(action_->GetContext());
+    AST::ParamNode* var_void = new AST::ParamNode(voidty, "unnamed", false);
+    params->PushBack(var_void);
+    PushParams(params, RuleName::seq_param_void);
+    return True;
+  }
+        
+  eResult SyntaxAnalyzer::Act_opt_vararg(void) {
+    ParseInfo pi = parse_stack_.Top();
+
+    // read param list
+    if (pi.type_ != ParseInfo::ParamList ||
+        pi.rule_name_ != RuleName::fixedparams)
+      return Error;
+    parse_stack_.Pop();
+
+    SimpleVector<AST::ParamNode*>* params = pi.data_.params_;
+    AST::ParamNode* var_arg = new AST::ParamNode();
+    var_arg->SetVarArgs(true);
+    var_arg->SetName("...");
+    params->PushBack(var_arg);
+    
+    PushParams(params, RuleName::opt_vararg_type);
+    return True;
+  }
+  
+  eResult SyntaxAnalyzer::FixedParams(void) {
+    ParseInfo pi_params;
+
+    pi_params = parse_stack_.Top();
+    if (pi_params.type_ != ParseInfo::ParamList || 
+        pi_params.rule_name_ != RuleName::rep_comma_param)
+      return Error;
+
+    SetRuleNameForPI(RuleName::fixedparams);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_rep_comma_param(void) {
+    ParseInfo pi_param_list, pi_param;
+    SimpleVector<AST::ParamNode*>* params = nullptr;
+    
+    // Read param
+    pi_param = parse_stack_.Top();
+    // check if this param is first param or param list
+    if (pi_param.type_ != ParseInfo::ASTNode ||
+        pi_param.rule_name_ != RuleName::param )
+      return Error;
+    parse_stack_.Pop();
+
+    // Read first param or param list
+    pi_param_list = parse_stack_.Top();
+    if (pi_param_list.type_ == ParseInfo::ASTNode ||
+        pi_param_list.rule_name_ == RuleName::param ) {
+      // in case node is first param
+      params = new SimpleVector<AST::ParamNode*>();
+      params->PushBack((AST::ParamNode*)pi_param_list.data_.node_);
+    }
+    else if (pi_param_list.type_ == ParseInfo::ParamList && 
+        pi_param_list.rule_name_ == RuleName::fixedparams) {
+      params = pi_param_list.data_.params_;
+    }
+    else
+      return Error;
+    parse_stack_.Pop();
+
+    params->PushBack((AST::ParamNode*)pi_param.data_.node_);
+    PushParams(params, RuleName::fixedparams);
+    return True;
+  }
+
 
   eResult SyntaxAnalyzer::DefVars(void) {
     ParseInfo pi;
@@ -772,9 +953,31 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::DefVarList(void) {
+    // Read first vars
+    SimpleVector<AST::VariableDecl*>* all_vars, *temp_vars;
+
+    ParseInfo pi_vars = parse_stack_.Top();
+    all_vars = new SimpleVector<AST::VariableDecl*>();
+    while(pi_vars.rule_name_ == RuleName::defvars) {
+      if (pi_vars.type_ == ParseInfo::VarDeclList) {
+        parse_stack_.Pop();
+
+        AST::VariableDecl* var_temp = nullptr;
+        temp_vars = pi_vars.data_.vardecls_;
+
+        for(int i = temp_vars->GetSize(); i >= 0 ; i--) {
+          var_temp = (*temp_vars)[i];
+          all_vars->PushBack(var_temp);
+        }
+        delete temp_vars;
+      }
+
+      pi_vars = parse_stack_.Top();
+    }
+    all_vars->Reverse(); // reverse
+    PushVarDecls(all_vars, RuleName::defvar_list);
     return True;
   }
-
 
   eResult SyntaxAnalyzer::Term(void) {
     // actually do nothing
@@ -2309,6 +2512,15 @@ namespace Parser {
     ParseInfo pi;
     pi.type_ = ParseInfo::VarDeclList;
     pi.data_.vardecls_ = var_list;
+    pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
+  }
+
+  void SyntaxAnalyzer::PushParams(SimpleVector<AST::ParamNode*>* param_list,
+      RuleName rname) {
+    ParseInfo pi;
+    pi.type_ = ParseInfo::ParamList;
+    pi.data_.params_ = param_list;
     pi.rule_name_ = rname;
     parse_stack_.Push(pi);
   }

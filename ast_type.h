@@ -469,6 +469,8 @@ namespace AST {
       
       static VarArgType* Get(ASTContext* ac);
   };
+
+
 }
 
 #endif

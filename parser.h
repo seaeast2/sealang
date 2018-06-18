@@ -30,9 +30,11 @@ namespace Parser {
     // Rule
     compilation_unit = TokEnd,
     import_stmts,
-    import_stmt,
+      import_stmt,
+        rep_dot_name, // ("," name)*
     name,
     top_defs,
+      sel_fun_var_const_class_typedef, // deffunc | defvars | defconst | defclass | typedef
     typeref_base,
       seq_void,         // <VOID>
       seq_char,         // <CHAR>
@@ -55,14 +57,20 @@ namespace Parser {
     defconst,
     deffunc,
     params,
+      seq_param_void, // <VOID>
+      seq_param_list, // fixedparams ["," "..."] 
       opt_vararg, // ["," "..."] 
     fixedparams,
+      rep_comma_param, // ("," param)* 
     param,
     defvar_list,
     block,
     defclass,
-    member_list,
-    class_member,
+      class_member_list,
+        rep_class_member, // (class_member ";")
+          class_member,
+            seq_class_member_variable, // type name
+            seq_class_member_function, // deffunc
     typedef_, // to avoid keyword name crash with C++, '_' is added.
     typeref,
       rep_sel_arry_ptr_fnptr,
@@ -72,20 +80,25 @@ namespace Parser {
           seq_ptr,              // *                  // pointer type
           seq_func,         // "(" param_typerefs ")" // function pointer type
     param_typerefs,
-      seq_param_void,       // <VOID>
+      seq_param_type_void,  // <VOID>
       seq_param_type_list,  // type ("," type)* ["," "..."] 
         rep_param_comma_type,     // ("," type)*
         opt_vararg_type,// ["," "..."] 
     param_type,
     stmts,
     stmt,
+      seq_expr_semicolon, // expr ";"
     labeled_stmt,
     if_stmt,
+      opt_else_stmt, // [<ELSE> stmt]
     while_stmt,
     dowhile_stmt,
     for_stmt,
+      opt_expr, // [expr]
     switch_stmt,
     case_clauses,
+      rep_case_clause,// (case_clause)*
+      opt_default_clause,// [default_clause]
     case_clause,
     case_body,
     default_clause,
@@ -94,6 +107,8 @@ namespace Parser {
     continue_stmt,
     goto_stmt,
     return_stmt,
+      seq_return_semicolon, // <RETURN> ";"
+      seq_return_expr_semicolon, // <RETURN> expr ";"
     expr,
       seq_assign_value, // term "=" expr  
       seq_opassign_value, // term opassign_op expr 
@@ -163,21 +178,6 @@ namespace Parser {
     primary,
       seq_po_expr_pc,// "(" expr ")" 
 
-    // sub rule
-    rep_dot_name, // ("," name)*
-    sel_fun_var_const_class_typedef, // deffunc | defvars | defconst | defclass | typedef
-    seq_fixedparams_vararg, // fixedparams ["," "..."] 
-    rep_comma_param, // ("," param)* 
-    rep_class_member_semicolon, // (class_member ";")
-    seq_type_name, // type name
-    seq_expr_semicolon, // expr ";"
-    opt_else_stmt, // [<ELSE> stmt]
-    opt_expr, // [expr]
-    seq_return_semicolon, // <RETURN> ";"
-    seq_return_expr_semicolon, // <RETURN> expr ";"
-    rep_case_clause,// (case_clause)*
-    opt_default_clause,// [default_clause]
-
     nil, // nil
 
     // BNF Action
@@ -206,6 +206,7 @@ namespace Parser {
       TypeList,
       StorageInfo,
       VarDeclList,
+      ParamList,
     };
 
     union RawData {
@@ -218,6 +219,7 @@ namespace Parser {
       Lexer::TokenType tok_type_;
       SimpleVector<AST::Type*>* types_;
       SimpleVector<AST::VariableDecl*>* vardecls_;
+      SimpleVector<AST::ParamNode*>* params_;
     };
 
     RawDataType type_;
@@ -301,18 +303,24 @@ namespace Parser {
       eResult TypeDef(void); // typedef
       
       eResult ParamTypeRefs(void); // param_typerefs
-        eResult Act_seq_param_void(void); // <VOID> 
+        eResult Act_seq_param_type_void(void); // <VOID> 
         eResult Act_seq_param_type_list(void); // param_type ("," type)* ["," "..."]
           eResult Act_rep_param_comma_type(void); // ("," type)*
           eResult Act_opt_vararg_type(void); // ["," "..."] 
-      eResult ParamType(void); // param_type
 
       eResult Params(void); // params
+        eResult Act_seq_param_void(void);// fixedparams ["," "..."] 
+        eResult Act_opt_vararg(void); // ["," "..."]
       eResult FixedParams(void); // fixedparams
+        eResult Act_rep_comma_param(void); // ("," param)* 
       eResult Param(void); // param
-        eResult Act_opt_vararg(void); //opt_vararg
 
       eResult Block(void); // block
+
+      eResult DefClass(void); // defclass
+        eResult Act_seq_class_member_variable(void);// defvars
+        eResult Act_seq_class_member_function(void);// deffunc
+
       eResult Term(void); // term
         eResult Act_seq_type_term(void);//"(" type ")" term  // typecasting
       eResult Unary(void); // unary
@@ -402,6 +410,7 @@ namespace Parser {
       void PushNode(AST::BaseNode* node, RuleName rname = RuleName::nil);
       void PushTypeList(SimpleVector<AST::Type*>* ty_list, RuleName rname = RuleName::nil);
       void PushVarDecls(SimpleVector<AST::VariableDecl*>* var_list, RuleName rname = RuleName::nil);
+      void PushParams(SimpleVector<AST::ParamNode*>* param_list, RuleName rname = RuleName::nil);
       void SetRuleNameForPI(RuleName rname);
       void DebugPrint();
   };

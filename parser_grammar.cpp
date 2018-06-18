@@ -106,9 +106,11 @@ namespace Parser {
     // params // parameter definition 
     //   : <VOID> 
     //   | fixedparams ["," "..."] 
-    rules_[params] = {Select, {TokVoid, seq_fixedparams_vararg}};
+    rules_[params] = {Select, {seq_param_void, seq_param_list}};
+      // <VOID>
+      rules_[seq_param_void] = {Sequence, {TokVoid}};
       // fixedparams ["," "..."] 
-      rules_[seq_fixedparams_vararg] = {Sequence, {fixedparams, opt_vararg}};
+      rules_[seq_param_list] = {Sequence, {fixedparams, opt_vararg}};
         // ["," "..."] 
         rules_[opt_vararg] = {Options, {TokComma, TokDotDotDot}};
 
@@ -131,21 +133,22 @@ namespace Parser {
     rules_[block] = {Sequence, {TokBraceOpen, defvar_list, stmts, TokBraceClose}};
 
     // defclass // class definition 
-    //   : <CLASS> name member_list ";" 
-    rules_[defclass] = {Sequence, {TokClass, name, member_list, TokSemiColon}};
+    //   : <CLASS> name class_member_list ";" 
+    rules_[defclass] = {Sequence, {TokClass, name, class_member_list, TokSemiColon}};
 
-    // member_list //  
+    // class_member_list //  
     //   : "{" (class_member ";")* "}" 
-    rules_[member_list] = {Sequence, {TokBraceOpen, rep_class_member_semicolon, TokBraceClose}};
-      // (class_member ";")
-      rules_[rep_class_member_semicolon] = {Repeat, {class_member, TokSemiColon}};
-
-    // class_member // class member definition 
-    //   : type name 
-    //   | deffunc
-    rules_[class_member] = {Select, {seq_type_name, deffunc}};
-      // type name
-      rules_[seq_type_name] = {Sequence, {type, name}};
+    rules_[class_member_list] = {Sequence, {TokBraceOpen, rep_class_member, TokBraceClose}};
+      // (class_member ";")*
+      rules_[rep_class_member] = {Repeat, {class_member, TokSemiColon}};
+        // class_member // class member definition 
+        //   : defvars 
+        //   | deffunc
+        rules_[class_member] = {Select, {seq_class_member_variable, seq_class_member_function}};
+          // defvars 
+          rules_[seq_class_member_variable] = {Sequence, {defvars}};
+          // deffunc
+          rules_[seq_class_member_function] = {Sequence, {deffunc}};
 
     // typedef // ex) typedef int i32; 
     //   : <TYPEDEF> typeref <IDENTIFIER> ";" 
@@ -179,19 +182,15 @@ namespace Parser {
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
     //   | param_type ("," type)* ["," "..."] 
-    rules_[param_typerefs] = {Select, {seq_param_void, seq_param_type_list}};
+    rules_[param_typerefs] = {Select, {seq_param_type_void, seq_param_type_list}};
       // <VOID>
-      rules_[seq_param_void] = {Sequence, {TokVoid}};
-      // param_type ("," type)* ["," "..."] 
-      rules_[seq_param_type_list] = {Sequence, {param_type, rep_param_comma_type, opt_vararg_type}};
+      rules_[seq_param_type_void] = {Sequence, {TokVoid}};
+      // type ("," type)* ["," "..."] 
+      rules_[seq_param_type_list] = {Sequence, {type, rep_param_comma_type, opt_vararg_type}};
         // ("," type)*
         rules_[rep_param_comma_type] = {Repeat, {TokComma, type}};
         // ["," "..."] 
         rules_[opt_vararg_type] = {Repeat, {TokComma, TokDotDotDot}};
-
-    // param_type 
-    //   : typeref 
-    rules_[param_type] = {Sequence, {typeref}};
 
     // stmts 
     //   : (stmt)* 
@@ -556,7 +555,24 @@ namespace Parser {
 
     rule_actions_[deffunc] = &SyntaxAnalyzer::DefFunc;
 
+    rule_actions_[params] = &SyntaxAnalyzer::Params;
+      rule_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
+      rule_actions_[opt_vararg] = &SyntaxAnalyzer::Act_opt_vararg;
+
+    rule_actions_[fixedparams] = &SyntaxAnalyzer::FixedParams;
+      rule_actions_[rep_comma_param] = &SyntaxAnalyzer::Act_rep_comma_param;
+
+    rule_actions_[block] = &SyntaxAnalyzer::Block;
+
+    rule_actions_[defclass] = &SyntaxAnalyzer::DefClass;
+      rule_actions_[seq_class_member_variable] = &SyntaxAnalyzer::Act_seq_class_member_variable;
+      rule_actions_[seq_class_member_function] = &SyntaxAnalyzer::Act_seq_class_member_function;
+
+    rule_actions_[param] = &SyntaxAnalyzer::Param;
+
     rule_actions_[defvars] = &SyntaxAnalyzer::DefVars;
+
+    rule_actions_[defvar_list] = &SyntaxAnalyzer::DefVarList;
 
     rule_actions_[defconst] = &SyntaxAnalyzer::DefConst;
 
@@ -570,11 +586,10 @@ namespace Parser {
 
       // parameter list
     rule_actions_[param_typerefs] = &SyntaxAnalyzer::ParamTypeRefs;
-      rule_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
+      rule_actions_[seq_param_type_void] = &SyntaxAnalyzer::Act_seq_param_type_void;
       rule_actions_[seq_param_type_list] = &SyntaxAnalyzer::Act_seq_param_type_list;
         rule_actions_[rep_param_comma_type] = &SyntaxAnalyzer::Act_rep_param_comma_type;
         rule_actions_[opt_vararg_type] = &SyntaxAnalyzer::Act_opt_vararg_type;
-    rule_actions_[param_type] = &SyntaxAnalyzer::ParamType;
     
     rule_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;
       rule_actions_[seq_void] = &SyntaxAnalyzer::Act_seq_void; 

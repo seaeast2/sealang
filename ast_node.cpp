@@ -9,6 +9,18 @@ namespace AST {
   }
 
   FunctionDecl::FunctionDecl() {
+    is_static_ = false;
+    ret_ty_ = nullptr;
+    params_ = nullptr;
+    body_ = nullptr;
+  }
+
+  FunctionDecl::FunctionDecl(bool storage, Type* retty, 
+      SimpleVector<ParamNode*>* params, BlockNode* body) {
+    is_static_ = storage;
+    ret_ty_ = retty;
+    params_ = params;
+    body_ = body;
   }
 
   VariableDecl::VariableDecl(Type* type, const char* name, ExprNode* init) {
