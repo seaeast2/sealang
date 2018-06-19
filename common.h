@@ -6,5 +6,4 @@
 
 typedef std::vector<std::string> VecStr;
 
-
 #endif

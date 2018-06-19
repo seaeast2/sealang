@@ -280,7 +280,7 @@ namespace Parser {
   //    : <IMPORT> name ("." name)* ";" 
   // ex) import aaa.bbb.ccc;
   eResult SyntaxAnalyzer::ImportStmt() {
-    int cur_tok_pos = tokenizer_->GetTokPos(); // backup start token position.
+    //int cur_tok_pos = tokenizer_->GetTokPos(); // backup start token position.
     std::string import_path, tmp;
     Token tok;
 
@@ -459,7 +459,7 @@ namespace Parser {
       return Error;
     parse_stack_.Pop();
 
-    SimpleVector<AST::Type*>* params = pi_params.data_.types_;
+    AST::Types* params = pi_params.data_.types_;
 
     // Read return type
     pi_retty = parse_stack_.Top();
@@ -589,9 +589,9 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Act_seq_param_type_void(void) {
     AST::Type* ty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
-    SimpleVector<AST::Type*>* params = new SimpleVector<AST::Type*>();
-    params->PushBack(ty);
-    PushTypeList(params, RuleName::seq_param_type_void);
+    AST::Types* param_types = new AST::Types();
+    param_types->PushBack(ty);
+    PushTypeList(param_types, RuleName::seq_param_type_void);
     return True;
   }
 
@@ -608,7 +608,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Act_rep_param_comma_type(void) {
     ParseInfo pi_type, pi_type_list;
-    SimpleVector<AST::Type*>* params = nullptr;
+    AST::Types* param_types = nullptr;
 
     // read type
     if (pi_type.type_ != ParseInfo::ASTType ||
@@ -619,21 +619,21 @@ namespace Parser {
     pi_type_list = parse_stack_.Top();
     if (pi_type_list.type_ == ParseInfo::TypeList &&
         pi_type_list.rule_name_ == RuleName::rep_param_comma_type) {
-      params = pi_type_list.data_.types_;
+      param_types = pi_type_list.data_.types_;
     }
     else if(pi_type_list.type_ == ParseInfo::ASTType && 
         pi_type_list.rule_name_ == RuleName::type) {
       // in case this is just first param type
-      params = new SimpleVector<AST::Type*>();
-      params->PushBack(pi_type_list.data_.type_);
+      param_types = new AST::Types();
+      param_types->PushBack(pi_type_list.data_.type_);
     }
     else
       return Error;
     parse_stack_.Pop();
 
-    params->PushBack(pi_type.data_.type_);// push new param type
+    param_types->PushBack(pi_type.data_.type_);// push new param type
 
-    PushTypeList(params, RuleName::rep_param_comma_type);
+    PushTypeList(param_types, RuleName::rep_param_comma_type);
     return True;
   }
 
@@ -646,18 +646,18 @@ namespace Parser {
       return Error;
     parse_stack_.Pop();
 
-    SimpleVector<AST::Type*>* params = pi.data_.types_;
+    AST::Types* param_types = pi.data_.types_;
     AST::Type* ty = (AST::Type*)AST::VarArgType::Get(action_->GetContext());
-    params->PushBack(ty);
+    param_types->PushBack(ty);
     
-    PushTypeList(params, RuleName::opt_vararg_type);
+    PushTypeList(param_types, RuleName::opt_vararg_type);
     return True;
   }
 
   eResult SyntaxAnalyzer::DefFunc(void) {
     ParseInfo pi_block, pi_params, pi_name, pi_type, pi_storage;
     AST::BlockNode* body;
-    SimpleVector<AST::ParamNode*>* parms;
+    AST::Params* parms;
     char* fn_name;
     AST::Type* ret_type;
 
@@ -716,10 +716,42 @@ namespace Parser {
     return True;
   }
 
-  // <<== working
   eResult SyntaxAnalyzer::DefClass(void) {
     ParseInfo pi_class_member;
+    AST::ClassNode* class_node = new AST::ClassNode();
 
+    pi_class_member = parse_stack_.Top();
+    while(pi_class_member.rule_name_ == RuleName::seq_class_member_variable || 
+        pi_class_member.rule_name_ == RuleName::seq_class_member_function) {
+      parse_stack_.Pop();
+
+      if (pi_class_member.rule_name_ == RuleName::seq_class_member_variable) {
+        AST::Variables* vars;
+        if (pi_class_member.type_ == ParseInfo::VarDeclList) {
+          vars = pi_class_member.data_.vardecls_;
+          for (int i=vars->GetSize()-1; i >= 0; i--) {
+            class_node->AddMemVariable((*vars)[i]);
+          }
+          delete vars; // removes simplevector
+        }
+        else 
+          return Error;
+      }
+      else {
+        if (pi_class_member.type_ == ParseInfo::ASTNode) {
+          AST::FunctionDecl* fd = (AST::FunctionDecl*)pi_class_member.data_.node_;
+          class_node->AddMemFunction(fd);
+        }
+        else 
+          return Error;
+      }
+    }
+
+    // reverse order
+    class_node->ReverseVariableOrder();
+    class_node->ReverseFunctionOrder();
+
+    PushNode(class_node, RuleName::defclass);
     return True;
   }
 
@@ -727,7 +759,7 @@ namespace Parser {
     ParseInfo pi_vars = parse_stack_.Top();
 
     // Read class memeber variable
-    if (pi_vars.type_ != ParseInfo::ASTNode || 
+    if (pi_vars.type_ != ParseInfo::VarDeclList|| 
         pi_vars.rule_name_ != RuleName::defvars)
       return Error;
 
@@ -787,7 +819,7 @@ namespace Parser {
   }
         
   eResult SyntaxAnalyzer::Act_seq_param_void(void) {
-    SimpleVector<AST::ParamNode*>* params = new SimpleVector<AST::ParamNode*>();
+    AST::Params* params = new AST::Params();
 
     AST::VoidType* voidty = AST::VoidType::Get(action_->GetContext());
     AST::ParamNode* var_void = new AST::ParamNode(voidty, "unnamed", false);
@@ -805,7 +837,7 @@ namespace Parser {
       return Error;
     parse_stack_.Pop();
 
-    SimpleVector<AST::ParamNode*>* params = pi.data_.params_;
+    AST::Params* params = pi.data_.params_;
     AST::ParamNode* var_arg = new AST::ParamNode();
     var_arg->SetVarArgs(true);
     var_arg->SetName("...");
@@ -829,7 +861,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Act_rep_comma_param(void) {
     ParseInfo pi_param_list, pi_param;
-    SimpleVector<AST::ParamNode*>* params = nullptr;
+    AST::Params* params = nullptr;
     
     // Read param
     pi_param = parse_stack_.Top();
@@ -844,7 +876,7 @@ namespace Parser {
     if (pi_param_list.type_ == ParseInfo::ASTNode ||
         pi_param_list.rule_name_ == RuleName::param ) {
       // in case node is first param
-      params = new SimpleVector<AST::ParamNode*>();
+      params = new AST::Params();
       params->PushBack((AST::ParamNode*)pi_param_list.data_.node_);
     }
     else if (pi_param_list.type_ == ParseInfo::ParamList && 
@@ -864,8 +896,7 @@ namespace Parser {
   eResult SyntaxAnalyzer::DefVars(void) {
     ParseInfo pi;
     AST::BaseNode* expr_node = nullptr;
-    SimpleVector<AST::VariableDecl*>* vardecls = 
-      new SimpleVector<AST::VariableDecl*>();
+    AST::Variables* vardecls = new AST::Variables();
 
     while(true) {
       pi = parse_stack_.Top();
@@ -954,10 +985,10 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::DefVarList(void) {
     // Read first vars
-    SimpleVector<AST::VariableDecl*>* all_vars, *temp_vars;
+    AST::Variables* all_vars, *temp_vars;
 
     ParseInfo pi_vars = parse_stack_.Top();
-    all_vars = new SimpleVector<AST::VariableDecl*>();
+    all_vars = new AST::Variables();
     while(pi_vars.rule_name_ == RuleName::defvars) {
       if (pi_vars.type_ == ParseInfo::VarDeclList) {
         parse_stack_.Pop();
@@ -965,11 +996,11 @@ namespace Parser {
         AST::VariableDecl* var_temp = nullptr;
         temp_vars = pi_vars.data_.vardecls_;
 
-        for(int i = temp_vars->GetSize(); i >= 0 ; i--) {
+        for(int i = temp_vars->GetSize()-1; i >= 0 ; i--) {
           var_temp = (*temp_vars)[i];
           all_vars->PushBack(var_temp);
         }
-        delete temp_vars;
+        delete temp_vars; // removes simplevector
       }
 
       pi_vars = parse_stack_.Top();
@@ -1711,8 +1742,8 @@ namespace Parser {
     // Check if top is right.
     pi_expr8 = parse_stack_.Top();
     if (pi_expr8.type_ != ParseInfo::ASTNode ||
-        (pi_expr8.rule_name_ != RuleName::expr8) && 
-        (pi_expr8.rule_name_ != RuleName::rep_or_expr8))
+        (pi_expr8.rule_name_ != RuleName::expr8 && 
+        pi_expr8.rule_name_ != RuleName::rep_or_expr8))
       return Error;
 
     SetRuleNameForPI(RuleName::expr9);
@@ -2382,10 +2413,12 @@ namespace Parser {
     return True;
   }
 
+  // <<== working
   eResult SyntaxAnalyzer::Stmts(void) {
     return True;
   }
 
+  // <<== working
   eResult SyntaxAnalyzer::Stmt(void) {
     return True;
   }
@@ -2498,8 +2531,7 @@ namespace Parser {
     parse_stack_.Push(pi);
   }
 
-  void SyntaxAnalyzer::PushTypeList(SimpleVector<AST::Type*>* ty_list,
-      RuleName rname) {
+  void SyntaxAnalyzer::PushTypeList(AST::Types* ty_list, RuleName rname) {
     ParseInfo pi;
     pi.type_ = ParseInfo::TypeList;
     pi.data_.types_ = ty_list;
@@ -2507,8 +2539,7 @@ namespace Parser {
     parse_stack_.Push(pi);
   }
 
-  void SyntaxAnalyzer::PushVarDecls(SimpleVector<AST::VariableDecl*>* var_list,
-      RuleName rname) {
+  void SyntaxAnalyzer::PushVarDecls(AST::Variables* var_list, RuleName rname) {
     ParseInfo pi;
     pi.type_ = ParseInfo::VarDeclList;
     pi.data_.vardecls_ = var_list;
@@ -2516,8 +2547,7 @@ namespace Parser {
     parse_stack_.Push(pi);
   }
 
-  void SyntaxAnalyzer::PushParams(SimpleVector<AST::ParamNode*>* param_list,
-      RuleName rname) {
+  void SyntaxAnalyzer::PushParams(AST::Params* param_list, RuleName rname) {
     ParseInfo pi;
     pi.type_ = ParseInfo::ParamList;
     pi.data_.params_ = param_list;

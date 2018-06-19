@@ -470,6 +470,7 @@ namespace AST {
       static VarArgType* Get(ASTContext* ac);
   };
 
+  typedef SimpleVector<Type*> Types;
 
 }
 

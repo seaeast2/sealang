@@ -217,9 +217,9 @@ namespace Parser {
       AST::BaseNode* node_;
       AST::Type* type_;
       Lexer::TokenType tok_type_;
-      SimpleVector<AST::Type*>* types_;
-      SimpleVector<AST::VariableDecl*>* vardecls_;
-      SimpleVector<AST::ParamNode*>* params_;
+      AST::Types* types_;
+      AST::Variables* vardecls_;
+      AST::Params* params_;
     };
 
     RawDataType type_;

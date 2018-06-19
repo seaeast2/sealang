@@ -138,6 +138,7 @@ namespace AST {
       Type* GetType() { return type_; }
       const char* GetName() { return name_.c_str(); }
   };
+  typedef SimpleVector<ParamNode*> Params;
 
   class StmtNode : public BaseNode {
     protected:
@@ -885,6 +886,7 @@ namespace AST {
 
     public:
       VariableDecl() {
+        kind_ = VariableDeclTy;
         is_static_ = false;
         type_ = nullptr;
         initializer_ = nullptr;
@@ -911,6 +913,7 @@ namespace AST {
 
     public:
       ConstantDecl() {
+        kind_ = ConstantDeclTy;
         type_ = nullptr;
         initializer_ = nullptr;
       }
@@ -932,7 +935,9 @@ namespace AST {
   class TypeDefinition : public BaseNode {
     protected:
     public:
-      TypeDefinition() {}
+      TypeDefinition() {
+        kind_ = TypeDefinitionTy;
+      }
       virtual ~TypeDefinition() {}
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -945,7 +950,9 @@ namespace AST {
   class CompositeTypeDefinition : public TypeDefinition {
     protected:
     public:
-      CompositeTypeDefinition() {}
+      CompositeTypeDefinition() {
+        kind_ = CompositeTypeDefinitionTy;
+      }
       virtual ~CompositeTypeDefinition() {}
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -956,12 +963,18 @@ namespace AST {
       }
   };
 
+  typedef SimpleVector<VariableDecl*> Variables;
+  typedef SimpleVector<FunctionDecl*> Functions;
+  typedef SimpleVector<ConstantDecl*> Constants;
   class ClassNode : public CompositeTypeDefinition {
     protected:
-      SimpleVector<VariableDecl*> member_variables_;
-      SimpleVector<FunctionDecl*> member_functions_;
+      Variables member_variables_;
+      Functions member_functions_;
     public:
-      ClassNode() {}
+      ClassNode() {
+        kind_ = ClassNodeTy;
+      }
+      ClassNode(Variables* mem_var, Functions* mem_func);
       virtual ~ClassNode() {}
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -970,13 +983,26 @@ namespace AST {
           return true;
         return false;
       }
+
+      void AddMemVariable(VariableDecl* var) { member_variables_.PushBack(var); }
+      void AddMemFunction(FunctionDecl* fun) { member_functions_.PushBack(fun); }
+
+      VariableDecl* GetMemVariable(int index) { return member_variables_[index]; }
+      FunctionDecl* GetMemFunction(int index) { return member_functions_[index]; }
+
+      int GetMemVarSize() { return member_variables_.GetSize(); }
+      int GetMemFunSize() { return member_functions_.GetSize(); }
+
+      void ReverseVariableOrder() { member_variables_.Reverse(); }
+      void ReverseFunctionOrder() { member_functions_.Reverse(); }
   };
 
   class Declarations {
     private:
-      SimpleVector<FunctionDecl*> functions_;
-      SimpleVector<ConstantDecl*> constants_;
-      SimpleVector<VariableDecl*> variables_;
+      Functions funcs_;
+      Constants conss_;
+      Variables vars_;
+
     public:
       Declarations() {}
       ~Declarations() {}

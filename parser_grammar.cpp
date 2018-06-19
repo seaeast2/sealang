@@ -135,20 +135,19 @@ namespace Parser {
     // defclass // class definition 
     //   : <CLASS> name class_member_list ";" 
     rules_[defclass] = {Sequence, {TokClass, name, class_member_list, TokSemiColon}};
-
-    // class_member_list //  
-    //   : "{" (class_member ";")* "}" 
-    rules_[class_member_list] = {Sequence, {TokBraceOpen, rep_class_member, TokBraceClose}};
-      // (class_member ";")*
-      rules_[rep_class_member] = {Repeat, {class_member, TokSemiColon}};
-        // class_member // class member definition 
-        //   : defvars 
-        //   | deffunc
-        rules_[class_member] = {Select, {seq_class_member_variable, seq_class_member_function}};
-          // defvars 
-          rules_[seq_class_member_variable] = {Sequence, {defvars}};
-          // deffunc
-          rules_[seq_class_member_function] = {Sequence, {deffunc}};
+      // class_member_list //  
+      //   : "{" (class_member ";")* "}" 
+      rules_[class_member_list] = {Sequence, {TokBraceOpen, rep_class_member, TokBraceClose}};
+        // (class_member ";")*
+        rules_[rep_class_member] = {Repeat, {class_member, TokSemiColon}};
+          // class_member // class member definition 
+          //   : defvars 
+          //   | deffunc
+          rules_[class_member] = {Select, {seq_class_member_variable, seq_class_member_function}};
+            // defvars 
+            rules_[seq_class_member_variable] = {Sequence, {defvars}};
+            // deffunc
+            rules_[seq_class_member_function] = {Sequence, {deffunc}};
 
     // typedef // ex) typedef int i32; 
     //   : <TYPEDEF> typeref <IDENTIFIER> ";" 
@@ -681,6 +680,10 @@ namespace Parser {
       rule_actions_[seq_mul_term] = &SyntaxAnalyzer::Act_seq_mul_term;
       rule_actions_[seq_div_term] = &SyntaxAnalyzer::Act_seq_div_term;
       rule_actions_[seq_mod_term] = &SyntaxAnalyzer::Act_seq_mod_term;
+
+    rule_actions_[stmts] = &SyntaxAnalyzer::Stmts;
+
+    rule_actions_[stmt] = &SyntaxAnalyzer::Stmt;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
