@@ -87,28 +87,28 @@ namespace Parser {
     param_type,
     stmts,
     stmt,
-      seq_expr_semicolon, // expr ";"
-    labeled_stmt,
-    if_stmt,
-      opt_else_stmt, // [<ELSE> stmt]
-    while_stmt,
-    dowhile_stmt,
-    for_stmt,
-      opt_expr, // [expr]
-    switch_stmt,
-    case_clauses,
-      rep_case_clause,// (case_clause)*
-      opt_default_clause,// [default_clause]
-    case_clause,
-    case_body,
-    default_clause,
-    cases,
-    break_stmt,
-    continue_stmt,
-    goto_stmt,
-    return_stmt,
-      seq_return_semicolon, // <RETURN> ";"
-      seq_return_expr_semicolon, // <RETURN> expr ";"
+      seq_expr_stmt, // expr ";"
+      labeled_stmt,
+      if_stmt,
+        opt_else_stmt, // [<ELSE> stmt]
+      while_stmt,
+      dowhile_stmt,
+      for_stmt,
+        opt_expr, // [expr]
+      switch_stmt,
+      case_clauses,
+        rep_case_clause,// (case_clause)*
+        opt_default_clause,// [default_clause]
+      case_clause,
+      case_body,
+      default_clause,
+      cases,
+      break_stmt,
+      continue_stmt,
+      goto_stmt,
+      return_stmt,
+        seq_return_semicolon, // <RETURN> ";"
+        seq_return_expr_semicolon, // <RETURN> expr ";"
     expr,
       seq_assign_value, // term "=" expr  
       seq_opassign_value, // term opassign_op expr 

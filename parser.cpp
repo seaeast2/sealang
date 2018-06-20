@@ -711,8 +711,55 @@ namespace Parser {
     return True;
   }
 
-  // <<== working
   eResult SyntaxAnalyzer::Block(void) {
+    ParseInfo pi;
+    AST::BlockNode* blk = new AST::BlockNode();
+
+    /// Read stmts
+    pi = parse_stack_.Top();
+    while(pi.rule_name_ == RuleName::defvar_list ||
+          pi.rule_name_ == RuleName::labeled_stmt ||
+          pi.rule_name_ == RuleName::seq_expr_stmt ||
+          pi.rule_name_ == RuleName::block ||
+          pi.rule_name_ == RuleName::if_stmt ||
+          pi.rule_name_ == RuleName::while_stmt ||
+          pi.rule_name_ == RuleName::dowhile_stmt ||
+          pi.rule_name_ == RuleName::for_stmt ||
+          pi.rule_name_ == RuleName::switch_stmt ||
+          pi.rule_name_ == RuleName::break_stmt ||
+          pi.rule_name_ == RuleName::continue_stmt ||
+          pi.rule_name_ == RuleName::goto_stmt ||
+          pi.rule_name_ == RuleName::return_stmt) {
+      parse_stack_.Pop();
+
+      if (pi.rule_name_ == RuleName::defvar_list && 
+          pi.type_ == ParseInfo::VarDeclList) {
+        AST::Variables* vars = pi.data_.vardecls_;
+        for(int i = 0; i < vars->GetSize(); i++) {
+          blk->AddVariable((*vars)[i]);
+        }
+      }
+      else if (pi.type_ == ParseInfo::ASTNode &&
+          (pi.rule_name_ == RuleName::labeled_stmt ||
+          pi.rule_name_ == RuleName::seq_expr_stmt ||
+          pi.rule_name_ == RuleName::block ||
+          pi.rule_name_ == RuleName::if_stmt ||
+          pi.rule_name_ == RuleName::while_stmt ||
+          pi.rule_name_ == RuleName::dowhile_stmt ||
+          pi.rule_name_ == RuleName::for_stmt ||
+          pi.rule_name_ == RuleName::switch_stmt ||
+          pi.rule_name_ == RuleName::break_stmt ||
+          pi.rule_name_ == RuleName::continue_stmt ||
+          pi.rule_name_ == RuleName::goto_stmt ||
+          pi.rule_name_ == RuleName::return_stmt)) {
+        AST::StmtNode* stmt = (AST::StmtNode*)pi.data_.node_;
+        blk->AddStmt(stmt);
+      }
+      else 
+        return Error;
+    }
+
+    PushNode((AST::BaseNode*)blk, RuleName::block);
     return True;
   }
 
@@ -2423,6 +2470,7 @@ namespace Parser {
     return True;
   }
 
+  // <<== working
   eResult SyntaxAnalyzer::LabeledStmt(void) {
     return True;
   }

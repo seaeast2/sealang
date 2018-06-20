@@ -211,7 +211,7 @@ namespace Parser {
     //   | return_stmt 
     rules_[stmt] = {Select, { TokSemiColon, 
                               labeled_stmt, 
-                              seq_expr_semicolon,
+                              seq_expr_stmt,
                               block,
                               if_stmt,
                               while_stmt,
@@ -222,7 +222,7 @@ namespace Parser {
                               continue_stmt,
                               goto_stmt,
                               return_stmt}};
-      rules_[seq_expr_semicolon] = {Sequence, {expr, TokSemiColon}};
+      rules_[seq_expr_stmt] = {Sequence, {expr, TokSemiColon}};
 
     // labeled_stmt
     //   : <IDENTIFIER> ":" stmt
@@ -684,6 +684,7 @@ namespace Parser {
     rule_actions_[stmts] = &SyntaxAnalyzer::Stmts;
 
     rule_actions_[stmt] = &SyntaxAnalyzer::Stmt;
+      rule_actions_[labeled_stmt] = &SyntaxAnalyzer::LabeledStmt;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

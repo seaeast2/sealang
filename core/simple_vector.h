@@ -65,6 +65,12 @@ class SimpleVector {
       return count_;
     }
 
+    bool IsEmpty() {
+      if (count_ > 0) 
+        return false;
+      return true;
+    }
+
     void Clear() {
       delete[] data_;
       max_size_ = 0;
