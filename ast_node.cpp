@@ -46,10 +46,11 @@ namespace AST {
     body_ = nullptr;
   }
 
-  FunctionDecl::FunctionDecl(bool storage, Type* retty, Params* params, BlockNode* body) {
+  FunctionDecl::FunctionDecl(bool storage, Type* retty, const char* fnname, Params* params, BlockNode* body) {
     kind_ = FunctionDeclTy;
     is_static_ = storage;
     ret_ty_ = retty;
+    name_ = fnname;
 
     for (int i = 0; i < params->GetSize(); i++) {
       params_.PushBack((*params)[i]);

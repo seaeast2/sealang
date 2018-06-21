@@ -211,7 +211,7 @@ namespace Parser {
     //   | return_stmt 
     rules_[stmt] = {Select, { TokSemiColon, 
                               labeled_stmt, 
-                              seq_expr_stmt,
+                              expr_stmt,
                               block,
                               if_stmt,
                               while_stmt,
@@ -222,15 +222,18 @@ namespace Parser {
                               continue_stmt,
                               goto_stmt,
                               return_stmt}};
-      rules_[seq_expr_stmt] = {Sequence, {expr, TokSemiColon}};
 
     // labeled_stmt
     //   : <IDENTIFIER> ":" stmt
     rules_[labeled_stmt] = {Sequence, {TokIdentifier, TokColon, stmt}};
+
+    // expr_stmt
+    //  : expr ";"
+    rules_[expr_stmt] = {Sequence, {expr, TokSemiColon}};
      
     // if_stmt  
     //   : <IF> "(" expr ")" stmt [<ELSE> stmt] 
-    rules_[if_stmt] = {Sequence, {TokIf, TokParenOpen, expr, TokParenClose, opt_else_stmt}};
+    rules_[if_stmt] = {Sequence, {TokIf, TokParenOpen, expr, TokParenClose, stmt, opt_else_stmt}};
       rules_[opt_else_stmt] = {Options, {TokElse, stmt}}; // [<ELSE> stmt] 
      
     // while_stmt 
@@ -685,10 +688,14 @@ namespace Parser {
 
     rule_actions_[stmt] = &SyntaxAnalyzer::Stmt;
       rule_actions_[labeled_stmt] = &SyntaxAnalyzer::LabeledStmt;
+      rule_actions_[expr_stmt] = &SyntaxAnalyzer::ExprStmt;
+      rule_actions_[if_stmt] = &SyntaxAnalyzer::IfStmt;
+        rule_actions_[opt_else_stmt] = &SyntaxAnalyzer::Act_opt_else_stmt;
+      rule_actions_[while_stmt] = &SyntaxAnalyzer::WhileStmt;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
     rule_actions_[TokStringLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
-    rule_actions_[TokIdentifier] = &SyntaxAnalyzer::ActIdentifier;
+    rule_actions_[TokIdentifier] = &SyntaxAnalyzer::ActTokIdentifier;
   }
 }

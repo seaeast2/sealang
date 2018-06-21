@@ -17,6 +17,7 @@ namespace AST {
   class VariableDecl;
   class ParamNode;
   class StmtNode;
+  class ExprNode;
 
   typedef SimpleVector<FunctionDecl*> Functions;
   typedef SimpleVector<ConstantDecl*> Constants;
@@ -35,18 +36,18 @@ namespace AST {
           ParamNodeTy,
           StmtNodeTy,
             BlockNodeTy,
-            BreakNodeTy,
-            CaseNodeTy,
-            ContinueNodeTy,
-            DoWhileNodeTy,
-            ExprStmtNodeTy, // ??
+            LabelNodeTy,
+            ExprStmtNodeTy,
+            IfNodeTy,
+            WhileNodeTy,
             ForNodeTy,
             GotoNodeTy,
-            IfNodeTy,
-            LabelNodeTy,
             ReturnNodeTy,
             SwitchNodeTy,
-            WhileNodeTy,
+            CaseNodeTy,
+            BreakNodeTy,
+            ContinueNodeTy,
+            DoWhileNodeTy,
             ExprNodeTy,
               AbstractAssignNodeTy,
                 AssignNodeTy,
@@ -201,7 +202,7 @@ namespace AST {
 
   class LabelNode : public StmtNode {
     protected:
-      std::string    label_;
+      std::string    label_name_;
       StmtNode* stmt_;
 
     public:
@@ -212,7 +213,7 @@ namespace AST {
 
       LabelNode(const char* label_name, StmtNode* stmt) {
         kind_ = LabelNodeTy;
-        label_ = label_name;
+        label_name_ = label_name;
         stmt_ = stmt;
       }
 
@@ -227,8 +228,127 @@ namespace AST {
         return false;
       }
 
+
+      void SetLabelName(const char* label_name) {
+        label_name_ = label_name;
+      }
+      const char* GetLabelName() { return label_name_.c_str(); }
+
       void SetStmt(StmtNode* stmt) { stmt_ = stmt; }
       StmtNode* GetStmt() { return stmt_; }
+  };
+
+  class ExprStmtNode : public StmtNode {
+    protected:
+      ExprNode* expr_;
+
+    public:
+      ExprStmtNode() {
+        kind_ = ExprStmtNodeTy;
+        expr_ = nullptr;
+      }
+
+      ExprStmtNode(ExprNode* expr) {
+        kind_ = ExprStmtNodeTy;
+        expr_ = expr;
+      }
+
+      virtual ~ExprStmtNode() {
+        if (expr_ != nullptr)
+          delete expr_;
+      }
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ExprStmtNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetExpr(ExprNode* expr) { expr_ = expr; }
+      ExprNode* GetExpr() { return expr_; }
+  };
+  
+  class IfNode : public StmtNode {
+    protected:
+      ExprNode* cond_;
+      StmtNode* then_body_;
+      StmtNode* else_body_;
+
+    public:
+      IfNode() {
+        kind_ = IfNodeTy;
+        cond_ = nullptr;
+        then_body_ = nullptr;
+        else_body_ = nullptr;
+      }
+
+      IfNode(ExprNode* cond, StmtNode* thenbody, StmtNode* elsebody) {
+        kind_ = IfNodeTy;
+        cond_ = cond;
+        then_body_ = thenbody;
+        else_body_ = elsebody;
+      }
+
+      virtual ~IfNode() {
+        if (cond_)
+          delete cond_;
+        if (then_body_)
+          delete then_body_;
+        if (else_body_)
+          delete else_body_;
+      }
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == IfNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetCond(ExprNode* cond) { cond_ = cond; }
+      void SetThenBody(StmtNode* thenbody) { then_body_ = thenbody; }
+      void SetElseBody(StmtNode* elsebody) { else_body_ = elsebody; }
+
+      ExprNode* GetCond() { return cond_; }
+      StmtNode* GetThenBody() { return then_body_; }
+      StmtNode* GetElseBody() { return else_body_; }
+  };
+
+  class WhileNode : public StmtNode {
+    protected:
+      ExprNode* cond_;
+      StmtNode* body_;
+
+    public:
+      WhileNode() {
+        kind_ = WhileNodeTy;
+        cond_ = nullptr;
+        body_ = nullptr;
+      }
+
+      WhileNode(ExprNode* cond, StmtNode* body) {
+        kind_ = WhileNodeTy;
+        cond_ = cond;
+        body_ = body;
+      }
+
+      virtual ~WhileNode() {
+        if (cond_)
+          delete cond_;
+        if (body_)
+          delete body_;
+      }
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == WhileNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetCond(ExprNode* cond) { cond_ = cond; }
+      void SetBody(StmtNode* body) { body_ = body; }
+
+      ExprNode* GetCond() { return cond_; }
+      StmtNode* GetBody() { return body_; }
   };
 
   class ExprNode : public StmtNode {
@@ -245,8 +365,6 @@ namespace AST {
         return false;
       }
   };
-
-
 
   class AbstractAssignNode : public ExprNode {
     protected:
@@ -948,12 +1066,13 @@ namespace AST {
     protected:
       bool is_static_; // storage
       Type* ret_ty_; // return type
+      std::string name_; // function name
       Params params_; // parameters
       BlockNode* body_; // body
 
     public:
       FunctionDecl();
-      FunctionDecl(bool storage, Type* retty, Params* params, BlockNode* body); 
+      FunctionDecl(bool storage, Type* retty, const char* fnname, Params* params, BlockNode* body); 
       virtual ~FunctionDecl();
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -964,13 +1083,17 @@ namespace AST {
 
       void SetStorage(bool st) { is_static_ = st; }
       void SetReturnType(Type* ty) { ret_ty_ = ty; }
+      void SetName(const char* fnname) { name_ = fnname; }
       void SetParams(Params* params);
       void SetBody(BlockNode* bd) { body_ = bd; }
 
       bool IsStatic() { return is_static_; }
       Type* GetReturnType() { return ret_ty_; }
+      const char* GetName() { return name_.c_str(); }
       ParamNode* GetParamNode(unsigned int index);
       BlockNode* GetBody() { return body_; }
+
+      //FunctionType* GetType(); // TODO: need to get funciton type
   };
   
   class VariableDecl : public BaseNode {

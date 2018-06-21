@@ -705,7 +705,8 @@ namespace Parser {
     }
 
     // create function 
-    AST::FunctionDecl* func = new AST::FunctionDecl(is_storage, ret_type, parms, body);
+    AST::FunctionDecl* func = new AST::FunctionDecl(is_storage, ret_type, fn_name, parms, body);
+    delete[] fn_name;
 
     PushNode(func, RuleName::deffunc);
     return True;
@@ -719,7 +720,7 @@ namespace Parser {
     pi = parse_stack_.Top();
     while(pi.rule_name_ == RuleName::defvar_list ||
           pi.rule_name_ == RuleName::labeled_stmt ||
-          pi.rule_name_ == RuleName::seq_expr_stmt ||
+          pi.rule_name_ == RuleName::expr_stmt ||
           pi.rule_name_ == RuleName::block ||
           pi.rule_name_ == RuleName::if_stmt ||
           pi.rule_name_ == RuleName::while_stmt ||
@@ -741,7 +742,7 @@ namespace Parser {
       }
       else if (pi.type_ == ParseInfo::ASTNode &&
           (pi.rule_name_ == RuleName::labeled_stmt ||
-          pi.rule_name_ == RuleName::seq_expr_stmt ||
+          pi.rule_name_ == RuleName::expr_stmt ||
           pi.rule_name_ == RuleName::block ||
           pi.rule_name_ == RuleName::if_stmt ||
           pi.rule_name_ == RuleName::while_stmt ||
@@ -846,7 +847,7 @@ namespace Parser {
     char* param_name = new char[pi_name.cstr_len_+1];
     strncpy(param_name, pi_name.data_.cstr_, pi_name.cstr_len_);
     AST::ParamNode* param_node = new AST::ParamNode(pi_type.data_.type_, param_name, false);
-    delete param_name;
+    delete[] param_name;
 
     PushNode(param_node, RuleName::param);
     return True;
@@ -2470,16 +2471,120 @@ namespace Parser {
     return True;
   }
 
-  // <<== working
   eResult SyntaxAnalyzer::LabeledStmt(void) {
+    ParseInfo pi_stmt, pi_label_name;
+
+    // Read stmt
+    pi_stmt = parse_stack_.Top();
+    if (pi_stmt.type_ != ParseInfo::ASTNode ||
+        pi_stmt.rule_name_ != RuleName::stmt) {
+      return Error;
+    }
+    parse_stack_.Pop();
+
+    // Read label name
+    pi_label_name = parse_stack_.Top();
+    if (pi_label_name.type_ != ParseInfo::Identifier)
+      return Error;
+    parse_stack_.Pop();
+
+    // Create label stmt 
+    char* lname = new char[pi_label_name.cstr_len_+1];
+    strncpy(lname, pi_label_name.data_.cstr_, pi_label_name.cstr_len_);
+    AST::LabelNode* label = new AST::LabelNode(lname, (AST::StmtNode*)pi_stmt.data_.node_);
+    delete[] lname;
+
+    PushNode((AST::BaseNode*)label, RuleName::labeled_stmt);
     return True;
   }
 
+  eResult SyntaxAnalyzer::ExprStmt(void) {
+    ParseInfo pi;
+
+    // Read Expr
+    pi = parse_stack_.Top();
+    if (pi.type_ != ParseInfo::ASTNode ||
+        pi.rule_name_ != RuleName::expr)
+      return Error;
+    parse_stack_.Pop();
+
+    AST::ExprStmtNode* expr_stmt_node = 
+      new AST::ExprStmtNode((AST::ExprNode*)pi.data_.node_);
+
+    PushNode(expr_stmt_node, RuleName::expr_stmt);
+    return True;
+  }
+  
   eResult SyntaxAnalyzer::IfStmt(void) {
+    ParseInfo pi_cond, pi_thenbody, pi_elsebody;
+    bool is_else_body = false;
+
+    // Read else body if it is exist.
+    pi_elsebody = parse_stack_.Top();
+    if (pi_elsebody.type_ == ParseInfo::ASTNode &&
+        pi_elsebody.rule_name_ == RuleName::opt_else_stmt) {
+      // in case top is else body.
+      parse_stack_.Pop();
+      is_else_body = true;
+    }
+
+    // read then body.
+    pi_thenbody = parse_stack_.Top();
+    if (pi_elsebody.type_ != ParseInfo::ASTNode ||
+        pi_elsebody.rule_name_ != RuleName::stmt)
+      return Error;
+    parse_stack_.Pop();
+
+    // read Conditional expr
+    pi_cond = parse_stack_.Top();
+    if (pi_cond.type_ != ParseInfo::ASTNode || 
+        pi_cond.rule_name_ != RuleName::expr) 
+      return Error;
+    parse_stack_.Pop();
+
+    // Create if node
+    AST::IfNode* if_node = new AST::IfNode((AST::ExprNode*)pi_cond.data_.node_, 
+        (AST::StmtNode*)pi_thenbody.data_.node_, 
+        (AST::StmtNode*)(is_else_body ? pi_elsebody.data_.node_ : nullptr));
+
+    PushNode(if_node, RuleName::if_stmt);
+    return True;
+  }
+        
+  eResult SyntaxAnalyzer::Act_opt_else_stmt(void) {
+    ParseInfo pi_elsebody = parse_stack_.Top();
+
+    // Check if there is stmt.
+    if (pi_elsebody.type_ != ParseInfo::ASTNode || 
+        pi_elsebody.rule_name_ != RuleName::stmt) 
+      return Error;
+
+    SetRuleNameForPI(RuleName::opt_else_stmt);
     return True;
   }
 
   eResult SyntaxAnalyzer::WhileStmt(void) {
+    ParseInfo pi_cond, pi_body;
+
+    // Read while body
+    pi_body = parse_stack_.Top();
+    if (pi_body.type_ != ParseInfo::ASTNode ||
+        pi_body.rule_name_ != RuleName::stmt) 
+      return Error;
+    parse_stack_.Pop();
+
+    // Read conditional expr
+    pi_cond = parse_stack_.Pop();
+    if (pi_cond.type_ != ParseInfo::ASTNode ||
+        pi_cond.rule_name_ != RuleName::expr) 
+      return Error;
+    parse_stack_.Pop();
+
+    // Create while stmt 
+    AST::WhileNode* while_node = new AST::WhileNode((AST::ExprNode*)pi_cond.data_.node_,
+        (AST::StmtNode*)pi_body.data_.node);
+    
+    PushNode(while_node, RuleName::while_stmt);
     return True;
   }
 
@@ -2514,6 +2619,7 @@ namespace Parser {
     pi.type_ = ParseInfo::Integer;
     pi.data_.integer_ = atol(tok.c);
     pi.token_idx_ = tokenizer_->GetTokPos();
+
     parse_stack_.Push(pi);
     return True;
   }
@@ -2525,6 +2631,7 @@ namespace Parser {
     pi.type_ = ParseInfo::Character;
     pi.data_.character_ = *tok.c;
     pi.token_idx_ = tokenizer_->GetTokPos();
+
     parse_stack_.Push(pi);
     return True;
   }
@@ -2537,11 +2644,12 @@ namespace Parser {
     pi.data_.cstr_ = tok.c;
     pi.cstr_len_ = tok.len; // string length
     pi.token_idx_ = tokenizer_->GetTokPos();
+
     parse_stack_.Push(pi);
     return True;
   }
 
-  eResult SyntaxAnalyzer::ActIdentifier(void) {
+  eResult SyntaxAnalyzer::ActTokIdentifier(void) {
     ParseInfo pi;
     Token tok = tokenizer_->GetCurToken(0);
 
@@ -2549,6 +2657,7 @@ namespace Parser {
     pi.data_.cstr_ = tok.c;
     pi.token_idx_ = tokenizer_->GetTokPos();
     pi.cstr_len_ = tok.len; // string length
+
     parse_stack_.Push(pi);
     return True;
   }

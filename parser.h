@@ -87,8 +87,8 @@ namespace Parser {
     param_type,
     stmts,
     stmt,
-      seq_expr_stmt, // expr ";"
       labeled_stmt,
+      expr_stmt, // expr ";"
       if_stmt,
         opt_else_stmt, // [<ELSE> stmt]
       while_stmt,
@@ -389,7 +389,9 @@ namespace Parser {
       eResult Stmts(void); // stmts
       eResult Stmt(void); // stmt
       eResult LabeledStmt(void); // labeled_stmt
+      eResult ExprStmt(void); // epxr_stmt 
       eResult IfStmt(void); // if_stmt
+        eResult Act_opt_else_stmt(void); // [<ELSE> stmt]
       eResult WhileStmt(void); // while_stmt
       eResult DoWhileStmt(void); // dowhile_stmt 
       eResult ForStmt(void); // for_stmt 
@@ -402,7 +404,7 @@ namespace Parser {
       eResult ActTokIntegerLiteral(void);
       eResult ActTokCharacterLiteral(void);
       eResult ActTokStringLiteral(void);
-      eResult ActIdentifier(void);
+      eResult ActTokIdentifier(void);
 
       // Utils
       void PushType(AST::Type* type, RuleName rname = RuleName::nil);
