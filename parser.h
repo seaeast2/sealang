@@ -94,15 +94,17 @@ namespace Parser {
       while_stmt,
       dowhile_stmt,
       for_stmt,
-        opt_expr, // [expr]
+        opt_for_init_expr, // [expr]
+        opt_for_cond_expr, // [expr]
+        opt_for_inc_expr, // [expr]
       switch_stmt,
-      case_clauses,
-        rep_case_clause,// (case_clause)*
-        opt_default_clause,// [default_clause]
-      case_clause,
-      case_body,
-      default_clause,
-      cases,
+        case_clauses,
+          rep_case_clause,// (case_clause)*
+            case_clause,
+          opt_default_clause,// [default_clause]
+            default_clause,
+          case_body,
+          cases,
       break_stmt,
       continue_stmt,
       goto_stmt,
@@ -395,6 +397,12 @@ namespace Parser {
       eResult WhileStmt(void); // while_stmt
       eResult DoWhileStmt(void); // dowhile_stmt 
       eResult ForStmt(void); // for_stmt 
+        eResult Act_opt_for_init_expr(void); // opt_for_init_expr 
+        eResult Act_opt_for_cond_expr(void); // opt_for_cond_expr
+        eResult Act_opt_for_inc_expr(void); // opt_for_inc_expr
+      eResult SwitchStmt(void); // switch_stmt 
+        eResult Cases(void); // (<CASE> primary ":")+
+        eResult CaseBody(void); // case_body
       eResult BreakStmt(void); // break_stmt 
       eResult ContinueStmt(void); // continue_stmt 
       eResult GotoStmt(void); // goto_stmt 

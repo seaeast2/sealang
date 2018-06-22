@@ -18,12 +18,15 @@ namespace AST {
   class ParamNode;
   class StmtNode;
   class ExprNode;
+  class CaseNode;
 
   typedef SimpleVector<FunctionDecl*> Functions;
   typedef SimpleVector<ConstantDecl*> Constants;
   typedef SimpleVector<VariableDecl*> Variables;
   typedef SimpleVector<ParamNode*> Params;
   typedef SimpleVector<StmtNode*> Stmts;
+  typedef SimpleVector<ExprNode*> Exprs;
+  typedef SimpleVector<CaseNode*> Cases;
 
   class BaseNode {
     public:
@@ -40,14 +43,14 @@ namespace AST {
             ExprStmtNodeTy,
             IfNodeTy,
             WhileNodeTy,
+            DoWhileNodeTy,
             ForNodeTy,
+            CaseNodeTy,
+            SwitchNodeTy,
             GotoNodeTy,
             ReturnNodeTy,
-            SwitchNodeTy,
-            CaseNodeTy,
             BreakNodeTy,
             ContinueNodeTy,
-            DoWhileNodeTy,
             ExprNodeTy,
               AbstractAssignNodeTy,
                 AssignNodeTy,
@@ -163,6 +166,21 @@ namespace AST {
       virtual ~StmtNode() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == StmtNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class ExprNode : public StmtNode {
+    public:
+      ExprNode() {
+        kind_ = ExprNodeTy;
+      }
+      virtual ~ExprNode() {}
+      
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ExprNodeTy|| kind == StmtNodeTy || 
+            kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -351,19 +369,171 @@ namespace AST {
       StmtNode* GetBody() { return body_; }
   };
 
-  class ExprNode : public StmtNode {
+  class DoWhileNode : public StmtNode {
+    protected:
+      ExprNode* cond_;
+      StmtNode* body_;
+
     public:
-      ExprNode() {
-        kind_ = ExprNodeTy;
+      DoWhileNode() {
+        kind_ = DoWhileNodeTy;
+        cond_ = nullptr;
+        body_ = nullptr;
       }
-      virtual ~ExprNode() {}
-      
+
+      DoWhileNode(StmtNode* body, ExprNode* cond) {
+        kind_ = DoWhileNodeTy;
+        cond_ = cond;
+        body_ = body;
+      }
+
+      virtual ~DoWhileNode() {
+        if (cond_)
+          delete cond_;
+        if (body_)
+          delete body_;
+      }
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == ExprNodeTy|| kind == StmtNodeTy || 
+        if (kind == DoWhileNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
       }
+
+      void SetCond(ExprNode* cond) { cond_ = cond; }
+      void SetBody(StmtNode* body) { body_ = body; }
+
+      ExprNode* GetCond() { return cond_; }
+      StmtNode* GetBody() { return body_; }
+  };
+
+  class ForNode : public StmtNode {
+    protected:
+      ExprNode* init_;
+      ExprNode* cond_;
+      ExprNode* inc_;
+      StmtNode* body_;
+
+    public:
+      ForNode() {
+        kind_ = ForNodeTy;
+        init_ = nullptr;
+        cond_ = nullptr;
+        inc_ = nullptr;
+        body_ = nullptr;
+      }
+
+      ForNode(ExprNode* init, ExprNode* cond, ExprNode* inc, StmtNode* body) {
+        kind_ = ForNodeTy;
+        init_ = init;
+        cond_ = cond;
+        inc_ = inc;
+        body_ = body;
+      }
+
+      virtual ~ForNode() {
+        if (init_) 
+          delete init_;
+        if (cond_)
+          delete cond_;
+        if (inc_)
+          delete inc_;
+        if (body_)
+          delete body_;
+      }
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ForNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetInit(ExprNode* init) { init_ = init; }
+      void SetCond(ExprNode* cond) { cond_ = cond; }
+      void SetInc(ExprNode* inc) { inc_ = inc; }
+      void SetBody(StmtNode* body) { body_ = body; }
+
+      ExprNode* GetInit() { return init_; }
+      ExprNode* GetCond() { return cond_; }
+      ExprNode* GetInc() { return inc_; }
+      StmtNode* GetBody() { return body_; }
+  };
+
+  class CaseNode : public StmtNode {
+    protected:
+      Exprs values_;
+      StmtNode* body_;
+
+    public:
+      CaseNode() {
+        kind_ = CaseNodeTy;
+        body_ = nullptr;
+      }
+
+      CaseNode(Exprs* values, StmtNode* body) {
+        kind_ = CaseNodeTy;
+        values_ = *values;
+        body_ = body;
+      }
+
+      virtual ~CaseNode() {
+        if (!values_.IsEmpty()) {
+          for (int i = 0; i < values_.GetSize(); i++) {
+            delete values_[i];
+          }
+        }
+        if (body_)
+          delete body_;
+      }
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == CaseNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetCase(ExprNode* value) { values_.PushBack(value); }
+      void SetBody(StmtNode* body) { body_ = body; }
+
+      int GetCaseValueNum() { return values_.GetSize(); }
+      ExprNode* GetCaseValue(int index) { return values_[index]; }
+      StmtNode* GetBody() { return body_; }
+
+  };
+
+  class SwitchNode : public StmtNode {
+    protected:
+      ExprNode* cond_; // case condition
+      Cases cases_;
+
+    public:
+      SwitchNode() {
+        kind_ = SwitchNodeTy;
+        cond_ = nullptr;
+      }
+
+      virtual ~SwitchNode() {
+        if (cond_)
+          delete cond_;
+        if (!cases_.IsEmpty()) {
+          for (int i = 0; i < cases_.GetSize(); i++) {
+            delete cases_[i];
+          }
+        }
+      }
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == SwitchNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetCaseCond(ExprNode* cond) { cond_ = cond; }
+      void SetCases(Cases* cases) { cases_ = cases; }
+
+      ExprNode* GetCond() { return cond_; }
+      int GetCaseNum() { return cases_.GetSize(); }
+      CaseNode* GetCase(int index) { return cases_[index]; }
   };
 
   class AbstractAssignNode : public ExprNode {

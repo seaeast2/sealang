@@ -8,6 +8,7 @@ namespace AST {
   void BaseNode::print() {
   }
 
+  // BlockNode ====================================
   BlockNode::~BlockNode() {
     VariableDecl* var_tmp = nullptr;
     StmtNode* stmt_tmp = nullptr;
@@ -39,6 +40,7 @@ namespace AST {
     return stmts_[index]; 
   }
 
+  // FunctionDecl ====================================
   FunctionDecl::FunctionDecl() {
     kind_ = FunctionDeclTy;
     is_static_ = false;
@@ -88,6 +90,7 @@ namespace AST {
     return params_[index];
   }
 
+  // VariableDecl ====================================
   VariableDecl::VariableDecl(Type* type, const char* name, ExprNode* init) {
     kind_ = VariableDeclTy;
     type_ = type;
@@ -100,6 +103,7 @@ namespace AST {
     name_ = str;
   }
 
+  // ConstantDecl =======================================
   ConstantDecl::ConstantDecl(Type* type, const char* name, ExprNode* init) {
     kind_ = ConstantDeclTy;
     type_ = type;
@@ -112,6 +116,7 @@ namespace AST {
     name_ = str;
   }
 
+  // ClassNode =============================================
   ClassNode::ClassNode(Variables* mem_var, Functions* mem_func) {
     kind_ = ClassNodeTy;
     member_variables_ = *mem_var;

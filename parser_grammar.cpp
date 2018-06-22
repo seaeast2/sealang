@@ -58,12 +58,12 @@ namespace Parser {
     
     // import_stmts  
     //   : (import_stmt)* 
-    rules_[import_stmts] = {Repeat, {import_stmt}};
+    rules_[import_stmts] = {RepeatStar, {import_stmt}};
       // import_stmt 
       //   : <IMPORT> name ("." name)* ";" 
       rules_[import_stmt] = {Sequence, {TokImport, name, rep_dot_name, TokSemiColon}};
         // ("." name)*
-        rules_[rep_dot_name] = {Repeat, {TokDot, name}};
+        rules_[rep_dot_name] = {RepeatStar, {TokDot, name}};
 
     // name 
     //   : <IDENTIFIER> 
@@ -75,7 +75,7 @@ namespace Parser {
     //     | defconst 
     //     | defclass 
     //     | typedef )* 
-    rules_[top_defs] = {Repeat, {sel_fun_var_const_class_typedef}};
+    rules_[top_defs] = {RepeatStar, {sel_fun_var_const_class_typedef}};
       rules_[sel_fun_var_const_class_typedef] = {Select, {deffunc, defvars, defconst, defclass, typedef_ }};
 
     // defvars // variable definition. ex) int a = 0, b=19; 
@@ -85,7 +85,7 @@ namespace Parser {
       // [("," name ["=" expr])*]
       rules_[opt_rep_var_initialize] = {Options, {rep_var_initialize}}; 
         // ("," name ["=" expr])*
-        rules_[rep_var_initialize] = {Repeat, {TokComma, name, opt_var_initialize}};
+        rules_[rep_var_initialize] = {RepeatStar, {TokComma, name, opt_var_initialize}};
         
     // defconst
     //   : <CONST> type name "=" expr ";"
@@ -118,7 +118,7 @@ namespace Parser {
     //   : param ("," param)* 
     rules_[fixedparams] = {Sequence, {param, rep_comma_param}};
       // ("," param)* 
-      rules_[rep_comma_param] = {Repeat, {TokComma, param}};
+      rules_[rep_comma_param] = {RepeatStar, {TokComma, param}};
       
     // param 
     //   : type name 
@@ -126,7 +126,7 @@ namespace Parser {
 
     // defvar_list 
     //   : (defvars)*
-    rules_[defvar_list] = {Repeat, {defvars}};
+    rules_[defvar_list] = {RepeatStar, {defvars}};
 
     // block 
     //   : "{" defvar_list stmts "}" 
@@ -139,7 +139,7 @@ namespace Parser {
       //   : "{" (class_member ";")* "}" 
       rules_[class_member_list] = {Sequence, {TokBraceOpen, rep_class_member, TokBraceClose}};
         // (class_member ";")*
-        rules_[rep_class_member] = {Repeat, {class_member, TokSemiColon}};
+        rules_[rep_class_member] = {RepeatStar, {class_member, TokSemiColon}};
           // class_member // class member definition 
           //   : defvars 
           //   | deffunc
@@ -163,7 +163,7 @@ namespace Parser {
       //   | "["<INTEGER>"]"           // assigned array
       //   | "*"                       // pointer 
       //   | "(" param_typerefs ")")*  // function type 
-      rules_[rep_sel_arry_ptr_fnptr] = {Repeat, {sel_arry_ptr_fnptr}};
+      rules_[rep_sel_arry_ptr_fnptr] = {RepeatStar, {sel_arry_ptr_fnptr}};
         //   "[""]"                    // unassigned array
         //   | "["<INTEGER>"]"           // assigned array
         //   | "*"                       // pointer 
@@ -187,13 +187,13 @@ namespace Parser {
       // type ("," type)* ["," "..."] 
       rules_[seq_param_type_list] = {Sequence, {type, rep_param_comma_type, opt_vararg_type}};
         // ("," type)*
-        rules_[rep_param_comma_type] = {Repeat, {TokComma, type}};
+        rules_[rep_param_comma_type] = {RepeatStar, {TokComma, type}};
         // ["," "..."] 
-        rules_[opt_vararg_type] = {Repeat, {TokComma, TokDotDotDot}};
+        rules_[opt_vararg_type] = {RepeatStar, {TokComma, TokDotDotDot}};
 
     // stmts 
     //   : (stmt)* 
-    rules_[stmts] = {Repeat, {stmt}};
+    rules_[stmts] = {RepeatStar, {stmt}};
 
     // stmt 
     //   :";" 
@@ -246,9 +246,13 @@ namespace Parser {
 
     // for_stmt 
     //   : <FOR> "(" [expr] ";" [expr] ";" [expr] ")" stmt 
-    rules_[for_stmt] = {Sequence, {TokFor, TokParenOpen, opt_expr, TokSemiColon, opt_expr, TokSemiColon, opt_expr, TokParenClose, stmt }};
+    rules_[for_stmt] = {Sequence, {TokFor, TokParenOpen, opt_for_init_expr, TokSemiColon, opt_for_cond_expr, TokSemiColon, opt_for_inc_expr, TokParenClose, stmt }};
       // [expr]
-      rules_[opt_expr] = {Options, {expr}};
+      rules_[opt_for_init_expr] = {Options, {expr}};
+      // [expr]
+      rules_[opt_for_cond_expr] = {Options, {expr}};
+      // [expr]
+      rules_[opt_for_inc_expr] = {Options, {expr}};
 
     // switch_stmt
     //   : <SWITCH> "(" expr ")" "{" case_clauses "}"
@@ -258,7 +262,7 @@ namespace Parser {
     //   : (case_clause)* [default_clause]
     rules_[case_clauses] = {Sequence, {rep_case_clause, opt_default_clause}};
       // (case_clause)*
-      rules_[rep_case_clause] = {Repeat, {case_clause}};
+      rules_[rep_case_clause] = {RepeatStar, {case_clause}};
       // [default_clause]
       rules_[opt_default_clause] = {Options, {default_clause}};
     
@@ -267,8 +271,8 @@ namespace Parser {
     rules_[case_clause] = {Sequence, {cases, case_body}};
      
     // cases
-    //   : <CASE> primary ":"
-    rules_[cases] = {Sequence, {TokCase, primary, TokColon}};
+    //   : (<CASE> primary ":")+
+    rules_[cases] = {RepeatDagger, {TokCase, primary, TokColon}};
     
     // default_clause
     //   : <DEFAULT> ":" case_body
@@ -341,13 +345,13 @@ namespace Parser {
     //   : expr8 ("||" expr8)* 
     rules_[expr9] = {Sequence, {expr8, rep_or_expr8}};
       //("||" expr8)* 
-      rules_[rep_or_expr8] = {Repeat, {TokConOr, expr8}};
+      rules_[rep_or_expr8] = {RepeatStar, {TokConOr, expr8}};
      
     // expr8 
     //   : expr7 ("&&" expr7)* 
     rules_[expr8] = {Sequence, {expr7, rep_and_expr7}};
       // ("&&" expr7)* 
-      rules_[rep_and_expr7] = {Repeat, {TokConAnd, expr7}};
+      rules_[rep_and_expr7] = {RepeatStar, {TokConAnd, expr7}};
      
     // expr7  
     //   : expr7 ( ">" expr6  
@@ -359,7 +363,7 @@ namespace Parser {
     //
     rules_[expr7] = {Sequence, {expr7, rep_op_expr6}};
       //(sel_op_expr6)*
-      rules_[rep_op_expr6] = {Repeat, {sel_op_expr6}};
+      rules_[rep_op_expr6] = {RepeatStar, {sel_op_expr6}};
         // ">" expr6  
         //| "<" expr6 
         //| ">=" expr6 
@@ -389,25 +393,25 @@ namespace Parser {
     //   : expr5 ("|" expr5)* 
     rules_[expr6] = {Sequence, {expr5, rep_bitor_expr5}};
       // ("|" expr5)* 
-      rules_[rep_bitor_expr5] = {Repeat, {TokBitOr, expr5}};
+      rules_[rep_bitor_expr5] = {RepeatStar, {TokBitOr, expr5}};
 
     // expr5 
     //   : expr4 ("^" expr4)* 
     rules_[expr5] = {Sequence, {expr4, rep_bitxor_expr4}};
       // ("^" expr4)* 
-      rules_[rep_bitxor_expr4] = {Repeat, {TokBitXor, expr4}};
+      rules_[rep_bitxor_expr4] = {RepeatStar, {TokBitXor, expr4}};
      
     // expr4 
     //   : expr3 ("&" expr3)* 
     rules_[expr4] = {Sequence, {expr3, rep_bitand_expr3}};
       // ("&" expr3)* 
-      rules_[rep_bitand_expr3] = {Repeat, {TokBitAnd, expr3}};
+      rules_[rep_bitand_expr3] = {RepeatStar, {TokBitAnd, expr3}};
 
     // expr3 
     //   : expr2 ( ">>" expr2 | "<<" expr2)* 
     rules_[expr3] = {Sequence, {expr2, rep_shift_expr2}};
       // ( ">>" expr2 | "<<" expr2)*
-      rules_[rep_shift_expr2] = {Repeat, {sel_shift_expr2}};
+      rules_[rep_shift_expr2] = {RepeatStar, {sel_shift_expr2}};
         // ">>" expr2 | "<<" expr2
         rules_[sel_shift_expr2] = {Select, {seq_rshft_expr2, seq_lshft_expr2}};
           // ">>" expr2
@@ -419,9 +423,9 @@ namespace Parser {
     //   : expr1 ( "+" expr1 | "-" expr1)* 
     rules_[expr2] = {Sequence, {expr1, rep_sumsub_expr1}};
       // ( "+" expr1 | "-" expr1)* 
-      rules_[rep_sumsub_expr1] = {Repeat, {sel_sumsub_expr1}};
+      rules_[rep_sumsub_expr1] = {RepeatStar, {sel_sumsub_expr1}};
         // "+" expr1 | "-" expr1 
-        rules_[sel_sumsub_expr1] = {Repeat, {seq_sum_expr1, seq_sub_expr1}};
+        rules_[sel_sumsub_expr1] = {RepeatStar, {seq_sum_expr1, seq_sub_expr1}};
           // "+" expr1
           rules_[seq_sum_expr1] = {Sequence, {TokAdd, expr1}};
           // "-" expr1
@@ -436,7 +440,7 @@ namespace Parser {
       //("*" term 
       //| "/" term 
       //| "%" term)* 
-      rules_[rep_muldivmod_term] = {Repeat, {sel_muldivmod_term}};
+      rules_[rep_muldivmod_term] = {RepeatStar, {sel_muldivmod_term}};
         //"*" term  
         //| "/" term 
         //| "%" term
@@ -508,7 +512,7 @@ namespace Parser {
     //             )* 
     rules_[postfix] = {Sequence, {primary, rep_reffunc}};
       //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
-      rules_[rep_reffunc] = {Repeat, {sel_reffunc}};
+      rules_[rep_reffunc] = {RepeatStar, {sel_reffunc}};
         // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
         rules_[sel_reffunc] = {Select, {seq_post_inc, seq_post_dec, seq_array_reference, seq_dot_name, seq_arrow_name, seq_fncall}};
           // "++"
@@ -530,7 +534,7 @@ namespace Parser {
       // expr
       rules_[seq_args_expr] = {Sequence, {expr}};
       // ("," expr)*
-      rules_[rep_args_expr] = {Repeat, {TokComma, expr}};
+      rules_[rep_args_expr] = {RepeatStar, {TokComma, expr}};
      
     // primary 
     //   : <INTEGER> 
@@ -692,6 +696,14 @@ namespace Parser {
       rule_actions_[if_stmt] = &SyntaxAnalyzer::IfStmt;
         rule_actions_[opt_else_stmt] = &SyntaxAnalyzer::Act_opt_else_stmt;
       rule_actions_[while_stmt] = &SyntaxAnalyzer::WhileStmt;
+      rule_actions_[dowhile_stmt] = &SyntaxAnalyzer::DoWhileStmt;
+      rule_actions_[for_stmt] = &SyntaxAnalyzer::ForStmt;
+        rule_actions_[opt_for_init_expr] = &SyntaxAnalyzer::Act_opt_for_init_expr;
+        rule_actions_[opt_for_cond_expr] = &SyntaxAnalyzer::Act_opt_for_cond_expr;
+        rule_actions_[opt_for_inc_expr] = &SyntaxAnalyzer::Act_opt_for_inc_expr;
+      rule_actions_[switch_stmt] = &SyntaxAnalyzer::SwitchStmt;
+        rule_actions_[cases] = &SyntaxAnalyzer::Cases;
+        rule_actions_[case_body] = &SyntaxAnalyzer::CaseBody;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
