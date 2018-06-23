@@ -9,6 +9,9 @@ namespace AST {
   // Base type in AST
 
   class ASTContext;
+  class Type;
+
+  typedef SimpleVector<Type*> Types;
 
   class Type {
     public:
@@ -470,7 +473,6 @@ namespace AST {
       static VarArgType* Get(ASTContext* ac);
   };
 
-  typedef SimpleVector<Type*> Types;
 
 }
 

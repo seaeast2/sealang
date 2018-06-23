@@ -175,7 +175,34 @@ namespace Parser {
 
 
     switch(rule.action_) {
-      case Repeat:
+      case RepeatStar:
+        {
+          while(true) {
+            int matching_count = 0;
+            int i = 0;
+            tok_pos = tokenizer_->GetTokPos(); // backup token position
+            for (; rule.sub_rules_[i] > -1; i++) {
+              res = TestRule(rule.sub_rules_[i]);
+              if (res == True) { // matched
+                matching_count++;
+              }
+              else if (res == False) { // not matching
+                if (rules_[rule.sub_rules_[i]].action_ == Options) {
+                  matching_count++;
+                }
+                else {
+                  tokenizer_->SetTokPos(tok_pos); // restore token position.
+                  return True; // reached unmatching point.
+                }
+              }
+              else
+                return Error;
+            }
+          };
+        }
+        break;
+
+      case RepeatDagger:
         {
           while(true) {
             int matching_count = 0;
@@ -2730,15 +2757,78 @@ namespace Parser {
     return True;
   }
 
-  eResult SyntaxAnalyzer::Cases(void) {
-    ParseInfo pi = parse_stack_.Top();
+  // <<== working
+  eResult SyntaxAnalyzer::CaseClauses(void) {
+    return True;
+  }
+  
+  eResult SyntaxAnalyzer::DefaultClause(void) {
+    ParseInfo pi_case_body;
 
-    // Read stmt
-    if (pi.type_ != ParseInfo::ASTNode ||
-        pi.rule_name_ != RuleName::stmt) 
+    // read case body
+    pi_case_body = parse_stack_.Top();
+    if (pi_case_body.type_ != ParseInfo::ASTNode ||
+        pi_case_body.rule_name_ != RuleName::case_body) 
       return Error;
+    parse_stack_.Pop();
 
-    SetRuleNameForPI(RuleName::case_body);
+    AST::CaseNode* case_node = new AST::CaseNode( nullptr,
+        (AST::StmtNode*)pi_case_body.data_.node_);
+
+    PushNode(case_node, RuleName::default_clause);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::CaseClause(void) {
+    ParseInfo pi_case_body, pi_case_list;
+
+    // read case body
+    pi_case_body = parse_stack_.Top();
+    if (pi_case_body.type_ != ParseInfo::ASTNode ||
+        pi_case_body.rule_name_ != RuleName::case_body) 
+      return Error;
+    parse_stack_.Pop();
+
+    // read case list
+    pi_case_list = parse_stack_.Top();
+    if (pi_case_list.type_ != ParseInfo::ExprList ||
+        pi_case_list.rule_name_ != RuleName::case_list) 
+      return Error;
+    parse_stack_.Pop();
+
+    AST::CaseNode* case_node = new AST::CaseNode(
+        (AST::Exprs*)pi_case_list.data_.exprs_,
+        (AST::StmtNode*)pi_case_body.data_.node_);
+
+    PushNode(case_node, RuleName::case_clause);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::CaseList(void) {
+    ParseInfo pi_value, pi_case_list;
+    AST::Exprs* case_values = nullptr;
+    
+    // Read case values
+    pi_value = parse_stack_.Top();
+    if (pi_value.type_ != ParseInfo::ASTNode ||
+        pi_value.rule_name_ != RuleName::primary) 
+      return Error;
+    parse_stack_.Pop();
+
+    // Read Case list
+    pi_case_list = parse_stack_.Top(); 
+    if (pi_case_list.type_ != ParseInfo::ExprList ||
+        pi_case_list.rule_name_ != RuleName::case_list) {
+      case_values = new AST::Exprs();
+    }
+    else {
+      parse_stack_.Pop();
+
+      case_values = pi_case_list.data_.exprs_;
+    }
+
+    case_values->PushBack((AST::ExprNode*)pi_value.data_.node_);
+    PushExprs(case_values, RuleName::case_list);
     return True;
   }
 
@@ -2813,8 +2903,8 @@ namespace Parser {
 
     pi.type_ = ParseInfo::Identifier;
     pi.data_.cstr_ = tok.c;
-    pi.token_idx_ = tokenizer_->GetTokPos();
     pi.cstr_len_ = tok.len; // string length
+    pi.token_idx_ = tokenizer_->GetTokPos();
 
     parse_stack_.Push(pi);
     return True;
@@ -2866,6 +2956,22 @@ namespace Parser {
     ParseInfo pi;
     pi.type_ = ParseInfo::ParamList;
     pi.data_.params_ = param_list;
+    pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
+  }
+
+  void SyntaxAnalyzer::PushExprs(AST::Exprs* expr_list, RuleName rname) {
+    ParseInfo pi;
+    pi.type_ = ParseInfo::ExprList;
+    pi.data_.exprs_ = expr_list;
+    pi.rule_name_ = rname;
+    parse_stack_.Push(pi);
+  }
+
+  void SyntaxAnalyzer::PushCases(AST::CaseValues* case_values, RuleName rname) {
+    ParseInfo pi;
+    pi.type_ = ParseInfo::CaseValues;
+    pi.data_.case_values_ = case_values;
     pi.rule_name_ = rname;
     parse_stack_.Push(pi);
   }

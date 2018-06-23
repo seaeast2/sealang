@@ -26,7 +26,7 @@ namespace AST {
   typedef SimpleVector<ParamNode*> Params;
   typedef SimpleVector<StmtNode*> Stmts;
   typedef SimpleVector<ExprNode*> Exprs;
-  typedef SimpleVector<CaseNode*> Cases;
+  typedef SimpleVector<CaseNode*> CaseValues;
 
   class BaseNode {
     public:
@@ -472,7 +472,8 @@ namespace AST {
 
       CaseNode(Exprs* values, StmtNode* body) {
         kind_ = CaseNodeTy;
-        values_ = *values;
+        if (values) 
+          values_ = *values;
         body_ = body;
       }
 
@@ -492,19 +493,19 @@ namespace AST {
         return false;
       }
 
-      void SetCase(ExprNode* value) { values_.PushBack(value); }
+      void AddCase(ExprNode* value) { if(value) values_.PushBack(value);}
       void SetBody(StmtNode* body) { body_ = body; }
 
       int GetCaseValueNum() { return values_.GetSize(); }
       ExprNode* GetCaseValue(int index) { return values_[index]; }
       StmtNode* GetBody() { return body_; }
-
+      bool IsDefaultCase() { return values_.IsEmpty(); }
   };
 
   class SwitchNode : public StmtNode {
     protected:
       ExprNode* cond_; // case condition
-      Cases cases_;
+      CaseValues case_values_;
 
     public:
       SwitchNode() {
@@ -512,12 +513,19 @@ namespace AST {
         cond_ = nullptr;
       }
 
+      SwitchNode(ExprNode* cond, CaseValues* case_values) {
+        kind_ = SwitchNodeTy;
+        cond_ = cond;
+        if(case_values)
+          case_values_ = *case_values;
+      }
+
       virtual ~SwitchNode() {
         if (cond_)
           delete cond_;
-        if (!cases_.IsEmpty()) {
-          for (int i = 0; i < cases_.GetSize(); i++) {
-            delete cases_[i];
+        if (!case_values_.IsEmpty()) {
+          for (int i = 0; i < case_values_.GetSize(); i++) {
+            delete case_values_[i];
           }
         }
       }
@@ -529,11 +537,11 @@ namespace AST {
       }
 
       void SetCaseCond(ExprNode* cond) { cond_ = cond; }
-      void SetCases(Cases* cases) { cases_ = cases; }
+      void SetCases(CaseValues* case_values) { if(case_values) case_values_ = *case_values; }
 
       ExprNode* GetCond() { return cond_; }
-      int GetCaseNum() { return cases_.GetSize(); }
-      CaseNode* GetCase(int index) { return cases_[index]; }
+      int GetCaseNum() { return case_values_.GetSize(); }
+      CaseNode* GetCase(int index) { return case_values_[index]; }
   };
 
   class AbstractAssignNode : public ExprNode {

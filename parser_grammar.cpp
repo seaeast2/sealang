@@ -267,12 +267,12 @@ namespace Parser {
       rules_[opt_default_clause] = {Options, {default_clause}};
     
     // case_clause
-    //   : cases case_body
-    rules_[case_clause] = {Sequence, {cases, case_body}};
+    //   : case_list case_body
+    rules_[case_clause] = {Sequence, {case_list, case_body}};
      
-    // cases
+    // case_list
     //   : (<CASE> primary ":")+
-    rules_[cases] = {RepeatDagger, {TokCase, primary, TokColon}};
+    rules_[case_list] = {RepeatDagger, {TokCase, primary, TokColon}};
     
     // default_clause
     //   : <DEFAULT> ":" case_body
@@ -702,8 +702,11 @@ namespace Parser {
         rule_actions_[opt_for_cond_expr] = &SyntaxAnalyzer::Act_opt_for_cond_expr;
         rule_actions_[opt_for_inc_expr] = &SyntaxAnalyzer::Act_opt_for_inc_expr;
       rule_actions_[switch_stmt] = &SyntaxAnalyzer::SwitchStmt;
-        rule_actions_[cases] = &SyntaxAnalyzer::Cases;
-        rule_actions_[case_body] = &SyntaxAnalyzer::CaseBody;
+        rule_actions_[case_clauses ] = &SyntaxAnalyzer::CaseClauses;
+          rule_actions_[default_clause] = &SyntaxAnalyzer::DefaultClause;
+          rule_actions_[case_clause] = &SyntaxAnalyzer::CaseClause;
+            rule_actions_[case_list] = &SyntaxAnalyzer::CaseList;
+            rule_actions_[case_body] = &SyntaxAnalyzer::CaseBody;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

@@ -104,7 +104,7 @@ namespace Parser {
           opt_default_clause,// [default_clause]
             default_clause,
           case_body,
-          cases,
+          case_list,
       break_stmt,
       continue_stmt,
       goto_stmt,
@@ -183,7 +183,8 @@ namespace Parser {
     nil, // nil
 
     // BNF Action
-    Repeat, // ()*
+    RepeatStar, // ()*
+    RepeatDagger, // ()+
     Select, // |
     Sequence, // rule1 rule2
     Options, // []
@@ -209,19 +210,23 @@ namespace Parser {
       StorageInfo,
       VarDeclList,
       ParamList,
+      ExprList,
+      CaseValues
     };
 
     union RawData {
-      bool boolean_;
-      char character_;
-      const char* cstr_;
-      long integer_;
-      AST::BaseNode* node_;
-      AST::Type* type_;
-      Lexer::TokenType tok_type_;
-      AST::Types* types_;
-      AST::Variables* vardecls_;
-      AST::Params* params_;
+      bool              boolean_;   // Storageinfo
+      char              character_; // Character
+      const char*       cstr_;      // String, Identifier
+      long              integer_;   // Integer
+      AST::BaseNode*    node_;      // ASTNode
+      AST::Type*        type_;      // ASTType
+      Lexer::TokenType  tok_type_;  // TokenType
+      AST::Types*       types_;     // TypeList
+      AST::Variables*   vardecls_;  // VarDeclList
+      AST::Params*      params_;    // ParamList
+      AST::Exprs*       exprs_;     // ExprList
+      AST::CaseValues*  case_values_;     // CaseValues
     };
 
     RawDataType type_;
@@ -401,8 +406,11 @@ namespace Parser {
         eResult Act_opt_for_cond_expr(void); // opt_for_cond_expr
         eResult Act_opt_for_inc_expr(void); // opt_for_inc_expr
       eResult SwitchStmt(void); // switch_stmt 
-        eResult Cases(void); // (<CASE> primary ":")+
-        eResult CaseBody(void); // case_body
+        eResult CaseClauses(void);//(case_clause)* [default_clause]
+          eResult DefaultClause(void); // <DEFAULT> ":" case_body
+          eResult CaseClause(void); // case_list case_body
+            eResult CaseList(void); // (<CASE> primary ":")+
+            eResult CaseBody(void); // case_body
       eResult BreakStmt(void); // break_stmt 
       eResult ContinueStmt(void); // continue_stmt 
       eResult GotoStmt(void); // goto_stmt 
@@ -418,9 +426,12 @@ namespace Parser {
       void PushType(AST::Type* type, RuleName rname = RuleName::nil);
       void PushToken(int pos_offset = 0, RuleName rname = RuleName::nil); // Push Token to ParseInfo stack.
       void PushNode(AST::BaseNode* node, RuleName rname = RuleName::nil);
-      void PushTypeList(SimpleVector<AST::Type*>* ty_list, RuleName rname = RuleName::nil);
-      void PushVarDecls(SimpleVector<AST::VariableDecl*>* var_list, RuleName rname = RuleName::nil);
-      void PushParams(SimpleVector<AST::ParamNode*>* param_list, RuleName rname = RuleName::nil);
+      void PushTypeList(AST::Types* ty_list, RuleName rname = RuleName::nil);
+      void PushVarDecls(AST::Variables* var_list, RuleName rname = RuleName::nil);
+      void PushParams(AST::Params* param_list, RuleName rname = RuleName::nil);
+      void PushExprs(AST::Exprs* expr_list, RuleName rname = RuleName::nil);
+      void PushCases(AST::CaseValues* case_values, RuleName rname = RuleName::nil);
+
       void SetRuleNameForPI(RuleName rname);
       void DebugPrint();
   };
