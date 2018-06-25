@@ -180,14 +180,14 @@ namespace Parser {
 
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
-    //   | param_type ("," type)* ["," "..."] 
+    //   | typeref ("," typeref)* ["," "..."] 
     rules_[param_typerefs] = {Select, {seq_param_type_void, seq_param_type_list}};
       // <VOID>
       rules_[seq_param_type_void] = {Sequence, {TokVoid}};
-      // type ("," type)* ["," "..."] 
-      rules_[seq_param_type_list] = {Sequence, {type, rep_param_comma_type, opt_vararg_type}};
-        // ("," type)*
-        rules_[rep_param_comma_type] = {RepeatStar, {TokComma, type}};
+      // typeref ("," typeref)* ["," "..."] 
+      rules_[seq_param_type_list] = {Sequence, {typeref, rep_param_comma_type, opt_vararg_type}};
+        // ("," typeref)*
+        rules_[rep_param_comma_type] = {RepeatStar, {TokComma, typeref}};
         // ["," "..."] 
         rules_[opt_vararg_type] = {RepeatStar, {TokComma, TokDotDotDot}};
 
@@ -292,16 +292,16 @@ namespace Parser {
      
     // goto_stmt
     //   : <GOTO> <IDENTIFIER> ";"
-    rules_[continue_stmt] = {Sequence, {TokContinue, TokSemiColon}};
+    rules_[goto_stmt] = {Sequence, {TokGoto, TokIdentifier, TokSemiColon}};
      
     // return_stmt 
     //   : <RETURN> ";" 
     //   | <RETURN> expr ";" 
-    rules_[return_stmt] = {Select, {seq_return_semicolon, seq_return_expr_semicolon}};
+    rules_[return_stmt] = {Select, {seq_return, seq_return_expr}};
       // <RETURN> ";"
-      rules_[seq_return_semicolon] = {Sequence, {TokReturn, TokSemiColon}};
+      rules_[seq_return] = {Sequence, {TokReturn, TokSemiColon}};
       // <RETURN> expr ";"
-      rules_[seq_return_expr_semicolon] = {Sequence, {TokReturn, expr, TokSemiColon}};
+      rules_[seq_return_expr] = {Sequence, {TokReturn, expr, TokSemiColon}};
      
     // expr 
     //   : term "=" expr 
@@ -556,6 +556,7 @@ namespace Parser {
 
     rule_actions_[import_stmts] = &SyntaxAnalyzer::ImportStmts;
       rule_actions_[import_stmt] = &SyntaxAnalyzer::ImportStmt;
+        rule_actions_[rep_dot_name] = &SyntaxAnalyzer::Act_rep_dot_name;
 
     rule_actions_[top_defs] = &SyntaxAnalyzer::TopDefs;
 
@@ -583,7 +584,11 @@ namespace Parser {
     rule_actions_[defconst] = &SyntaxAnalyzer::DefConst;
 
     rule_actions_[storage] = &SyntaxAnalyzer::Storage;
+
     rule_actions_[type] = &SyntaxAnalyzer::Type;
+
+    rule_actions_[typedef_] = &SyntaxAnalyzer::TypeDef;
+
     rule_actions_[typeref] = &SyntaxAnalyzer::TypeRef;
       rule_actions_[seq_unassigned_array] = &SyntaxAnalyzer::Act_seq_unassigned_array; 
       rule_actions_[seq_assigned_array] = &SyntaxAnalyzer::Act_seq_assigned_array; 
@@ -702,11 +707,21 @@ namespace Parser {
         rule_actions_[opt_for_cond_expr] = &SyntaxAnalyzer::Act_opt_for_cond_expr;
         rule_actions_[opt_for_inc_expr] = &SyntaxAnalyzer::Act_opt_for_inc_expr;
       rule_actions_[switch_stmt] = &SyntaxAnalyzer::SwitchStmt;
-        rule_actions_[case_clauses ] = &SyntaxAnalyzer::CaseClauses;
+        rule_actions_[case_clauses] = &SyntaxAnalyzer::CaseClauses;
           rule_actions_[default_clause] = &SyntaxAnalyzer::DefaultClause;
           rule_actions_[case_clause] = &SyntaxAnalyzer::CaseClause;
             rule_actions_[case_list] = &SyntaxAnalyzer::CaseList;
             rule_actions_[case_body] = &SyntaxAnalyzer::CaseBody;
+
+      rule_actions_[break_stmt] = &SyntaxAnalyzer::BreakStmt;
+
+      rule_actions_[continue_stmt] = &SyntaxAnalyzer::ContinueStmt;
+
+      rule_actions_[goto_stmt] = &SyntaxAnalyzer::GotoStmt;
+
+      rule_actions_[return_stmt] = &SyntaxAnalyzer::ReturnStmt;
+        rule_actions_[seq_return] = &SyntaxAnalyzer::Act_seq_return;
+        rule_actions_[seq_return_expr] = &SyntaxAnalyzer::Act_seq_return_expr;
 
     rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;

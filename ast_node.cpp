@@ -8,6 +8,20 @@ namespace AST {
   void BaseNode::print() {
   }
 
+  const char* ImportNode::GetImportPath() {
+    string tmp = ".";
+    for (int i = 0; i < import_paths_.GetSize(); i++) {
+      tmp += "/" + import_paths_[i];
+    }
+    
+    if(complete_path_)
+      delete[] complete_path_;
+
+    complete_path_ = new char[tmp.size()+1];
+    strcpy(complete_path_, tmp.c_str());
+    return complete_path_;
+  }
+
   // BlockNode ====================================
   BlockNode::~BlockNode() {
     VariableDecl* var_tmp = nullptr;
@@ -48,7 +62,8 @@ namespace AST {
     body_ = nullptr;
   }
 
-  FunctionDecl::FunctionDecl(bool storage, Type* retty, const char* fnname, Params* params, BlockNode* body) {
+  FunctionDecl::FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
+      ParamNodes* params, BlockNode* body) {
     kind_ = FunctionDeclTy;
     is_static_ = storage;
     ret_ty_ = retty;
@@ -78,7 +93,7 @@ namespace AST {
       delete body_;
   }
 
-  void FunctionDecl::SetParams(Params* params) {
+  void FunctionDecl::SetParams(ParamNodes* params) {
     for(int i = 0; i < params->GetSize(); i++) {
       params_.PushBack((*params)[i]);
     }
@@ -91,7 +106,7 @@ namespace AST {
   }
 
   // VariableDecl ====================================
-  VariableDecl::VariableDecl(Type* type, const char* name, ExprNode* init) {
+  VariableDecl::VariableDecl(TypeNode* type, const char* name, ExprNode* init) {
     kind_ = VariableDeclTy;
     type_ = type;
     name_ = name;
@@ -104,7 +119,7 @@ namespace AST {
   }
 
   // ConstantDecl =======================================
-  ConstantDecl::ConstantDecl(Type* type, const char* name, ExprNode* init) {
+  ConstantDecl::ConstantDecl(TypeNode* type, const char* name, ExprNode* init) {
     kind_ = ConstantDeclTy;
     type_ = type;
     name_ = name;
@@ -117,8 +132,13 @@ namespace AST {
   }
 
   // ClassNode =============================================
-  ClassNode::ClassNode(Variables* mem_var, Functions* mem_func) {
+  ClassNode::ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
+      FunctionDecls* mem_func) {
     kind_ = ClassNodeTy;
+
+    type_name_ = type_name;
+    type_ = ty;
+
     member_variables_ = *mem_var;
     member_functions_ = *mem_func;
   }

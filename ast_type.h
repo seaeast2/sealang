@@ -9,9 +9,6 @@ namespace AST {
   // Base type in AST
 
   class ASTContext;
-  class Type;
-
-  typedef SimpleVector<Type*> Types;
 
   class Type {
     public:
@@ -61,6 +58,8 @@ namespace AST {
 
       virtual void Print();
   };
+
+  typedef SimpleVector<Type*> Types;
 
   class VoidType : public Type {
     protected:
@@ -328,7 +327,6 @@ namespace AST {
       }
 
       static ClassType* Get(ASTContext* ac, const char* type_name); // create incomplete type
-      //static ClassType* Get(ASTContext* ac); // TODO : create complete type
   };
 
   class UserType : public NamedType {
@@ -417,14 +415,14 @@ namespace AST {
   class FunctionType : public Type {
     private:
       Type* return_type_;
-      SimpleVector<Type*> param_types_;
+      Types param_types_;
     protected:
       FunctionType() {
         kind_ = FunctionTy;
         is_incomplete_ = false;
       }
 
-      FunctionType(Type* retty, SimpleVector<Type*> param_types) {
+      FunctionType(Type* retty, Types param_types) {
         kind_ = FunctionTy;
         is_incomplete_ = false;
 
@@ -452,7 +450,7 @@ namespace AST {
         return false;
       }
 
-      static FunctionType* Get(ASTContext* ac, Type* retty, SimpleVector<Type*> param_types);
+      static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types);
   };
 
   class VarArgType: public Type {

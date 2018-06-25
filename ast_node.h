@@ -19,14 +19,16 @@ namespace AST {
   class StmtNode;
   class ExprNode;
   class CaseNode;
+  class TypeNode;
 
-  typedef SimpleVector<FunctionDecl*> Functions;
-  typedef SimpleVector<ConstantDecl*> Constants;
-  typedef SimpleVector<VariableDecl*> Variables;
-  typedef SimpleVector<ParamNode*> Params;
-  typedef SimpleVector<StmtNode*> Stmts;
-  typedef SimpleVector<ExprNode*> Exprs;
-  typedef SimpleVector<CaseNode*> CaseValues;
+  typedef SimpleVector<TypeNode*> TypeNodes;
+  typedef SimpleVector<FunctionDecl*> FunctionDecls;
+  typedef SimpleVector<ConstantDecl*> ConstantDecls;
+  typedef SimpleVector<VariableDecl*> VariableDecls;
+  typedef SimpleVector<ParamNode*> ParamNodes;
+  typedef SimpleVector<StmtNode*> StmtNodes;
+  typedef SimpleVector<ExprNode*> ExprNodes;
+  typedef SimpleVector<CaseNode*> CaseNodes;
 
   class BaseNode {
     public:
@@ -37,6 +39,7 @@ namespace AST {
           ConstantDeclTy,
           TypeNodeTy,
           ParamNodeTy,
+          ImportNodeTy,
           StmtNodeTy,
             BlockNodeTy,
             LabelNodeTy,
@@ -47,10 +50,10 @@ namespace AST {
             ForNodeTy,
             CaseNodeTy,
             SwitchNodeTy,
-            GotoNodeTy,
-            ReturnNodeTy,
             BreakNodeTy,
             ContinueNodeTy,
+            GotoNodeTy,
+            ReturnNodeTy,
             ExprNodeTy,
               AbstractAssignNodeTy,
                 AssignNodeTy,
@@ -109,23 +112,22 @@ namespace AST {
         kind_ = TypeNodeTy;
         type_ = ty;
       }
+
       virtual ~TypeNode() {}
-
-      AST::Type* GetType() { 
-        return type_;
-      }
-
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == TypeNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
+
+      void SetType(Type* ty) { type_ = ty; }
+      AST::Type* GetType() { return type_; }
   };
 
   class ParamNode : public BaseNode {
     protected:
       bool var_arg_; // variable args
-      Type* type_;
+      TypeNode* type_;
       std::string name_;
     public:
       ParamNode() {
@@ -133,7 +135,7 @@ namespace AST {
         var_arg_ = false;
         type_ = nullptr;
       }
-      ParamNode(AST::Type* ty, const char* name, bool var_arg) {
+      ParamNode(TypeNode* ty, const char* name, bool var_arg) {
         kind_ = ParamNodeTy;
         var_arg_ = var_arg;
         type_ = ty;
@@ -147,14 +149,35 @@ namespace AST {
       }
 
       void SetVarArgs(bool var_arg) { var_arg_ = var_arg; }
-      void SetType(Type* ty) { type_ = ty;  }
+      void SetType(TypeNode* ty) { type_ = ty;  }
       void SetName(const char* name) { name_ = name; }
 
       bool GetVarArgs() { return var_arg_; }
-      Type* GetType() { return type_; }
+      TypeNode* GetType() { return type_; }
       const char* GetName() { return name_.c_str(); }
   };
 
+  class ImportNode : public BaseNode {
+    protected:
+      SimpleVector<std::string> import_paths_;
+      char* complete_path_;
+
+    public:
+      ImportNode() {
+        kind_ = ImportNodeTy;
+        complete_path_ = nullptr;
+      }
+      virtual ~ImportNode() {}
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ImportNodeTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void AddImportPath(const char* path) { import_paths_.PushBack(path); }
+      const char* GetImportPath();
+      void Reverse() { import_paths_->Reverse(); }
+  };
 
   class StmtNode : public BaseNode {
     protected:
@@ -188,12 +211,20 @@ namespace AST {
 
   class BlockNode : public StmtNode {
     protected:
-      Variables vars_;
-      Stmts     stmts_;
+      VariableDecls vars_;
+      StmtNodes     stmts_;
 
     public:
       BlockNode() {
         kind_ = BlockNodeTy;
+      }
+
+      BlockNode(VariableDecls* vars, StmtNodes* stmts) {
+        kind_ = BlockNodeTy;
+        if (vars)
+          vars_ = *vars;
+        if (stmts)
+          stmts_ = *stmts;
       }
 
       virtual ~BlockNode();
@@ -204,7 +235,9 @@ namespace AST {
         return false;
       }
 
+      void SetVariables(VariableDecls* vars) { if (vars) vars_ = *vars; }
       void AddVariable(VariableDecl* var) { vars_.PushBack(var); }
+      void SetStmts(StmtNodes* stmts) { if (stmts) stmts_ = *stmts; }
       void AddStmt(StmtNode* stmt) { stmts_.PushBack(stmt); }
 
       VariableDecl* GetVariable(int index);
@@ -212,10 +245,6 @@ namespace AST {
 
       int GetVarSize() { return vars_.GetSize(); }
       int GetStmtSize() { return stmts_.GetSize(); }
-
-      void ReverseVariableOrder() { vars_.Reverse(); }
-      void ReverseStmtOrder() { stmts_.Reverse(); }
-
   };
 
   class LabelNode : public StmtNode {
@@ -461,7 +490,7 @@ namespace AST {
 
   class CaseNode : public StmtNode {
     protected:
-      Exprs values_;
+      ExprNodes values_;
       StmtNode* body_;
 
     public:
@@ -470,7 +499,7 @@ namespace AST {
         body_ = nullptr;
       }
 
-      CaseNode(Exprs* values, StmtNode* body) {
+      CaseNode(ExprNodes* values, StmtNode* body) {
         kind_ = CaseNodeTy;
         if (values) 
           values_ = *values;
@@ -505,7 +534,7 @@ namespace AST {
   class SwitchNode : public StmtNode {
     protected:
       ExprNode* cond_; // case condition
-      CaseValues case_values_;
+      CaseNodes case_values_;
 
     public:
       SwitchNode() {
@@ -513,7 +542,7 @@ namespace AST {
         cond_ = nullptr;
       }
 
-      SwitchNode(ExprNode* cond, CaseValues* case_values) {
+      SwitchNode(ExprNode* cond, CaseNodes* case_values) {
         kind_ = SwitchNodeTy;
         cond_ = cond;
         if(case_values)
@@ -537,11 +566,92 @@ namespace AST {
       }
 
       void SetCaseCond(ExprNode* cond) { cond_ = cond; }
-      void SetCases(CaseValues* case_values) { if(case_values) case_values_ = *case_values; }
+      void SetCases(CaseNodes* case_values) { if(case_values) case_values_ = *case_values; }
 
       ExprNode* GetCond() { return cond_; }
       int GetCaseNum() { return case_values_.GetSize(); }
       CaseNode* GetCase(int index) { return case_values_[index]; }
+  };
+
+  class BreakNode : public StmtNode {
+    protected:
+    public:
+      BreakNode() {
+        kind_ = BreakNodeTy;
+      }
+      virtual ~BreakNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == BreakNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class ContinueNode : public StmtNode {
+    protected:
+    public:
+      ContinueNode() {
+        kind_ = ContinueNodeTy;
+      }
+      virtual ~ContinueNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ContinueNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
+  class GotoNode : public StmtNode {
+    protected:
+      std::string target_;
+    public:
+      GotoNode() {
+        kind_ = GotoNodeTy;
+      }
+      GotoNode(const char* target) {
+        kind_ = GotoNodeTy;
+        target_ = target;
+      }
+      virtual ~GotoNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == GotoNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetTarget(const char* target) { target_ = target; }
+      const char* GetTarget() { return target_.c_str(); }
+  };
+
+  class ReturnNode : public StmtNode {
+    protected:
+      ExprNode* expr_;
+    public:
+      ReturnNode() {
+        kind_ = ReturnNodeTy;
+        expr_ = nullptr;
+      }
+      ReturnNode(ExprNode* expr) {
+        kind_ = ReturnNodeTy;
+        expr_ = expr;
+      }
+      virtual ~ReturnNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ReturnNodeTy || kind == StmtNodeTy || 
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetExpr(ExprNode* expr) { expr_ = expr; }
+      ExprNode* GetExpr() { return expr_; }
   };
 
   class AbstractAssignNode : public ExprNode {
@@ -885,7 +995,6 @@ namespace AST {
   };
 
   class ArrayRefNode : public LHSNode {
-    // TODO : need to add base type
     ExprNode* expr_; // array varibale expr
     ExprNode* array_size_expr_;
     int array_size_;
@@ -1206,30 +1315,43 @@ namespace AST {
       }
   };
 
-
-
-
   class TypeDefinition : public BaseNode {
     protected:
-    public:
+      std::string type_name_;
+      TypeNode* type_;
+
       TypeDefinition() {
         kind_ = TypeDefinitionTy;
+        type_ = nullptr;
       }
-      virtual ~TypeDefinition() {}
+    public:
+      virtual ~TypeDefinition() {
+        if (type_)
+          delete type_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == TypeDefinitionTy || kind == BaseNodeTy)
           return true;
         return false;
       }
+
+      void SetTypeName(const char* type_name) { type_name_ = type_name; }
+      void SetType(TypeNode* ty) { type_ = ty; }
+
+      const char* GetTypeName() { return type_name_.c_str(); }
+      TypeNode* GetType() { return type_; }
   };
 
   class CompositeTypeDefinition : public TypeDefinition {
     protected:
-    public:
+      VariableDecls member_variables_;
+      FunctionDecls member_functions_;
+
       CompositeTypeDefinition() {
         kind_ = CompositeTypeDefinitionTy;
       }
+    public:
       virtual ~CompositeTypeDefinition() {}
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1240,17 +1362,41 @@ namespace AST {
       }
   };
 
+  class TypedefNode : public TypeDefinition {
+    protected:
+    public:
+      TypedefNode() {
+        kind_ = TypedefNodeTy;
+        type_ = nullptr;
+      }
+
+      TypedefNode(TypeNode* ori_ty, const char* new_type_name) {
+        kind_ = TypedefNodeTy;
+        type_ = ori_ty;
+        type_name_ = new_type_name;
+      }
+
+      virtual ~TypedefNode() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == TypedefNodeTy || kind == TypeDefinitionTy ||
+            kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+  };
+
   class FunctionDecl : public BaseNode {
     protected:
       bool is_static_; // storage
-      Type* ret_ty_; // return type
+      TypeNode* ret_ty_; // return type
       std::string name_; // function name
-      Params params_; // parameters
+      ParamNodes params_; // parameters
       BlockNode* body_; // body
 
     public:
       FunctionDecl();
-      FunctionDecl(bool storage, Type* retty, const char* fnname, Params* params, BlockNode* body); 
+      FunctionDecl(bool storage, TypeNode* retty, const char* fnname, ParamNodes* params, BlockNode* body); 
       virtual ~FunctionDecl();
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1260,13 +1406,13 @@ namespace AST {
       }
 
       void SetStorage(bool st) { is_static_ = st; }
-      void SetReturnType(Type* ty) { ret_ty_ = ty; }
+      void SetReturnType(TypeNode* ty) { ret_ty_ = ty; }
       void SetName(const char* fnname) { name_ = fnname; }
-      void SetParams(Params* params);
+      void SetParams(ParamNodes* params);
       void SetBody(BlockNode* bd) { body_ = bd; }
 
       bool IsStatic() { return is_static_; }
-      Type* GetReturnType() { return ret_ty_; }
+      TypeNode* GetReturnType() { return ret_ty_; }
       const char* GetName() { return name_.c_str(); }
       ParamNode* GetParamNode(unsigned int index);
       BlockNode* GetBody() { return body_; }
@@ -1276,7 +1422,7 @@ namespace AST {
   
   class VariableDecl : public BaseNode {
     bool is_static_;
-    Type* type_;
+    TypeNode* type_;
     std::string name_;
     ExprNode* initializer_;
 
@@ -1287,8 +1433,14 @@ namespace AST {
         type_ = nullptr;
         initializer_ = nullptr;
       }
-      VariableDecl(Type* type, const char* name, ExprNode* init);
-      virtual ~VariableDecl() {}
+      VariableDecl(TypeNode* type, const char* name, ExprNode* init);
+
+      virtual ~VariableDecl() {
+        if (type_)
+          delete type_;
+        if (initializer_)
+          delete initializer_;
+      }
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == VariableDeclTy || kind == BaseNodeTy)
           return true;
@@ -1296,14 +1448,19 @@ namespace AST {
       }
 
       void SetStorage(bool st) {is_static_ = st;}
-      void SetType(Type* type) { type_ = type; }
+      void SetType(TypeNode* type) { type_ = type; }
       void SetName(const char* name) { name_ = name; }
       void SetName(const char* name, int len);
       void SetInit(ExprNode* init) { initializer_ = init; }
+
+      bool IsStatic()  { return is_static_; }
+      bool GetType() { return type_; }
+      const char* GetName() { return name_.c_str(); }
+      ExprNode* GetInit() { return initializer_; }
   };
 
   class ConstantDecl : public BaseNode {
-    Type* type_;
+    TypeNode* type_;
     std::string name_;
     ExprNode* initializer_;
 
@@ -1313,7 +1470,7 @@ namespace AST {
         type_ = nullptr;
         initializer_ = nullptr;
       }
-      ConstantDecl(Type* type, const char* name, ExprNode* init);
+      ConstantDecl(TypeNode* type, const char* name, ExprNode* init);
       virtual ~ConstantDecl() {}
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1322,21 +1479,24 @@ namespace AST {
         return false;
       }
 
-      void SetType(Type* type) { type_ = type; }
+      void SetType(TypeNode* type) { type_ = type; }
       void SetName(const char* name) { name_ = name; }
       void SetName(const char* name, int len);
       void SetInit(ExprNode* init) { initializer_ = init; }
+
+      TypeNode* GetType() { return type_; }
+      const char* GetName() { return name_.c_str(); }
+      ExprNode* GetInit() { return initializer_; }
   };
 
   class ClassNode : public CompositeTypeDefinition {
-    protected:
-      Variables member_variables_;
-      Functions member_functions_;
     public:
       ClassNode() {
         kind_ = ClassNodeTy;
       }
-      ClassNode(Variables* mem_var, Functions* mem_func);
+      ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
+          FunctionDecls* mem_func);
+
       virtual ~ClassNode();
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1361,9 +1521,9 @@ namespace AST {
 
   class Declarations {
     private:
-      Functions funcs_;
-      Constants conss_;
-      Variables vars_;
+      FunctionDecls funcs_;
+      ConstantDecls conss_;
+      VariableDecls vars_;
 
     public:
       Declarations() {}

@@ -109,8 +109,8 @@ namespace Parser {
       continue_stmt,
       goto_stmt,
       return_stmt,
-        seq_return_semicolon, // <RETURN> ";"
-        seq_return_expr_semicolon, // <RETURN> expr ";"
+        seq_return, // <RETURN> ";"
+        seq_return_expr, // <RETURN> expr ";"
     expr,
       seq_assign_value, // term "=" expr  
       seq_opassign_value, // term opassign_op expr 
@@ -206,27 +206,31 @@ namespace Parser {
       ASTNode,
       ASTType,
       TokenType,
-      TypeList,
+      TypeNodeList,
       StorageInfo,
       VarDeclList,
-      ParamList,
-      ExprList,
-      CaseValues
+      ParamNodeList,
+      ExprNodeList,
+      CaseNodeList,
+      StmtNodeList,
+      Types,
     };
 
     union RawData {
-      bool              boolean_;   // Storageinfo
-      char              character_; // Character
-      const char*       cstr_;      // String, Identifier
-      long              integer_;   // Integer
-      AST::BaseNode*    node_;      // ASTNode
-      AST::Type*        type_;      // ASTType
-      Lexer::TokenType  tok_type_;  // TokenType
-      AST::Types*       types_;     // TypeList
-      AST::Variables*   vardecls_;  // VarDeclList
-      AST::Params*      params_;    // ParamList
-      AST::Exprs*       exprs_;     // ExprList
-      AST::CaseValues*  case_values_;     // CaseValues
+      bool                  boolean_;   // Storageinfo
+      char                  character_; // Character
+      const char*           cstr_;      // String, Identifier
+      long                  integer_;   // Integer
+      AST::BaseNode*        node_;      // ASTNode
+      AST::Type*            type_;      // ASTType
+      Lexer::TokenType      tok_type_;  // TokenType
+      AST::TypeNodes*       type_nodes_;// TypeNodeList
+      AST::VariableDecls*   vardecls_;  // VarDeclList
+      AST::ParamNodes*      param_nodes_;// ParamNodeList
+      AST::ExprNodes*       expr_nodes_;// ExprNodeList
+      AST::CaseNodes*       case_nodes_;// CaseNodeList
+      AST::StmtNodes*       stmt_nodes_;// StmtNodeList
+      AST::Types*           types_;     // Types
     };
 
     RawDataType type_;
@@ -275,6 +279,7 @@ namespace Parser {
       
       eResult ImportStmts(void); // import_stmts
         eResult ImportStmt(void); // import_stmt
+          eResult Act_rep_dot_name(void);//rep_dot_name
 
       eResult TopDefs(void); // top_defs : Top definitions 
       eResult DefFunc(void); // deffunc : function definition
@@ -284,42 +289,42 @@ namespace Parser {
 
       eResult Name(void); // name : check if identifier
       eResult Storage(void); // storage : check if storage keyword
-      
-      eResult Type(void); // type
-      eResult TypeRef(void); // typeref
-        eResult Act_seq_unassigned_array(void); // unassigned array type
-        eResult Act_seq_assigned_array(void); // assigned array type
-        eResult Act_seq_ptr(void); // pointer type
-        eResult Act_seq_func(void); // function type
 
+      eResult Type(void); // type
+
+      eResult TypeDef(void); // typedef_
+
+      eResult TypeRef(void); // typeref
+        eResult Act_seq_unassigned_array(void); // seq_unassigned_array
+        eResult Act_seq_assigned_array(void); // seq_assigned_array
+        eResult Act_seq_ptr(void); // seq_ptr
+        eResult Act_seq_func(void); // seq_func
 
       eResult TypeRefBase(void); // typeref_base
-        eResult Act_seq_void(void); 
-        eResult Act_seq_char(void);
-        eResult Act_seq_short(void);
-        eResult Act_seq_int(void);
-        eResult Act_seq_long(void);
-        eResult Act_seq_unsigned_char(void);
-        eResult Act_seq_unsigned_short(void);
-        eResult Act_seq_unsigned_int(void);
-        eResult Act_seq_unsigned_long(void);
-        eResult Act_seq_float(void);
-        eResult Act_seq_double(void);
-        eResult Act_seq_class_identifier(void);
-
-      eResult TypeDef(void); // typedef
+        eResult Act_seq_void(void); // seq_void
+        eResult Act_seq_char(void); // seq_char
+        eResult Act_seq_short(void); // seq_short
+        eResult Act_seq_int(void); // seq_int
+        eResult Act_seq_long(void); // seq_long
+        eResult Act_seq_unsigned_char(void); // seq_unsigned_char
+        eResult Act_seq_unsigned_short(void); // seq_unsigned_short
+        eResult Act_seq_unsigned_int(void); // seq_unsigned_int
+        eResult Act_seq_unsigned_long(void); // seq_unsigned_long
+        eResult Act_seq_float(void); // seq_float
+        eResult Act_seq_double(void); // seq_double
+        eResult Act_seq_class_identifier(void); // seq_class_identifier
       
       eResult ParamTypeRefs(void); // param_typerefs
-        eResult Act_seq_param_type_void(void); // <VOID> 
-        eResult Act_seq_param_type_list(void); // param_type ("," type)* ["," "..."]
-          eResult Act_rep_param_comma_type(void); // ("," type)*
-          eResult Act_opt_vararg_type(void); // ["," "..."] 
+        eResult Act_seq_param_type_void(void); // seq_param_type_void
+        eResult Act_seq_param_type_list(void); // seq_param_type_list
+          eResult Act_rep_param_comma_type(void); // rep_param_comma_type
+          eResult Act_opt_vararg_type(void); // opt_vararg_type
 
       eResult Params(void); // params
-        eResult Act_seq_param_void(void);// fixedparams ["," "..."] 
-        eResult Act_opt_vararg(void); // ["," "..."]
+        eResult Act_seq_param_void(void);// seq_param_void
+        eResult Act_opt_vararg(void); // opt_vararg
       eResult FixedParams(void); // fixedparams
-        eResult Act_rep_comma_param(void); // ("," param)* 
+        eResult Act_rep_comma_param(void); // rep_comma_param
       eResult Param(void); // param
 
       eResult Block(void); // block
@@ -329,76 +334,76 @@ namespace Parser {
         eResult Act_seq_class_member_function(void);// deffunc
 
       eResult Term(void); // term
-        eResult Act_seq_type_term(void);//"(" type ")" term  // typecasting
+        eResult Act_seq_type_term(void);// seq_type_term
       eResult Unary(void); // unary
-        eResult Act_seq_preinc_unary(void);// "++" unary
-        eResult Act_seq_predec_unary(void);// "--" unary
-        eResult Act_seq_pos_term(void);// "+" term 
-        eResult Act_seq_neg_term(void);// "-" term
-        eResult Act_seq_not_term(void);// "!" term 
-        eResult Act_seq_bitnot_term(void);// "~" term 
-        eResult Act_seq_ptr_term(void);// "*" term
-        eResult Act_seq_adr_term(void);// "&" term 
-        eResult Act_seq_sizeof_type(void);// <SIZEOF> "(" type ")"
-        eResult Act_seq_sizeof_unary(void);// <SIZEOF> unary
+        eResult Act_seq_preinc_unary(void);// seq_preinc_unary
+        eResult Act_seq_predec_unary(void);// seq_predec_unary
+        eResult Act_seq_pos_term(void);// seq_pos_term
+        eResult Act_seq_neg_term(void);// seq_neg_term
+        eResult Act_seq_not_term(void);// seq_not_term
+        eResult Act_seq_bitnot_term(void);// seq_bitnot_term
+        eResult Act_seq_ptr_term(void);// seq_ptr_term
+        eResult Act_seq_adr_term(void);// seq_adr_term
+        eResult Act_seq_sizeof_type(void);// seq_sizeof_type
+        eResult Act_seq_sizeof_unary(void);// seq_sizeof_unary
       eResult Postfix(void); // postfix
-        eResult Act_seq_post_inc(void);
-        eResult Act_seq_post_dec(void);
-        eResult Act_seq_array_reference(void);
-        eResult Act_seq_dot_name(void);
-        eResult Act_seq_arrow_name(void);
-        eResult Act_seq_fncall(void);
+        eResult Act_seq_post_inc(void); // seq_post_inc
+        eResult Act_seq_post_dec(void); // seq_post_dec
+        eResult Act_seq_array_reference(void); // seq_array_reference
+        eResult Act_seq_dot_name(void); // seq_dot_name
+        eResult Act_seq_arrow_name(void); // seq_arrow_name
+        eResult Act_seq_fncall(void); // seq_fncall
       eResult Args(void); // args
-        eResult Act_seq_args_expr(void);
-        eResult Act_rep_args_expr(void);
+        eResult Act_seq_args_expr(void); // seq_args_expr
+        eResult Act_rep_args_expr(void); // rep_args_expr
       eResult Primary(void); // primary
-        eResult Act_seq_po_expr_pc(void);
+        eResult Act_seq_po_expr_pc(void); // seq_po_expr_pc
 
       eResult Expr(void); // expr
-        eResult Act_seq_assign_value(void);
-        eResult Act_seq_opassign_value(void);
+        eResult Act_seq_assign_value(void); // seq_assign_value
+        eResult Act_seq_opassign_value(void); // seq_opassign_value
 
       eResult OpAssignOp(void); // opassign_op
       
       eResult Expr10(void); // expr10
-        eResult Act_opt_ternaryop(void); // ["?" expr ":" expr10]
+        eResult Act_opt_ternaryop(void); // opt_ternaryop
 
       eResult Expr9(void); // expr9
-        eResult Act_rep_or_expr8(void);//("||" expr8)* 
+        eResult Act_rep_or_expr8(void);// rep_or_expr8
 
       eResult Expr8(void); // expr8
-        eResult Act_rep_and_expr7(void);// ("&&" expr7)* 
+        eResult Act_rep_and_expr7(void);// rep_and_expr7
 
       eResult Expr7(void); // expr7
-        eResult Act_seq_gr_expr6(void); // ">" expr6  
-        eResult Act_seq_ls_expr6(void); // "<" expr6 
-        eResult Act_seq_geq_expr6(void);// ">=" expr6 
-        eResult Act_seq_leq_expr6(void);// "<=" expr6 
-        eResult Act_seq_eq_expr6(void); // "==" expr6 
-        eResult Act_seq_neq_expr6(void);// "!=" expr6 
+        eResult Act_seq_gr_expr6(void); // seq_gr_expr6
+        eResult Act_seq_ls_expr6(void); // seq_ls_expr6
+        eResult Act_seq_geq_expr6(void);// seq_geq_expr6
+        eResult Act_seq_leq_expr6(void);// seq_leq_expr6
+        eResult Act_seq_eq_expr6(void); // seq_eq_expr6
+        eResult Act_seq_neq_expr6(void);// seq_neq_expr6
       eResult Expr6(void); // expr6
-        eResult Act_rep_bitor_expr5(void);// ("|" expr5)* 
+        eResult Act_rep_bitor_expr5(void);// rep_bitor_expr5
       eResult Expr5(void); // expr5
-        eResult Act_rep_bitxor_expr4(void);
+        eResult Act_rep_bitxor_expr4(void); // rep_bitxor_expr4
       eResult Expr4(void); // expr4
-        eResult Act_rep_bitand_expr3(void);
+        eResult Act_rep_bitand_expr3(void); // rep_bitand_expr3
       eResult Expr3(void); // expr3
-        eResult Act_seq_rshft_expr2(void);
-        eResult Act_seq_lshft_expr2(void);
+        eResult Act_seq_rshft_expr2(void); // seq_rshft_expr2
+        eResult Act_seq_lshft_expr2(void); // seq_lshft_expr2
       eResult Expr2(void); // expr2
-        eResult Act_seq_sum_expr1(void);
-        eResult Act_seq_sub_expr1(void);
+        eResult Act_seq_sum_expr1(void); // seq_sum_expr1
+        eResult Act_seq_sub_expr1(void); // seq_sub_expr1
       eResult Expr1(void); // expr1
-        eResult Act_seq_mul_term(void);
-        eResult Act_seq_div_term(void);
-        eResult Act_seq_mod_term(void);
+        eResult Act_seq_mul_term(void); // seq_mul_term
+        eResult Act_seq_div_term(void); // seq_div_term
+        eResult Act_seq_mod_term(void); // seq_mod_term
 
       eResult Stmts(void); // stmts
       eResult Stmt(void); // stmt
       eResult LabeledStmt(void); // labeled_stmt
       eResult ExprStmt(void); // epxr_stmt 
       eResult IfStmt(void); // if_stmt
-        eResult Act_opt_else_stmt(void); // [<ELSE> stmt]
+        eResult Act_opt_else_stmt(void); // opt_else_stmt
       eResult WhileStmt(void); // while_stmt
       eResult DoWhileStmt(void); // dowhile_stmt 
       eResult ForStmt(void); // for_stmt 
@@ -406,15 +411,17 @@ namespace Parser {
         eResult Act_opt_for_cond_expr(void); // opt_for_cond_expr
         eResult Act_opt_for_inc_expr(void); // opt_for_inc_expr
       eResult SwitchStmt(void); // switch_stmt 
-        eResult CaseClauses(void);//(case_clause)* [default_clause]
-          eResult DefaultClause(void); // <DEFAULT> ":" case_body
-          eResult CaseClause(void); // case_list case_body
-            eResult CaseList(void); // (<CASE> primary ":")+
+        eResult CaseClauses(void);// case_clauses
+          eResult DefaultClause(void); // default_clause
+          eResult CaseClause(void); // case_clause
+            eResult CaseList(void); // case_list
             eResult CaseBody(void); // case_body
       eResult BreakStmt(void); // break_stmt 
       eResult ContinueStmt(void); // continue_stmt 
       eResult GotoStmt(void); // goto_stmt 
       eResult ReturnStmt(void); // return_stmt 
+        eResult Act_seq_return(void); // seq_return
+        eResult Act_seq_return_expr(void); // seq_return_expr
 
       // Token Actions
       eResult ActTokIntegerLiteral(void);
@@ -426,11 +433,13 @@ namespace Parser {
       void PushType(AST::Type* type, RuleName rname = RuleName::nil);
       void PushToken(int pos_offset = 0, RuleName rname = RuleName::nil); // Push Token to ParseInfo stack.
       void PushNode(AST::BaseNode* node, RuleName rname = RuleName::nil);
-      void PushTypeList(AST::Types* ty_list, RuleName rname = RuleName::nil);
-      void PushVarDecls(AST::Variables* var_list, RuleName rname = RuleName::nil);
-      void PushParams(AST::Params* param_list, RuleName rname = RuleName::nil);
-      void PushExprs(AST::Exprs* expr_list, RuleName rname = RuleName::nil);
-      void PushCases(AST::CaseValues* case_values, RuleName rname = RuleName::nil);
+      void PushTypeNodes(AST::TypeNodes* type_nodes, RuleName rname = RuleName::nil);
+      void PushVarDecls(AST::VariableDecls* var_decls, RuleName rname = RuleName::nil);
+      void PushParamNodes(AST::ParamNodes* param_nodes, RuleName rname = RuleName::nil);
+      void PushExprNodes(AST::ExprNodes* expr_nodes, RuleName rname = RuleName::nil);
+      void PushCaseNodes(AST::CaseNodes* case_nodes, RuleName rname = RuleName::nil);
+      void PushStmtNodes(AST::StmtNodes* stmt_nodes, RuleName rname = RuleName::nil);
+      void PushTypes(AST::Types* types, RuleName rname = RuleName::nil);
 
       void SetRuleNameForPI(RuleName rname);
       void DebugPrint();
