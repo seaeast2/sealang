@@ -176,7 +176,7 @@ namespace AST {
 
       void AddImportPath(const char* path) { import_paths_.PushBack(path); }
       const char* GetImportPath();
-      void Reverse() { import_paths_->Reverse(); }
+      void Reverse() { import_paths_.Reverse(); }
   };
 
   class StmtNode : public BaseNode {
