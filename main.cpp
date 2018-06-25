@@ -12,15 +12,13 @@ int main(int argc, char** argv) {
 
   ErrorDiag::ParserDiag* parser_err = new ErrorDiag::ParserDiag();
   AST::ASTContext* ac = new AST::ASTContext();
-  Parser::SyntaxAction* sa = new Parser::SyntaxAction(ac, tk, parser_err);
-  Parser::SyntaxAnalyzer s(sa, tk, parser_err);
+  Parser::SyntaxAnalyzer s(ac, tk, parser_err);
 
   //s.CompilationUnit();
   //s.DebugPrint();
 
   delete parser_err;
   delete ac;
-  delete sa;
   delete tk;
   return 0;
 }

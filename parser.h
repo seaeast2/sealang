@@ -256,7 +256,7 @@ namespace Parser {
   //           Error - Syntax error
   class SyntaxAnalyzer {
     Tokenizer* tokenizer_;
-    SyntaxAction* action_;
+    AST::ASTContext* ac_;
     ErrorDiag::Diagnosis* err_diag_;
 
     Rule rules_[MAX_RULES];
@@ -266,7 +266,7 @@ namespace Parser {
     fnRuleAction rule_actions_[MAX_RULES];
     
     public:
-      SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
+      SyntaxAnalyzer(AST::ASTContext* ac, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAnalyzer();
 
       void InitBasicRule();

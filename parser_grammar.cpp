@@ -74,7 +74,7 @@ namespace Parser {
     //     | defvars 
     //     | defconst 
     //     | defclass 
-    //     | typedef )* 
+    //     | typedef_ )* 
     rules_[top_defs] = {RepeatStar, {sel_fun_var_const_class_typedef}};
       rules_[sel_fun_var_const_class_typedef] = {Select, {deffunc, defvars, defconst, defclass, typedef_ }};
 

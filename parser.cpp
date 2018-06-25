@@ -316,10 +316,9 @@ namespace Parser {
     return True;
   }
 
-  SyntaxAnalyzer::SyntaxAnalyzer(SyntaxAction* sa, Tokenizer* tk, 
-      ErrorDiag::Diagnosis* ed) {
+  SyntaxAnalyzer::SyntaxAnalyzer(AST::ASTContext* ac, Tokenizer* tk, ErrorDiag::Diagnosis* ed) {
     tokenizer_ = tk;
-    action_ = sa;
+    ac_ = ac;
     err_diag_ = ed;
   }
 
@@ -328,6 +327,7 @@ namespace Parser {
 
 
   eResult SyntaxAnalyzer::CompilationUnit(void) {
+    ParseInfo pi_import, pi_defs;
     return True;
   }
 
@@ -457,7 +457,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     AST::Type* basety = pi.data_.type_;
-    AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety);
+    AST::ArrayType* arrty = AST::ArrayType::Get(ac_, basety);
     PushType((AST::Type*)arrty, RuleName::seq_unassigned_array);
   }
 
@@ -487,7 +487,7 @@ namespace Parser {
     if (array_size < 0)
         return Error; // invalid array size
 
-    AST::ArrayType* arrty = AST::ArrayType::Get(action_->GetContext(), basety, array_size);
+    AST::ArrayType* arrty = AST::ArrayType::Get(ac_, basety, array_size);
     PushType((AST::Type*)arrty, RuleName::seq_assigned_array);
     return True;
   }
@@ -508,7 +508,7 @@ namespace Parser {
 
     AST::Type* basety = pi_basety.data_.type_;
 
-    AST::PointerType* ptrty = AST::PointerType::Get(action_->GetContext(), basety);
+    AST::PointerType* ptrty = AST::PointerType::Get(ac_, basety);
     PushType((AST::Type*)ptrty, RuleName::seq_ptr);
     return True;
   }
@@ -539,7 +539,7 @@ namespace Parser {
     AST::Type* retty = pi_retty.data_.type_; // get return type
 
     // create function type
-    AST::FunctionType* fnty = AST::FunctionType::Get(action_->GetContext(), retty, *params);
+    AST::FunctionType* fnty = AST::FunctionType::Get(ac_, retty, *params);
     PushType((AST::Type*)fnty, RuleName::seq_func);
     
     delete params; // delete parameter type list container.
@@ -556,65 +556,65 @@ namespace Parser {
   }
   // create primitive types
   eResult SyntaxAnalyzer::Act_seq_void(void) {
-    AST::Type* ty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
+    AST::Type* ty = (AST::Type*)AST::VoidType::Get(ac_);
     PushType(ty, RuleName::seq_void);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_char(void){
-    AST::Type* ty = (AST::Type*)AST::CharType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::CharType::Get(ac_, 
         AST::IntegerType::Signed);
     PushType(ty, RuleName::seq_char);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_short(void){
-    AST::Type* ty = (AST::Type*)AST::ShortType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::ShortType::Get(ac_, 
         AST::IntegerType::Signed);
     PushType(ty, RuleName::seq_short);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_int(void){
-    AST::Type* ty = (AST::Type*)AST::IntType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::IntType::Get(ac_, 
         AST::IntegerType::Signed);
     PushType(ty, RuleName::seq_int);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_long(void){
-    AST::Type* ty = (AST::Type*)AST::LongType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::LongType::Get(ac_, 
         AST::IntegerType::Signed);
     PushType(ty, RuleName::seq_long);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_char(void){
-    AST::Type* ty = (AST::Type*)AST::CharType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::CharType::Get(ac_, 
         AST::IntegerType::Unsigned);
     PushType(ty, RuleName::seq_unsigned_char);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_short(void){
-    AST::Type* ty = (AST::Type*)AST::ShortType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::ShortType::Get(ac_, 
         AST::IntegerType::Unsigned);
     PushType(ty, RuleName::seq_unsigned_short);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_int(void){
-    AST::Type* ty = (AST::Type*)AST::IntType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::IntType::Get(ac_, 
         AST::IntegerType::Unsigned);
     PushType(ty, RuleName::seq_unsigned_int);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_unsigned_long(void){
-    AST::Type* ty = (AST::Type*)AST::LongType::Get(action_->GetContext(), 
+    AST::Type* ty = (AST::Type*)AST::LongType::Get(ac_, 
         AST::IntegerType::Unsigned);
     PushType(ty, RuleName::seq_unsigned_long);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_float(void){
-    AST::Type* ty = (AST::Type*)AST::FloatType::Get(action_->GetContext());
+    AST::Type* ty = (AST::Type*)AST::FloatType::Get(ac_);
     PushType(ty, RuleName::seq_float);
     return True;
   }
   eResult SyntaxAnalyzer::Act_seq_double(void){
-    AST::Type* ty = (AST::Type*)AST::DoubleType::Get(action_->GetContext());
+    AST::Type* ty = (AST::Type*)AST::DoubleType::Get(ac_);
     PushType(ty, RuleName::seq_double);
     return True;
   }
@@ -626,7 +626,7 @@ namespace Parser {
       char iden[256];
       memset(iden, 0, sizeof(iden));
       strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
-      AST::ClassType* cty = AST::ClassType::Get(action_->GetContext(), iden);
+      AST::ClassType* cty = AST::ClassType::Get(ac_, iden);
       if (cty) {
         PushType(cty, RuleName::seq_class_identifier);
         return True;
@@ -679,7 +679,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Act_seq_param_type_void(void) {
     // create void type
-    AST::Type* voidty = (AST::Type*)AST::VoidType::Get(action_->GetContext());
+    AST::Type* voidty = (AST::Type*)AST::VoidType::Get(ac_);
     // Create type node list
     AST::Types* param_types = new AST::Types();
 
@@ -740,7 +740,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     AST::Types* param_types = pi.data_.types_;
-    AST::Type* ty = (AST::Type*)AST::VarArgType::Get(action_->GetContext());
+    AST::Type* ty = (AST::Type*)AST::VarArgType::Get(ac_);
     param_types->PushBack(ty);
     
     PushTypes(param_types, RuleName::opt_vararg_type);
@@ -878,7 +878,7 @@ namespace Parser {
     strncpy(classname, pi_class_name.data_.cstr_, pi_class_name.cstr_len_);
     class_node->SetTypeName(classname);
     // Set class type
-    AST::ClassType* clsty = AST::ClassType::Get(action_->GetContext(), classname);
+    AST::ClassType* clsty = AST::ClassType::Get(ac_, classname);
     AST::TypeNode* class_ty_node = new AST::TypeNode(clsty);
     class_node->SetType(class_ty_node);
     delete[] classname;
@@ -958,7 +958,7 @@ namespace Parser {
   eResult SyntaxAnalyzer::Act_seq_param_void(void) {
     AST::ParamNodes* params = new AST::ParamNodes();
 
-    AST::VoidType* voidty = AST::VoidType::Get(action_->GetContext());
+    AST::VoidType* voidty = AST::VoidType::Get(ac_);
     AST::TypeNode* void_ty_node = new AST::TypeNode(voidty);
 
     AST::ParamNode* param_void= new AST::ParamNode(void_ty_node, "", false);
