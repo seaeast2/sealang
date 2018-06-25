@@ -2,10 +2,9 @@
 #include "parser.h"
 #include "astcontext.h"
 #include "error_diagnosis.h"
-#include "parser_actions.h"
 
 int main(int argc, char** argv) {
-  // TODO : read source file
+  // TODO : driver needed
   char* src = nullptr;
   Lexer::Tokenizer* tk = new Lexer::Tokenizer(src);
   tk->CompileTokens();

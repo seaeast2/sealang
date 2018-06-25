@@ -30,7 +30,7 @@ LIBS =
 
 
 # define the C source files
-SRCS = ast_node.cpp ast_type.cpp astcontext.cpp error_diagnosis.cpp lexer.cpp parser.cpp parser_actions.cpp parser_grammar.cpp main.cpp vm.cpp
+SRCS = ast_node.cpp ast_type.cpp astcontext.cpp error_diagnosis.cpp lexer.cpp parser.cpp parser_grammar.cpp main.cpp vm.cpp
 
 # define the C object files 
 #

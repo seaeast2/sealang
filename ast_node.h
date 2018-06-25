@@ -40,48 +40,51 @@ namespace AST {
           TypeNodeTy,
           ParamNodeTy,
           ImportNodeTy,
+          ArgsNodeTy, // function call arguments
+
           StmtNodeTy,
-            BlockNodeTy,
-            LabelNodeTy,
-            ExprStmtNodeTy,
-            IfNodeTy,
-            WhileNodeTy,
-            DoWhileNodeTy,
-            ForNodeTy,
-            CaseNodeTy,
-            SwitchNodeTy,
-            BreakNodeTy,
-            ContinueNodeTy,
-            GotoNodeTy,
-            ReturnNodeTy,
+            BlockNodeTy,// visitor
+            LabelNodeTy,// visitor
+            ExprStmtNodeTy,// visitor
+            IfNodeTy,// visitor
+            WhileNodeTy,// visitor
+            DoWhileNodeTy,// visitor
+            ForNodeTy,// visitor
+            CaseNodeTy,// visitor
+            SwitchNodeTy,// visitor
+            BreakNodeTy,// visitor
+            ContinueNodeTy,// visitor
+            GotoNodeTy,// visitor
+            ReturnNodeTy,// visitor
+
           ExprNodeTy,
             AbstractAssignNodeTy,
-              AssignNodeTy,
-              OpAssignNodeTy,
-            AddressNodeTy,
-            BinaryOpNodeTy,
-              LogicalAndNodeTy,
-              LogicalOrNodeTy,
-            CastNodeTy,
-            CondExprNodeTy,
-            FuncCallNodeTy,
+              AssignNodeTy,// visitor
+              OpAssignNodeTy,// visitor
+            AddressNodeTy, // visitor          
+            BinaryOpNodeTy,// visitor
+              LogicalAndNodeTy,// visitor
+              LogicalOrNodeTy,// visitor
+            CastNodeTy,// visitor
+            CondExprNodeTy,// visitor
+            FuncCallNodeTy,// visitor
             LHSNodeTy,
-              ArrayRefNodeTy,
-              DereferenceNodeTy,
-              MemberRefNodeTy,
-              PtrMemberRefNodeTy,
-              VariableNodeTy,
+              ArrayRefNodeTy,// visitor
+              DereferenceNodeTy,// visitor
+              MemberRefNodeTy,// visitor
+              PtrMemberRefNodeTy,// visitor
+              VariableNodeTy,// visitor
             LiteralNodeTy,
-              IntegerLiteralNodeTy,
+              IntegerLiteralNodeTy,// visitor
               RealLiteralNodeTy,
-              StringLiteralNodeTy,
-            SizeofExprNodeTy,
-            SizeofTypeNodeTy,
-            UnaryOpNodeTy,
+              StringLiteralNodeTy,// visitor
+            SizeofExprNodeTy,// visitor
+            SizeofTypeNodeTy,// visitor
+            UnaryOpNodeTy,// visitor
               UnaryArithmeticOpNodeTy,
-                PrefixOpNodeTy,
-                SuffixOpNodeTy,
-            ArgsNodeTy, // function call arguments
+                PrefixOpNodeTy,// visitor
+                SuffixOpNodeTy,// visitor
+
           TypeDefinitionTy,
             CompositeTypeDefinitionTy,
               ClassNodeTy,
@@ -917,7 +920,7 @@ namespace AST {
       ExprNode* GetElse() { return else_expr_; }
   };
 
-  class ArgsNode : public ExprNode {
+  class ArgsNode : public BaseNode {
     enum {MAX_ARGS = 30};
 
     ExprNode* args_[MAX_ARGS];
@@ -929,8 +932,7 @@ namespace AST {
       }
       virtual ~ArgsNode() {}
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == ArgsNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+        if (kind == ArgsNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
