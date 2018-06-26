@@ -42,6 +42,7 @@ namespace AST {
           ImportNodeTy,
           ArgsNodeTy, // function call arguments
 
+          // Statements
           StmtNodeTy,
             BlockNodeTy,// visitor
             LabelNodeTy,// visitor
@@ -57,6 +58,7 @@ namespace AST {
             GotoNodeTy,// visitor
             ReturnNodeTy,// visitor
 
+          // Expressions
           ExprNodeTy,
             AbstractAssignNodeTy,
               AssignNodeTy,// visitor
@@ -76,7 +78,7 @@ namespace AST {
               VariableNodeTy,// visitor
             LiteralNodeTy,
               IntegerLiteralNodeTy,// visitor
-              RealLiteralNodeTy,
+              RealLiteralNodeTy, // visitor
               StringLiteralNodeTy,// visitor
             SizeofExprNodeTy,// visitor
             SizeofTypeNodeTy,// visitor
@@ -85,6 +87,7 @@ namespace AST {
                 PrefixOpNodeTy,// visitor
                 SuffixOpNodeTy,// visitor
 
+          // User defined types
           TypeDefinitionTy,
             CompositeTypeDefinitionTy,
               ClassNodeTy,
