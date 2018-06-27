@@ -172,4 +172,9 @@ namespace AST {
   }
 };
 
+// Declarations =============================================
+Declarations::Declarations() {
+}
 
+Declarations::~Declarations() {
+}

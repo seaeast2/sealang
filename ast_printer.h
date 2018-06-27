@@ -1,22 +1,19 @@
 #ifndef _ast_printer_h_
 #define _ast_printer_h_
 
-#include "ast_visitor.h"
+#include "visitor.h"
+#include "ast_node.h"
 
 namespace AST {
 
   // Print AST
-  class ASTPrinter : VisitorBase<void> {
+  class ASTPrinter : public Visitor<void> {
     public:
       ASTPrinter();
       virtual ~ASTPrinter();
-  };
 
-
-  class Test : VisitorBase<int> {
-    public:
-      Test() {}
-      virtual ~Test() {}
+      void Print(Declarations* decls);
+      void Print(BaseNode* ast);
   };
 }
 

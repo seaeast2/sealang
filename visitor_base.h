@@ -1,5 +1,5 @@
-#ifndef _ast_visitor_h_
-#define _ast_visitor_h_
+#ifndef _visitor_base_h_
+#define _visitor_base_h_
 
 namespace AST {
 
@@ -38,8 +38,17 @@ namespace AST {
   class UnaryOpNode;
   class PrefixOpNode;
   class SuffixOpNode;
+  class FunctionDecl;
+  class VariableDecl;
+  class ConstantDecl;
+  class TypeNode;
+  class ParamNode;
+  class ImportNode;
+  class ArgsNode;
+  class ClassNode;
+  class TypedefNode;
 
-  template<class E> 
+  template <class E> 
   class VisitorBase {
     public:
       VisitorBase() {}
@@ -83,6 +92,18 @@ namespace AST {
       virtual E visit(UnaryOpNode* node)      {return E();}
       virtual E visit(PrefixOpNode* node)     {return E();}
       virtual E visit(SuffixOpNode* node)     {return E();}
+
+      // Etc
+      virtual E visit(FunctionDecl* node)     {return E();}
+      virtual E visit(VariableDecl* node)     {return E();}
+      virtual E visit(ConstantDecl* node)     {return E();}
+      virtual E visit(TypeNode* node)         {return E();}
+      virtual E visit(ParamNode* node)        {return E();}
+      virtual E visit(ImportNode* node)       {return E();}
+      virtual E visit(ArgsNode* node)         {return E();}
+      virtual E visit(ClassNode* node)        {return E();}
+      virtual E visit(TypedefNode* node)      {return E();}
+
   };
 
 }

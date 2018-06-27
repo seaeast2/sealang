@@ -3,7 +3,7 @@
 
 #include <cstring>
 #include "ast_type.h"
-#include "ast_visitor.h"
+#include "visitor_base.h"
 
 
 namespace AST {
@@ -22,14 +22,16 @@ namespace AST {
   class CaseNode;
   class TypeNode;
 
-  typedef SimpleVector<TypeNode*> TypeNodes;
+  typedef SimpleVector<TypeNode*>     TypeNodes;
   typedef SimpleVector<FunctionDecl*> FunctionDecls;
   typedef SimpleVector<ConstantDecl*> ConstantDecls;
   typedef SimpleVector<VariableDecl*> VariableDecls;
-  typedef SimpleVector<ParamNode*> ParamNodes;
-  typedef SimpleVector<StmtNode*> StmtNodes;
-  typedef SimpleVector<ExprNode*> ExprNodes;
-  typedef SimpleVector<CaseNode*> CaseNodes;
+  typedef SimpleVector<ParamNode*>    ParamNodes;
+  typedef SimpleVector<StmtNode*>     StmtNodes;
+  typedef SimpleVector<ExprNode*>     ExprNodes;
+  typedef SimpleVector<CaseNode*>     CaseNodes;
+  typedef SimpleVector<ClassNode*>    ClassNodes;
+  typedef SimpleVector<TypedefNode*>  TypedefNodes;
 
   class BaseNode {
     public:
@@ -124,10 +126,12 @@ namespace AST {
         return false;
       }
 
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
+
       void SetType(Type* ty) { type_ = ty; }
       AST::Type* GetType() { return type_; }
-
-      template <class U> U accept(VisitorBase<U>* vb);
   };
 
   class ParamNode : public BaseNode {
@@ -152,6 +156,9 @@ namespace AST {
         if (kind == ParamNodeTy || kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void SetVarArgs(bool var_arg) { var_arg_ = var_arg; }
@@ -178,6 +185,9 @@ namespace AST {
         if (kind == ImportNodeTy || kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void AddImportPath(const char* path) { import_paths_.PushBack(path); }
@@ -240,6 +250,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetVariables(VariableDecls* vars) { if (vars) vars_ = *vars; }
       void AddVariable(VariableDecl* var) { vars_.PushBack(var); }
@@ -279,6 +292,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
 
@@ -356,6 +372,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetCond(ExprNode* cond) { cond_ = cond; }
       void SetThenBody(StmtNode* thenbody) { then_body_ = thenbody; }
@@ -396,6 +415,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetCond(ExprNode* cond) { cond_ = cond; }
       void SetBody(StmtNode* body) { body_ = body; }
@@ -433,6 +455,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void SetCond(ExprNode* cond) { cond_ = cond; }
@@ -482,6 +507,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetInit(ExprNode* init) { init_ = init; }
       void SetCond(ExprNode* cond) { cond_ = cond; }
@@ -527,6 +555,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void AddCase(ExprNode* value) { if(value) values_.PushBack(value);}
       void SetBody(StmtNode* body) { body_ = body; }
@@ -570,6 +601,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetCaseCond(ExprNode* cond) { cond_ = cond; }
       void SetCases(CaseNodes* case_values) { if(case_values) case_values_ = *case_values; }
@@ -593,6 +627,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class ContinueNode : public StmtNode {
@@ -608,6 +645,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -629,6 +669,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void SetTarget(const char* target) { target_ = target; }
@@ -655,6 +698,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetExpr(ExprNode* expr) { expr_ = expr; }
       ExprNode* GetExpr() { return expr_; }
@@ -675,6 +721,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void SetLHS(ExprNode* lhs) { lhs_ = lhs; }
@@ -701,6 +750,9 @@ namespace AST {
             kind == ExprNodeTy || kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -739,6 +791,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetOp(AssignOp op) { op_ = op; }
   };
@@ -761,6 +816,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -807,6 +865,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetOp(BinOp op) { bin_op_ = op; }
       void SetLeft(ExprNode* left) { left_ = left; }
@@ -840,6 +901,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class LogicalOrNode : public BinaryOpNode {
@@ -862,6 +926,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -889,6 +956,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   // therary operation.
@@ -913,6 +983,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void SetCond(ExprNode* cond_expr) { cond_expr_ = cond_expr; }
@@ -939,6 +1012,9 @@ namespace AST {
         if (kind == ArgsNodeTy || kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       int Add(ExprNode* arg) {
@@ -981,6 +1057,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class LHSNode : public ExprNode {
@@ -1022,6 +1101,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class DereferenceNode : public LHSNode {
@@ -1042,6 +1124,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -1066,6 +1151,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class PtrMemberRefNode : public LHSNode {
@@ -1088,6 +1176,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -1113,6 +1204,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class SizeofExprNode : public ExprNode {
@@ -1133,6 +1227,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class SizeofTypeNode : public ExprNode {
@@ -1152,6 +1249,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -1188,6 +1288,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -1227,6 +1330,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class SuffixOpNode : public UnaryArithmeticOpNode{
@@ -1248,6 +1354,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -1293,6 +1402,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class RealLiteralNode : public LiteralNode {
@@ -1313,6 +1425,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void SetValue(double v) { value_ = v; }
@@ -1340,6 +1455,9 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
   };
 
@@ -1412,6 +1530,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
   };
 
   class FunctionDecl : public BaseNode {
@@ -1431,6 +1552,9 @@ namespace AST {
         if (kind == FunctionDeclTy || kind == BaseNodeTy)
           return true;
         return false;
+      }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
       }
 
       void SetStorage(bool st) { is_static_ = st; }
@@ -1474,6 +1598,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetStorage(bool st) {is_static_ = st;}
       void SetType(TypeNode* type) { type_ = type; }
@@ -1506,6 +1633,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void SetType(TypeNode* type) { type_ = type; }
       void SetName(const char* name) { name_ = name; }
@@ -1533,6 +1663,9 @@ namespace AST {
           return true;
         return false;
       }
+      template <class U> U accept(VisitorBase<U>* visitor) {
+        visitor->visit(this);
+      }
 
       void AddMemVariable(VariableDecl* var) { member_variables_.PushBack(var); }
       void AddMemFunction(FunctionDecl* fun) { member_functions_.PushBack(fun); }
@@ -1552,10 +1685,12 @@ namespace AST {
       FunctionDecls funcs_;
       ConstantDecls conss_;
       VariableDecls vars_;
+      ClassNodes    classes_;
+      TypedefNodes  typedefs_;
 
     public:
-      Declarations() {}
-      ~Declarations() {}
+      Declarations();
+      ~Declarations();
   };
 
 
