@@ -327,7 +327,28 @@ namespace Parser {
 
 
   eResult SyntaxAnalyzer::CompilationUnit(void) {
-    ParseInfo pi_import, pi_defs;
+    ParseInfo pi;
+    Declarations* decl = new Declarations();
+
+    // import : node
+    // function : node
+    // variable : variable vector
+    // constant : node
+    // class : node
+    // typedef : node
+
+    while(!parse_stack_.IsEmpty()) {
+      pi = parse_stack_.Top();
+      if (pi.rule_name_ == RuleName::import_stmts &&
+          pi.type_ == ParseInfo::ASTNode) {
+        decl->AddImport((AST::ImportNode*)pi.data_.node_);
+      }
+      else if (pi.
+
+      parse_stack_.Pop();
+    }
+    
+
     return True;
   }
 
@@ -395,6 +416,15 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::TopDefs(void) {
+    ParseInfo pi = parse_stack_.Top();
+
+    if (pi.rule_name_ != RuleName::deffunc ||
+        pi.rule_name_ != RuleName::defvars ||
+        pi.rule_name_ != RuleName::defconst ||
+        pi.rule_name_ != RuleName::defclass ||
+        pi.rule_name_ != RuleName::typedef_)
+      return Error;
+
     return True;
   }
 

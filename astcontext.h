@@ -11,7 +11,7 @@ namespace AST {
   // AST context manager
   class ASTContext {
     protected:
-      VecStr imports_;
+      Declarations* imported_decls_;
       Declarations* decls_;
 
       // type environment
@@ -22,20 +22,17 @@ namespace AST {
     public:
       ASTContext();
       ~ASTContext();
-
-      void AddImport(const std::string &import);
-      VecStr::iterator import_begin();
-      VecStr::iterator import_end();
       
-      Declarations* GetDecl() { return decls_; }
+      void SetLocalDecl(Declarations* decl) { decls_ = decl; }
+      void SetImportedDecl(Declarations* decl) { imported_decls_ = decl; }
+
+      Declarations* GetLocalDecl() { return decls_; }
+      Declarations* GetImportedDecl() { return imported_decls_; }
 
       // Type environment control
       Type* FindType(const char* type_name);
       bool AddType(const char* key, Type* ty);
       Type* RemoveType(const char* key);
-
-      // Debug functions
-      void PrintImports();
   };
 
 };

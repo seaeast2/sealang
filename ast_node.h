@@ -1687,10 +1687,32 @@ namespace AST {
       VariableDecls vars_;
       ClassNodes    classes_;
       TypedefNodes  typedefs_;
+      ImportNodes   imports_;
 
     public:
       Declarations();
       ~Declarations();
+
+      void AddFunction(FunctionDecl* node) { funcs_.PushBack(node); }
+      void AddConstant(ConstantDecl* node) { conss_.PushBack(node); }
+      void AddVarialble(VariableDecl* node) { vars_.PushBack(node); }
+      void AddClass(ClassNode* node) { classes_.PushBack(node); }
+      void AddTypedef(TypedefNode* node) { typedefs_.PushBack(node); }
+      void AddImport(ImportNode* node) { imports_.PushBack(node); }
+
+      int GetFunctionSize() { return funcs_.GetSize(); }
+      int GetConstantSize() { return conss_.GetSize(); }
+      int GetVariableSize() { return vars_.GetSize(); }
+      int GetClassSize() { return classes_.GetSize(); }
+      int GetTypedefSize() { return typedefs_.GetSize(); }
+      int GetImportSize() { return imports_.GetSize(); }
+
+      FunctionDecl* GetFunction(int index) { return funcs_[index];}
+      ConstantDecl* GetConstant(int index) { return conss_[index];}
+      VariableDecl* GetVariable(int index) { return vars_[index]; }
+      ClassNode* GetClass(int index) { return classes_[index]; }
+      TypedefNode* GetTypedef(int index) { return typedefs_[index]; }
+      ImportNode* GetImport(int index) { return imports_[index]; }
   };
 
 

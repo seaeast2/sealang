@@ -5,23 +5,15 @@ using namespace std;
 
 namespace AST {
   ASTContext::ASTContext() {
-    decls_ = new Declarations();
+    imported_decls_ = nullptr;
+    decls_ = nullptr;
   }
 
   ASTContext::~ASTContext() {
-    delete decls_;
-  }
-
-  void ASTContext::AddImport(const std::string &import) {
-    imports_.push_back(import);
-  }
-
-  VecStr::iterator ASTContext::import_begin() {
-    return imports_.begin();
-  }
-
-  VecStr::iterator ASTContext::import_end() {
-    return imports_.end();
+    if (imported_decls_)
+      delete imported_decls_;
+    if (decls_)
+      delete decls_;
   }
 
   Type* ASTContext::FindType(const char* type_name) {
@@ -38,10 +30,4 @@ namespace AST {
     return ty;
   }
 
-  void ASTContext::PrintImports() {
-    VecStr::iterator  i = import_begin(), e = import_end();
-    for (;i != e; i++) {
-      cout << *i << endl;
-    }
-  }
 };

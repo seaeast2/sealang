@@ -170,11 +170,42 @@ namespace AST {
       return nullptr;
     return member_functions_[index]; 
   }
+  
+  // Declarations =============================================
+  Declarations::Declarations() {
+  }
+
+  Declarations::~Declarations() {
+    if (!funcs_.IsEmpty()) {
+      for (int i = 0; i < funcs_.GetSize(); i++) {
+        FunctionDecl* fd = funcs_[i];
+        delete fd;
+      }
+    }
+    if (!conss_.IsEmpty()) {
+      for (int i = 0; i < conss_.GetSize(); i++) {
+        ConstantDecl* cd = conss_[i];
+        delete cd;
+      }
+    }
+    if (!vars_.IsEmpty()) {
+      for (int i = 0; i < vars_.GetSize(); i++) {
+        VariableDecl* vd = vars_[i];
+        delete vd;
+      }
+    }
+    if (!classes_.IsEmpty()) {
+      for (int i = 0; i < classes_.GetSize(); i++) {
+        ClassNode* cn = classes_[i];
+        delete cn;
+      }
+    }
+    if (!typedefs_.IsEmpty()) {
+      for (int i = 0; i < typedefs_.GetSize(); i++) {
+        TypedefNode* tn = typedefs_[i];
+        delete tn;
+      }
+    }
+  }
 };
 
-// Declarations =============================================
-Declarations::Declarations() {
-}
-
-Declarations::~Declarations() {
-}
