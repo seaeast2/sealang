@@ -5,9 +5,6 @@
 using namespace std;
 
 namespace AST {
-  void BaseNode::print() {
-  }
-
   const char* ImportNode::GetImportPath() {
     string tmp = ".";
     for (int i = 0; i < import_paths_.GetSize(); i++) {

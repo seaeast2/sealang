@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include "ast_type.h"
+#include "ast_visitor.h"
 
 
 namespace AST {
@@ -103,8 +104,6 @@ namespace AST {
 
       NodeKind GetNodeKind() { return kind_; }
       virtual bool IsKindOf(NodeKind kind) = 0;
-
-      virtual void print();
   };
 
   class TypeNode : public BaseNode {
@@ -127,6 +126,8 @@ namespace AST {
 
       void SetType(Type* ty) { type_ = ty; }
       AST::Type* GetType() { return type_; }
+
+      template <class U> U accept(VisitorBase<U>* vb);
   };
 
   class ParamNode : public BaseNode {

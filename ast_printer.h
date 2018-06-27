@@ -4,13 +4,19 @@
 #include "ast_visitor.h"
 
 namespace AST {
+
   // Print AST
-  class ASTPrinter : VisitorBase<void, void> {
+  class ASTPrinter : VisitorBase<void> {
     public:
       ASTPrinter();
       virtual ~ASTPrinter();
+  };
 
 
+  class Test : VisitorBase<int> {
+    public:
+      Test() {}
+      virtual ~Test() {}
   };
 }
 

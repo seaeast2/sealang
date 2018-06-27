@@ -47,7 +47,7 @@ class SimpleVector {
     }
 
     void Reverse() {
-      T* temp; 
+      T* temp = nullptr; 
       int half = count_/2, back = count_ -1;
 
       for (int i = 0; i < half; i++) {
