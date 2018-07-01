@@ -2,6 +2,7 @@
 #include <string>
 #include "ast_printer.h"
 
+using namespace std;
 using namespace AST;
 
 

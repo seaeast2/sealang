@@ -320,6 +320,9 @@ namespace Parser {
     tokenizer_ = tk;
     ac_ = ac;
     err_diag_ = ed;
+
+    InitBasicRule();
+    InitRuleAction();
   }
 
   SyntaxAnalyzer::~SyntaxAnalyzer() {
@@ -328,26 +331,45 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::CompilationUnit(void) {
     ParseInfo pi;
-    Declarations* decl = new Declarations();
+    AST::Declarations* decl = new AST::Declarations();
 
+    // one of these
     // import : node
     // function : node
     // variable : variable vector
     // constant : node
     // class : node
     // typedef : node
-
     while(!parse_stack_.IsEmpty()) {
       pi = parse_stack_.Top();
-      if (pi.rule_name_ == RuleName::import_stmts &&
-          pi.type_ == ParseInfo::ASTNode) {
-        decl->AddImport((AST::ImportNode*)pi.data_.node_);
+      if (pi.type_ == ParseInfo::ASTNode) {
+        if (pi.rule_name_ == RuleName::import_stmts)
+          decl->AddImport((AST::ImportNode*)pi.data_.node_);
+        if (pi.rule_name_ == RuleName::deffunc)
+          decl->AddFunction((AST::FunctionDecl*)pi.data_.node_);
+        if (pi.rule_name_ == RuleName::defconst)
+          decl->AddConstant((AST::ConstantDecl*)pi.data_.node_);
+        if (pi.rule_name_ == RuleName::defclass)
+          decl->AddClass((AST::ClassNode*)pi.data_.node_);
+        if (pi.rule_name_ == RuleName::typedef_)
+          decl->AddTypedef((AST::TypedefNode*)pi.data_.node_);
       }
-      else if (pi.
+      else if (pi.type_ == ParseInfo::VarDeclList) {
+        if (pi.rule_name_ == RuleName::defvars) {
+          AST::VariableDecls *vars = pi.data_.vardecls_;
+          for (int i = 0; i < vars->GetSize(); i++) {
+            decl->AddVariable((*vars)[i]);
+          }
+          delete vars;
+        }
+      }
+      else
+        return Error;
 
       parse_stack_.Pop();
     }
-    
+
+    ac_->SetLocalDecl(decl);
 
     return True;
   }

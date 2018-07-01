@@ -51,7 +51,7 @@ MAIN = main
 # deleting dependencies appended to the file from 'make depend'
 #
 
-.PHONY: depend clean
+.PHONY: depend clean test
 
 all:    $(MAIN)
 	@echo  Simple compiler named mycc has been compiled

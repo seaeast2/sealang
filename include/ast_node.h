@@ -32,6 +32,7 @@ namespace AST {
   typedef SimpleVector<CaseNode*>     CaseNodes;
   typedef SimpleVector<ClassNode*>    ClassNodes;
   typedef SimpleVector<TypedefNode*>  TypedefNodes;
+  typedef SimpleVector<ImportNode*>   ImportNodes;
 
   class BaseNode {
     public:
@@ -1695,7 +1696,7 @@ namespace AST {
 
       void AddFunction(FunctionDecl* node) { funcs_.PushBack(node); }
       void AddConstant(ConstantDecl* node) { conss_.PushBack(node); }
-      void AddVarialble(VariableDecl* node) { vars_.PushBack(node); }
+      void AddVariable(VariableDecl* node) { vars_.PushBack(node); }
       void AddClass(ClassNode* node) { classes_.PushBack(node); }
       void AddTypedef(TypedefNode* node) { typedefs_.PushBack(node); }
       void AddImport(ImportNode* node) { imports_.PushBack(node); }

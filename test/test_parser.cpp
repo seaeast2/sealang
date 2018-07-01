@@ -11,11 +11,17 @@ void test() {\n\
 int main() {
   Tokenizer* tk = new Tokenizer(src);
   tk->CompileTokens();
-  //Parser::SyntaxAnalyzer s(tk);
 
-  //s.CompilationUnit();
-  //s.DebugPrint();
+  ErrorDiag::ParserDiag* parser_err = new ErrorDiag::ParserDiag();
+  AST::ASTContext* ac = new AST::ASTContext();
+  Parser::SyntaxAnalyzer* s = new Parser::SyntaxAnalyzer(ac, tk, parser_err);
+  s->TraverseRule();
+  
 
+  delete s;
+  delete parser_err;
+  delete ac;
   delete tk;
+
   return 0;
 }
