@@ -5,15 +5,20 @@
 # 'make clean'  removes all .o and executable files
 #
 
+# define project root
+PROJECT:=$(CURDIR)
+
 # define the C compiler to use
-CC = g++ 
+CC = gcc
+# define the C++ compiler to use
+CXX = g++
 
 # define any compile-time flags
 CFLAGS = -Wall -g -std=c++11 -Wno-write-strings -D ENABLE_DEBUG
 
 # define any directories containing header files other than /usr/include
 #INCLUDES = -I/home/newhall/include  -I../include
-INCLUDES = 
+INCLUDES = -I $(PROJECT)/include
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -51,20 +56,28 @@ MAIN = main
 # deleting dependencies appended to the file from 'make depend'
 #
 
+VPATH=src include
+
 .PHONY: depend clean test
 
 all:    $(MAIN)
 	@echo  Simple compiler named mycc has been compiled
 
 $(MAIN): $(OBJS) 
-	$(CC) $(LFLAGS) -o $(MAIN) $(OBJS) $(LIBS)
+	$(CXX) $(LFLAGS) -o $(MAIN) $(OBJS) $(LIBS) # Link
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 # (see the gnu make manual section about automatic variables)
 %.o : %.cpp
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $<  -o $@ # Compile
+
+%.o : %.cc
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $<  -o $@ # Compile
+
+%.o : %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@ # Compile
 
 clean:
 	$(RM) *.o *~ $(MAIN)
