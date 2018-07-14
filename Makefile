@@ -6,19 +6,22 @@
 #
 
 # define project root
-PROJECT:=$(CURDIR)
+PROJECT_ROOT := $(CURDIR)
+SOURCE_DIR := $(PROJECT)/src
+INCLUDE_DIR := $(PROJECT)/include
+
 
 # define the C compiler to use
-CC = gcc
+CC := gcc
 # define the C++ compiler to use
-CXX = g++
+CXX := g++
 
 # define any compile-time flags
-CFLAGS = -Wall -g -std=c++11 -Wno-write-strings -D ENABLE_DEBUG
+CFLAGS := -Wall -g -std=c++11 -Wno-write-strings -D ENABLE_DEBUG
 
 # define any directories containing header files other than /usr/include
 #INCLUDES = -I/home/newhall/include  -I../include
-INCLUDES = -I $(PROJECT)/include
+INCLUDES := -I $(PROJECT)/include
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -35,7 +38,7 @@ LIBS =
 
 
 # define the C source files
-SRCS = ast_node.cpp ast_type.cpp ast_printer.cpp astcontext.cpp error_diagnosis.cpp lexer.cpp parser.cpp parser_grammar.cpp main.cpp vm.cpp
+SRCS := ast_node.cpp ast_type.cpp ast_printer.cpp astcontext.cpp error_diagnosis.cpp lexer.cpp parser.cpp parser_grammar.cpp main.cpp vm.cpp
 
 # define the C object files 
 #
@@ -48,7 +51,7 @@ SRCS = ast_node.cpp ast_type.cpp ast_printer.cpp astcontext.cpp error_diagnosis.
 OBJS = $(SRCS:.cpp=.o)
 
 # define the executable file 
-MAIN = main 
+MAIN := main 
 
 #
 # The following part of the makefile is generic; it can be used to 
@@ -64,20 +67,20 @@ all:    $(MAIN)
 	@echo  Simple compiler named mycc has been compiled
 
 $(MAIN): $(OBJS) 
-	$(CXX) $(LFLAGS) -o $(MAIN) $(OBJS) $(LIBS) # Link
+	$(CXX) $(LFLAGS) -o $(MAIN) $(OBJS) $(LIBS)
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 # (see the gnu make manual section about automatic variables)
 %.o : %.cpp
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $<  -o $@ # Compile
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 %.o : %.cc
-	$(CXX) $(CFLAGS) $(INCLUDES) -c $<  -o $@ # Compile
+	$(CXX) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 %.o : %.c
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@ # Compile
+	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 clean:
 	$(RM) *.o *~ $(MAIN)
