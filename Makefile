@@ -21,7 +21,7 @@ CFLAGS := -Wall -g -std=c++11 -Wno-write-strings -D ENABLE_DEBUG
 
 # define any directories containing header files other than /usr/include
 #INCLUDES = -I/home/newhall/include  -I../include
-INCLUDES := -I $(PROJECT)/include
+INCLUDES := -I $(INCLUDE_DIR)
 
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
@@ -59,11 +59,11 @@ MAIN := main
 # deleting dependencies appended to the file from 'make depend'
 #
 
-VPATH=src include
+VPATH= $(SOURCE_DIR) $(INCLUDE_DIR)
 
 .PHONY: depend clean test
 
-all:    $(MAIN)
+all: $(MAIN)
 	@echo  Simple compiler named mycc has been compiled
 
 $(MAIN): $(OBJS) 
