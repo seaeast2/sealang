@@ -3,6 +3,17 @@
 # Collect information from each module in these four variables.
 # Initialize them here as simple variables.
 
+# $(call source-to-object, source-file-list)
+source-to-object = $(subst .c,.o,$(filter %.c,$1)) \
+
+# $(call make-library, library-name, source-file-list)
+define make-library
+	libraries += $1
+	sources 	+= $2
+	$1: $(call source-to-object, $2)
+		$(AR) $(ARFLAGS) $$@ $$^
+endif
+
 programs 			:=
 sources  			:=
 libraries			:=
@@ -52,6 +63,7 @@ endif
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M $< | \
 		$(SED) 's,\($(notdir $*)\.o\) *:,$(dir $@)\1 $@: ,' > $@.tmp
 	$(MV) $@.tmp $@
+
 
 
 
