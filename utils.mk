@@ -1,4 +1,0 @@
-# Nonrecusive Makefile sample
-
-
-
