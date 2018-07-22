@@ -41,7 +41,7 @@ generated_source = 	$(subst .y,.c,$(filter %.y,$1)) \
 # Collect information from each module in these four variables.
 # Initialize them here as simple variables.
 modules				:= src test
-programs 			:= bbb
+programs 			:= 
 libraries			:=
 sources  			:=
 
