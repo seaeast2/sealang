@@ -1,15 +1,14 @@
 # Build small compiler 
 
-# SOURCE_DIR := src
-BINARY_DIR := out
+BINARY_OUT := out
 
 # Utility functions =========================================================
 
-# $(call source_dir_to_binary_dir, directory_list)
-source_dir_to_binary_dir = $(addprefix $(BINARY_DIR)/, $1)
+# $(call source_dir_to_binary_out, directory_list)
+source_dir_to_binary_out= $(addprefix $(BINARY_OUT)/, $1)
 
 # $(call source_to_object, source_file_list)
-source_to_object = 	$(call source_dir_to_binary_dir, \
+source_to_object = 	$(call source_dir_to_binary_out, \
 											$(subst .c,.o,$(filter %.c,$1)) \
 											$(subst .cpp,.o,$(filter %.cpp,$1)))
 
@@ -21,10 +20,10 @@ subdirectory = $(patsubst %/module.mk,%, \
 
 # $(call make_library, library_name, source_file_list)
 define make_library
-	libraries += $(BINARY_DIR)/$1
+	libraries += $(BINARY_OUT)/$1
 	sources 	+= $2
 
-$(BINARY_DIR)/$1: $(call source_dir_to_binary_dir, \
+$(BINARY_OUT)/$1: $(call source_dir_to_binary_out, \
 										$(subst .c,.o,$(filter %.c,$1)) \
 										$(subst .cpp,.o,$(filter %.cpp,$1)))
 	$(AR) $(ARFLAGS) $$@ $$^
@@ -41,14 +40,15 @@ generated_source = 	$(subst .y,.c,$(filter %.y,$1)) \
 # Collect information from each module in these four variables.
 # Initialize them here as simple variables.
 modules				:= src test
-programs 			:= 
+programs 			:= $(BINARY_OUT)/bbb
+test_programs :=
 libraries			:=
 sources  			:=
 
 objects 			= $(call source_to_object, $(sources))
 dependencies 	= $(subst .o,.d,$(objects))
 
-include_dirs 	:= include
+include_dirs 	:= $(CURDIR)/include
 CPPFLAGS			+= $(addprefix -I ,$(include_dirs))
 vpath	%.h $(include_dirs)
 
@@ -82,7 +82,7 @@ SED := sed
 TEST := test
 
 create_output_directories := \
-	$(shell for f in $(call source_dir_to_binary_dir,$(modules)); \
+	$(shell for f in $(call source_dir_to_binary_out,$(modules)); \
 			do \
 				$(TEST) -d $$f || $(MKDIR) $$f; \
 			done)
@@ -101,27 +101,20 @@ libraries: $(libraries)
 
 .PHONY: clean
 clean:
-	$(RM) -r $(BINARY_DIR)
+	$(RM) -r $(BINARY_OUT)
 
 .PHONY: test
-test:
-	# $(libraries)
-	# $(LDFLAGS)
-	# $(CURDIR)
+test: $(programs) $(test_programs)
+	@echo run test
 
 
 #ifneq "$(MAKECMDGOALS)" "clean"
 #include $(dependencies)
 #endif
-
-
-$(programs) : $(objects)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(libraries)
-
-%.o : $(filter %.cpp, $(sources))
+	
+$(BINARY_OUT)/%.o : %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<  -o $@
 
-%.o : $(filter %.c, $(sources))
+$(BINARY_OUT)/%.o : %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<  -o $@
-
 
