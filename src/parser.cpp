@@ -5,6 +5,18 @@
 using namespace Lexer;
 
 namespace Parser {
+  SyntaxAnalyzer::SyntaxAnalyzer(AST::ASTContext* ac, Tokenizer* tk, ErrorDiag::Diagnosis* ed) {
+    tokenizer_ = tk;
+    ac_ = ac;
+    err_diag_ = ed;
+
+    InitBasicRule();
+    InitRuleAction();
+  }
+
+  SyntaxAnalyzer::~SyntaxAnalyzer() {
+  }
+
   eResult SyntaxAnalyzer::TraverseRule(int entry) {
     Rule rule = rules_[entry];
     eResult res;
@@ -316,18 +328,9 @@ namespace Parser {
     return True;
   }
 
-  SyntaxAnalyzer::SyntaxAnalyzer(AST::ASTContext* ac, Tokenizer* tk, ErrorDiag::Diagnosis* ed) {
-    tokenizer_ = tk;
-    ac_ = ac;
-    err_diag_ = ed;
-
-    InitBasicRule();
-    InitRuleAction();
+  eResult SyntaxAnalyzer::StartParse() {
+    return TraverseRule(RuleName::compilation_unit);
   }
-
-  SyntaxAnalyzer::~SyntaxAnalyzer() {
-  }
-
 
   eResult SyntaxAnalyzer::CompilationUnit(void) {
     ParseInfo pi;

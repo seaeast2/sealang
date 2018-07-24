@@ -16,6 +16,8 @@ int main() {
   AST::ASTContext* ac = new AST::ASTContext();
   Parser::SyntaxAnalyzer* s = new Parser::SyntaxAnalyzer(ac, tk, parser_err);
 
+  s->StartParse();
+
   delete s;
   delete parser_err;
   delete ac;
