@@ -7,7 +7,7 @@
 local_dir :=
 local_lib :=
 local_src := $(wildcard $(subdirectory)/*.c) $(wildcard $(subdirectory)/*.cpp)
-local_objs := $(patsubst %.c,%.o,$(local_src)) $(patsubst %.cpp,%.o,$(local_src))
+local_objs := $(call source_to_object,$(local_src))
 
 libraries += $(local_lib)
 sources += $(local_src)
@@ -16,5 +16,6 @@ $(local_lib): $(local_objs)
 	$(AR) $(ARFLAGS) $@ $^
 
 # build executable
-$(programs) : $(call source_to_object,$(local_src))
-	$(CXX) $(LDFLAGS) -o $@ $^ $(libraries)
+program_main_obj := $(filter %/$(notdir $(programs)).o,$(local_objs))
+programs_objs := $(subst $(program_main_obj),,$(local_objs))
+

@@ -13,7 +13,8 @@ int main() {
 
   Token tok;
   while (true) {
-    tok = tk.GetToken();
+    tok = tk.GetCurToken(0);
+    tk.ConsumeToken();
     PrintToken(tok);
     if(tok.type == TokEof)
       break;

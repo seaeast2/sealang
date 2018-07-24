@@ -7,7 +7,7 @@
 local_dir := 
 local_lib := 
 local_src := $(wildcard $(subdirectory)/*.c) $(wildcard $(subdirectory)/*.cpp)
-local_objs := $(patsubst %.c,%.o,$(local_src)) $(subst %.cpp,%.o,$(local_src))
+local_objs := $(call source_to_object,$(local_src))
 
 libraries += $(local_lib)
 sources += $(local_src)
@@ -19,6 +19,4 @@ $(local_lib): $(local_objs)
 test_objs := $(call source_to_object,$(local_src)) 
 test_programs := $(patsubst %.o,%,$(test_objs))
 
-$(test_programs) : $(test_objs)
-	$(CXX) $(LDFLAGS) -o $@ $^ $(libraries)
 

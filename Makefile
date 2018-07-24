@@ -1,6 +1,7 @@
 # Build small compiler 
 
 BINARY_OUT := out
+TEST_OUT := $(BINARY_OUT)/test
 
 # Utility functions =========================================================
 
@@ -40,7 +41,7 @@ generated_source = 	$(subst .y,.c,$(filter %.y,$1)) \
 # Collect information from each module in these four variables.
 # Initialize them here as simple variables.
 modules				:= src test
-programs 			:= $(BINARY_OUT)/bbb
+programs 			:= $(BINARY_OUT)/main
 test_programs :=
 libraries			:=
 sources  			:=
@@ -107,10 +108,15 @@ clean:
 test: $(programs) $(test_programs)
 	@echo run test
 
+$(TEST_OUT)/% : $(TEST_OUT)/%.o $(programs_objs)
+	$(CXX) $(LDFLAGS) -o $@ $^ $(libraries)
 
 #ifneq "$(MAKECMDGOALS)" "clean"
 #include $(dependencies)
 #endif
+
+$(programs) : $(program_main_obj) $(programs_objs)
+	$(CXX) $(LDFLAGS) -o $@ $^ $(libraries)
 	
 $(BINARY_OUT)/%.o : %.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<  -o $@
