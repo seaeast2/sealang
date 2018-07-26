@@ -328,7 +328,7 @@ namespace Parser {
     return True;
   }
 
-  eResult SyntaxAnalyzer::StartParse() {
+  eResult SyntaxAnalyzer::StartParser() {
     return TraverseRule(RuleName::compilation_unit);
   }
 

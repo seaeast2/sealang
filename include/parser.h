@@ -273,7 +273,7 @@ namespace Parser {
       eResult TestRule(int entry);
 
       // Entry point of parsing process
-      eResult StartParse();
+      eResult StartParser();
 
       eResult DoNothing(void) { return True; } // Dummy function for function pointer array
       eResult CompilationUnit(void); // compilation_unit

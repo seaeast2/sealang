@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include "ast_type.h"
+#include "common.h"
 #include "visitor_base.h"
 
 
@@ -13,26 +14,6 @@ namespace AST {
     int token_idx_;
   };
 
-  class FunctionDecl;
-  class ConstantDecl;
-  class VariableDecl;
-  class ParamNode;
-  class StmtNode;
-  class ExprNode;
-  class CaseNode;
-  class TypeNode;
-
-  typedef SimpleVector<TypeNode*>     TypeNodes;
-  typedef SimpleVector<FunctionDecl*> FunctionDecls;
-  typedef SimpleVector<ConstantDecl*> ConstantDecls;
-  typedef SimpleVector<VariableDecl*> VariableDecls;
-  typedef SimpleVector<ParamNode*>    ParamNodes;
-  typedef SimpleVector<StmtNode*>     StmtNodes;
-  typedef SimpleVector<ExprNode*>     ExprNodes;
-  typedef SimpleVector<CaseNode*>     CaseNodes;
-  typedef SimpleVector<ClassNode*>    ClassNodes;
-  typedef SimpleVector<TypedefNode*>  TypedefNodes;
-  typedef SimpleVector<ImportNode*>   ImportNodes;
 
   class BaseNode {
     public:
@@ -101,12 +82,16 @@ namespace AST {
       NodeKind kind_;
       Location loc_;
 
+      BaseNode() { kind_ = BaseNodeTy; }
     public:
-      BaseNode() {}
       virtual ~BaseNode() {}
 
       NodeKind GetNodeKind() { return kind_; }
       virtual bool IsKindOf(NodeKind kind) = 0;
+
+      virtual bool Accept(VisitorBase* visitor) {
+        return visitor->Visit(this);
+      }
   };
 
   class TypeNode : public BaseNode {
@@ -127,12 +112,12 @@ namespace AST {
         return false;
       }
 
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
-
       void SetType(Type* ty) { type_ = ty; }
       AST::Type* GetType() { return type_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ParamNode : public BaseNode {
@@ -158,9 +143,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetVarArgs(bool var_arg) { var_arg_ = var_arg; }
       void SetType(TypeNode* ty) { type_ = ty;  }
@@ -169,6 +151,10 @@ namespace AST {
       bool GetVarArgs() { return var_arg_; }
       TypeNode* GetType() { return type_; }
       const char* GetName() { return name_.c_str(); }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ImportNode : public BaseNode {
@@ -187,22 +173,22 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void AddImportPath(const char* path) { import_paths_.PushBack(path); }
       const char* GetImportPath();
       void Reverse() { import_paths_.Reverse(); }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class StmtNode : public BaseNode {
     protected:
-
-    public:
       StmtNode() {
         kind_ = StmtNodeTy;
       }
+    public:
       virtual ~StmtNode() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == StmtNodeTy || kind == BaseNodeTy)
@@ -212,12 +198,12 @@ namespace AST {
   };
 
   class ExprNode : public BaseNode {
-    public:
+    protected:
       ExprNode() {
         kind_ = ExprNodeTy;
       }
+    public:
       virtual ~ExprNode() {}
-      
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ExprNodeTy|| 
             kind == BaseNodeTy)
@@ -251,9 +237,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetVariables(VariableDecls* vars) { if (vars) vars_ = *vars; }
       void AddVariable(VariableDecl* var) { vars_.PushBack(var); }
@@ -265,6 +248,10 @@ namespace AST {
 
       int GetVarSize() { return vars_.GetSize(); }
       int GetStmtSize() { return stmts_.GetSize(); }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class LabelNode : public StmtNode {
@@ -294,10 +281,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
-
 
       void SetLabelName(const char* label_name) {
         label_name_ = label_name;
@@ -306,6 +289,10 @@ namespace AST {
 
       void SetStmt(StmtNode* stmt) { stmt_ = stmt; }
       StmtNode* GetStmt() { return stmt_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ExprStmtNode : public StmtNode {
@@ -336,6 +323,10 @@ namespace AST {
 
       void SetExpr(ExprNode* expr) { expr_ = expr; }
       ExprNode* GetExpr() { return expr_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
   
   class IfNode : public StmtNode {
@@ -373,9 +364,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetCond(ExprNode* cond) { cond_ = cond; }
       void SetThenBody(StmtNode* thenbody) { then_body_ = thenbody; }
@@ -384,6 +372,10 @@ namespace AST {
       ExprNode* GetCond() { return cond_; }
       StmtNode* GetThenBody() { return then_body_; }
       StmtNode* GetElseBody() { return else_body_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class WhileNode : public StmtNode {
@@ -416,15 +408,16 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetCond(ExprNode* cond) { cond_ = cond; }
       void SetBody(StmtNode* body) { body_ = body; }
 
       ExprNode* GetCond() { return cond_; }
       StmtNode* GetBody() { return body_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class DoWhileNode : public StmtNode {
@@ -457,15 +450,16 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetCond(ExprNode* cond) { cond_ = cond; }
       void SetBody(StmtNode* body) { body_ = body; }
 
       ExprNode* GetCond() { return cond_; }
       StmtNode* GetBody() { return body_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ForNode : public StmtNode {
@@ -508,9 +502,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetInit(ExprNode* init) { init_ = init; }
       void SetCond(ExprNode* cond) { cond_ = cond; }
@@ -521,6 +512,10 @@ namespace AST {
       ExprNode* GetCond() { return cond_; }
       ExprNode* GetInc() { return inc_; }
       StmtNode* GetBody() { return body_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class CaseNode : public StmtNode {
@@ -556,9 +551,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void AddCase(ExprNode* value) { if(value) values_.PushBack(value);}
       void SetBody(StmtNode* body) { body_ = body; }
@@ -567,6 +559,10 @@ namespace AST {
       ExprNode* GetCaseValue(int index) { return values_[index]; }
       StmtNode* GetBody() { return body_; }
       bool IsDefaultCase() { return values_.IsEmpty(); }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class SwitchNode : public StmtNode {
@@ -602,9 +598,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetCaseCond(ExprNode* cond) { cond_ = cond; }
       void SetCases(CaseNodes* case_values) { if(case_values) case_values_ = *case_values; }
@@ -612,6 +605,10 @@ namespace AST {
       ExprNode* GetCond() { return cond_; }
       int GetCaseNum() { return case_values_.GetSize(); }
       CaseNode* GetCase(int index) { return case_values_[index]; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class BreakNode : public StmtNode {
@@ -628,8 +625,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -647,8 +645,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -671,12 +670,13 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetTarget(const char* target) { target_ = target; }
       const char* GetTarget() { return target_.c_str(); }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ReturnNode : public StmtNode {
@@ -699,22 +699,23 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetExpr(ExprNode* expr) { expr_ = expr; }
       ExprNode* GetExpr() { return expr_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class AbstractAssignNode : public ExprNode {
     protected:
       ExprNode* lhs_, *rhs_;
 
-    public:
       AbstractAssignNode() {
         kind_ = AbstractAssignNodeTy;
       }
+    public:
       virtual ~AbstractAssignNode() {}
       
       virtual bool IsKindOf(NodeKind kind) {
@@ -722,9 +723,6 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
-      }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
       }
 
       void SetLHS(ExprNode* lhs) { lhs_ = lhs; }
@@ -752,8 +750,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -792,11 +791,12 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetOp(AssignOp op) { op_ = op; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class AddressNode : public ExprNode {
@@ -818,8 +818,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -866,9 +867,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetOp(BinOp op) { bin_op_ = op; }
       void SetLeft(ExprNode* left) { left_ = left; }
@@ -877,6 +875,10 @@ namespace AST {
       BinOp     GetOp() { return bin_op_; }
       ExprNode* GetLeft() { return left_; }
       ExprNode* GetRight() { return right_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class LogicalAndNode : public BinaryOpNode {
@@ -902,8 +904,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -928,8 +931,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -957,8 +961,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -985,9 +990,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetCond(ExprNode* cond_expr) { cond_expr_ = cond_expr; }
       void SetThen(ExprNode* then_expr) { then_expr_ = then_expr; }
@@ -996,6 +998,10 @@ namespace AST {
       ExprNode* GetCond() { return cond_expr_; }
       ExprNode* GetThen() { return then_expr_; }
       ExprNode* GetElse() { return else_expr_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ArgsNode : public BaseNode {
@@ -1014,9 +1020,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       int Add(ExprNode* arg) {
         if (count_ == MAX_ARGS)
@@ -1034,6 +1037,10 @@ namespace AST {
         if (idx < 0 || idx >= count_)
           return nullptr;
         return args_[idx];
+      }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1058,16 +1065,18 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+      
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
   class LHSNode : public ExprNode {
-    public:
+    protected:
       LHSNode() {
         kind_ = LHSNodeTy;
       }
+    public:
       virtual ~LHSNode() {}
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1102,8 +1111,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1126,8 +1136,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1152,8 +1163,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1178,8 +1190,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1205,8 +1218,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1228,8 +1242,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1251,8 +1266,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1290,8 +1306,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1308,6 +1325,10 @@ namespace AST {
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1331,8 +1352,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1356,16 +1378,18 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
   class LiteralNode : public ExprNode {
-    public:
+    protected:
       LiteralNode() {
         kind_ = LiteralNodeTy;
       }
+    public:
       virtual ~LiteralNode() {}
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == LiteralNodeTy || kind == ExprNodeTy || 
@@ -1374,7 +1398,6 @@ namespace AST {
         return false;
       }
   };
-
 
   class IntegerLiteralNode : public LiteralNode {
     public:
@@ -1403,8 +1426,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1427,12 +1451,13 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetValue(double v) { value_ = v; }
       long GetValue() { return value_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class StringLiteralNode : public LiteralNode {
@@ -1457,8 +1482,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1531,8 +1557,9 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
       }
   };
 
@@ -1546,16 +1573,14 @@ namespace AST {
 
     public:
       FunctionDecl();
-      FunctionDecl(bool storage, TypeNode* retty, const char* fnname, ParamNodes* params, BlockNode* body); 
+      FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
+          ParamNodes* params, BlockNode* body); 
       virtual ~FunctionDecl();
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == FunctionDeclTy || kind == BaseNodeTy)
           return true;
         return false;
-      }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
       }
 
       void SetStorage(bool st) { is_static_ = st; }
@@ -1571,6 +1596,10 @@ namespace AST {
       BlockNode* GetBody() { return body_; }
 
       //FunctionType* GetType(); // TODO: need to get funciton type
+      
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
   
   class VariableDecl : public BaseNode {
@@ -1599,9 +1628,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetStorage(bool st) {is_static_ = st;}
       void SetType(TypeNode* type) { type_ = type; }
@@ -1609,10 +1635,15 @@ namespace AST {
       void SetName(const char* name, int len);
       void SetInit(ExprNode* init) { initializer_ = init; }
 
+      bool HasInitializer() { return initializer_ ? true : false; }
       bool IsStatic()  { return is_static_; }
       bool GetType() { return type_; }
       const char* GetName() { return name_.c_str(); }
-      ExprNode* GetInit() { return initializer_; }
+      ExprNode* GetInitializer() { return initializer_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ConstantDecl : public BaseNode {
@@ -1634,9 +1665,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void SetType(TypeNode* type) { type_ = type; }
       void SetName(const char* name) { name_ = name; }
@@ -1646,6 +1674,10 @@ namespace AST {
       TypeNode* GetType() { return type_; }
       const char* GetName() { return name_.c_str(); }
       ExprNode* GetInit() { return initializer_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class ClassNode : public CompositeTypeDefinition {
@@ -1664,9 +1696,6 @@ namespace AST {
           return true;
         return false;
       }
-      template <class U> U accept(VisitorBase<U>* visitor) {
-        visitor->visit(this);
-      }
 
       void AddMemVariable(VariableDecl* var) { member_variables_.PushBack(var); }
       void AddMemFunction(FunctionDecl* fun) { member_functions_.PushBack(fun); }
@@ -1679,6 +1708,10 @@ namespace AST {
 
       void ReverseVariableOrder() { member_variables_.Reverse(); }
       void ReverseFunctionOrder() { member_functions_.Reverse(); }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
   };
 
   class Declarations {

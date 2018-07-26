@@ -1,109 +1,66 @@
 #ifndef _visitor_base_h_
 #define _visitor_base_h_
 
+#include "common.h"
+
 namespace AST {
 
-  class BlockNode;
-  class LabelNode;
-  class ExprStmtNode;
-  class IfNode;
-  class WhileNode;
-  class DoWhileNode;
-  class ForNode;
-  class CaseNode;
-  class SwitchNode;
-  class BreakNode;
-  class ContinueNode;
-  class GotoNode;
-  class ReturnNode;
-  class AssignNode;
-  class OpAssignNode;
-  class AddressNode;
-  class BinaryOpNode;
-  class LogicalAndNode;
-  class LogicalOrNode;
-  class CastNode;
-  class CondExprNode;
-  class FuncCallNode;
-  class ArrayRefNode;
-  class DereferenceNode;
-  class MemberRefNode;
-  class PtrMemberRefNode;
-  class VariableNode;
-  class IntegerLiteralNode;
-  class RealLiteralNode;
-  class StringLiteralNode;
-  class SizeofExprNode;
-  class SizeofTypeNode;
-  class UnaryOpNode;
-  class PrefixOpNode;
-  class SuffixOpNode;
-  class FunctionDecl;
-  class VariableDecl;
-  class ConstantDecl;
-  class TypeNode;
-  class ParamNode;
-  class ImportNode;
-  class ArgsNode;
-  class ClassNode;
-  class TypedefNode;
-
-  template <class E> 
   class VisitorBase {
     public:
       VisitorBase() {}
       virtual ~VisitorBase() {}
 
+      virtual bool Visit(BaseNode* node)        {return true;} 
+
       // Statements
-      virtual E visit(BlockNode* node)        {return E();} 
-      virtual E visit(LabelNode* node)        {return E();}
-      virtual E visit(ExprStmtNode* node)     {return E();}
-      virtual E visit(IfNode* node)           {return E();}
-      virtual E visit(WhileNode* node)        {return E();}
-      virtual E visit(DoWhileNode* node)      {return E();}
-      virtual E visit(ForNode* node)          {return E();}
-      virtual E visit(CaseNode* node)         {return E();}
-      virtual E visit(SwitchNode* node)       {return E();}
-      virtual E visit(BreakNode* node)        {return E();}
-      virtual E visit(ContinueNode* node)     {return E();}
-      virtual E visit(GotoNode* node)         {return E();}
-      virtual E visit(ReturnNode* node)       {return E();}
+      virtual bool Visit(BlockNode* node)        {return true;} 
+      virtual bool Visit(LabelNode* node)        {return true;}
+      virtual bool Visit(ExprStmtNode* node)     {return true;}
+      virtual bool Visit(IfNode* node)           {return true;}
+      virtual bool Visit(WhileNode* node)        {return true;}
+      virtual bool Visit(DoWhileNode* node)      {return true;}
+      virtual bool Visit(ForNode* node)          {return true;}
+      virtual bool Visit(CaseNode* node)         {return true;}
+      virtual bool Visit(SwitchNode* node)       {return true;}
+      virtual bool Visit(BreakNode* node)        {return true;}
+      virtual bool Visit(ContinueNode* node)     {return true;}
+      virtual bool Visit(GotoNode* node)         {return true;}
+      virtual bool Visit(ReturnNode* node)       {return true;}
 
       // Expression
-      virtual E visit(AssignNode* node)       {return E();}
-      virtual E visit(OpAssignNode* node)     {return E();}
-      virtual E visit(AddressNode* node)      {return E();}
-      virtual E visit(BinaryOpNode* node)     {return E();}
-      virtual E visit(LogicalAndNode* node)   {return E();}
-      virtual E visit(LogicalOrNode* node)    {return E();}
-      virtual E visit(CastNode* node)         {return E();}
-      virtual E visit(CondExprNode* node)     {return E();}
-      virtual E visit(FuncCallNode* node)     {return E();}
-      virtual E visit(ArrayRefNode* node)     {return E();}
-      virtual E visit(DereferenceNode* node)  {return E();}
-      virtual E visit(MemberRefNode* node)    {return E();}
-      virtual E visit(PtrMemberRefNode* node) {return E();}
-      virtual E visit(VariableNode* node)     {return E();}
-      virtual E visit(IntegerLiteralNode* node){return E();}
-      virtual E visit(RealLiteralNode* node)  {return E();}
-      virtual E visit(StringLiteralNode* node){return E();}
-      virtual E visit(SizeofExprNode* node)   {return E();}
-      virtual E visit(SizeofTypeNode* node)   {return E();}
-      virtual E visit(UnaryOpNode* node)      {return E();}
-      virtual E visit(PrefixOpNode* node)     {return E();}
-      virtual E visit(SuffixOpNode* node)     {return E();}
+      virtual bool Visit(AssignNode* node)       {return true;}
+      virtual bool Visit(OpAssignNode* node)     {return true;}
+      virtual bool Visit(AddressNode* node)      {return true;}
+      virtual bool Visit(BinaryOpNode* node)     {return true;}
+      virtual bool Visit(LogicalAndNode* node)   {return true;}
+      virtual bool Visit(LogicalOrNode* node)    {return true;}
+      virtual bool Visit(CastNode* node)         {return true;}
+      virtual bool Visit(CondExprNode* node)     {return true;}
+      virtual bool Visit(FuncCallNode* node)     {return true;}
+      virtual bool Visit(ArrayRefNode* node)     {return true;}
+      virtual bool Visit(DereferenceNode* node)  {return true;}
+      virtual bool Visit(MemberRefNode* node)    {return true;}
+      virtual bool Visit(PtrMemberRefNode* node) {return true;}
+      virtual bool Visit(VariableNode* node)     {return true;}
+      virtual bool Visit(IntegerLiteralNode* node){return true;}
+      virtual bool Visit(RealLiteralNode* node)  {return true;}
+      virtual bool Visit(StringLiteralNode* node){return true;}
+      virtual bool Visit(SizeofExprNode* node)   {return true;}
+      virtual bool Visit(SizeofTypeNode* node)   {return true;}
+      virtual bool Visit(UnaryOpNode* node)      {return true;}
+      virtual bool Visit(PrefixOpNode* node)     {return true;}
+      virtual bool Visit(SuffixOpNode* node)     {return true;}
 
       // Etc
-      virtual E visit(FunctionDecl* node)     {return E();}
-      virtual E visit(VariableDecl* node)     {return E();}
-      virtual E visit(ConstantDecl* node)     {return E();}
-      virtual E visit(TypeNode* node)         {return E();}
-      virtual E visit(ParamNode* node)        {return E();}
-      virtual E visit(ImportNode* node)       {return E();}
-      virtual E visit(ArgsNode* node)         {return E();}
-      virtual E visit(ClassNode* node)        {return E();}
-      virtual E visit(TypedefNode* node)      {return E();}
-
+      virtual bool Visit(FunctionDecl* node)     {return true;}
+      virtual bool Visit(VariableDecl* node)     {return true;}
+      virtual bool Visit(ConstantDecl* node)     {return true;}
+      virtual bool Visit(TypeNode* node)         {return true;}
+      virtual bool Visit(ParamNode* node)        {return true;}
+      virtual bool Visit(ImportNode* node)       {return true;}
+      virtual bool Visit(ArgsNode* node)         {return true;}
+      virtual bool Visit(ClassNode* node)        {return true;}
+      virtual bool Visit(TypedefNode* node)      {return true;}
   };
 
 }

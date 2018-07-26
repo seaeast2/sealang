@@ -14,57 +14,57 @@ ASTPrinter::~ASTPrinter() {
 }
 
 // Statements
-void ASTPrinter::visit(BlockNode* node){ 
-  return;}
-void ASTPrinter::visit(LabelNode* node){ return;}
-void ASTPrinter::visit(ExprStmtNode* node){ return;}
-void ASTPrinter::visit(IfNode* node){ return;}    
-void ASTPrinter::visit(WhileNode* node){ return;}
-void ASTPrinter::visit(DoWhileNode* node){ return;}
-void ASTPrinter::visit(ForNode* node){ return;}
-void ASTPrinter::visit(CaseNode* node){ return;}
-void ASTPrinter::visit(SwitchNode* node){ return;}
-void ASTPrinter::visit(BreakNode* node){ return;}
-void ASTPrinter::visit(ContinueNode* node){ return;}
-void ASTPrinter::visit(GotoNode* node){ return;}
-void ASTPrinter::visit(ReturnNode* node){ return;}
+bool ASTPrinter::visit(BlockNode* node){ 
+  return true;}
+bool ASTPrinter::visit(LabelNode* node){ return true;}
+bool ASTPrinter::visit(ExprStmtNode* node){ return true;}
+bool ASTPrinter::visit(IfNode* node){ return true;}    
+bool ASTPrinter::visit(WhileNode* node){ return true;}
+bool ASTPrinter::visit(DoWhileNode* node){ return true;}
+bool ASTPrinter::visit(ForNode* node){ return true;}
+bool ASTPrinter::visit(CaseNode* node){ return true;}
+bool ASTPrinter::visit(SwitchNode* node){ return true;}
+bool ASTPrinter::visit(BreakNode* node){ return true;}
+bool ASTPrinter::visit(ContinueNode* node){ return true;}
+bool ASTPrinter::visit(GotoNode* node){ return true;}
+bool ASTPrinter::visit(ReturnNode* node){ return true;}
 
 // Expression
-void ASTPrinter::visit(AssignNode* node){ return;}
-void ASTPrinter::visit(OpAssignNode* node){ return;}
-void ASTPrinter::visit(AddressNode* node){ return;}
-void ASTPrinter::visit(BinaryOpNode* node){ return;}
-void ASTPrinter::visit(LogicalAndNode* node){ return;}
-void ASTPrinter::visit(LogicalOrNode* node){ return;}
-void ASTPrinter::visit(CastNode* node){ return;}
-void ASTPrinter::visit(CondExprNode* node){ return;}
-void ASTPrinter::visit(FuncCallNode* node){ return;}
-void ASTPrinter::visit(ArrayRefNode* node){ return;}
-void ASTPrinter::visit(DereferenceNode* node){ return;}
-void ASTPrinter::visit(MemberRefNode* node){ return;}
-void ASTPrinter::visit(PtrMemberRefNode* node){ return;}
-void ASTPrinter::visit(VariableNode* node){ return;}
-void ASTPrinter::visit(IntegerLiteralNode* node){ return;}
-void ASTPrinter::visit(RealLiteralNode* node){ return;}
-void ASTPrinter::visit(StringLiteralNode* node){ return;}
-void ASTPrinter::visit(SizeofExprNode* node){ return;}
-void ASTPrinter::visit(SizeofTypeNode* node){ return;}
-void ASTPrinter::visit(UnaryOpNode* node){ return;}
-void ASTPrinter::visit(PrefixOpNode* node){ return;}   
-void ASTPrinter::visit(SuffixOpNode* node){ return;}
+bool ASTPrinter::visit(AssignNode* node){ return true;}
+bool ASTPrinter::visit(OpAssignNode* node){ return true;}
+bool ASTPrinter::visit(AddressNode* node){ return true;}
+bool ASTPrinter::visit(BinaryOpNode* node){ return true;}
+bool ASTPrinter::visit(LogicalAndNode* node){ return true;}
+bool ASTPrinter::visit(LogicalOrNode* node){ return true;}
+bool ASTPrinter::visit(CastNode* node){ return true;}
+bool ASTPrinter::visit(CondExprNode* node){ return true;}
+bool ASTPrinter::visit(FuncCallNode* node){ return true;}
+bool ASTPrinter::visit(ArrayRefNode* node){ return true;}
+bool ASTPrinter::visit(DereferenceNode* node){ return true;}
+bool ASTPrinter::visit(MemberRefNode* node){ return true;}
+bool ASTPrinter::visit(PtrMemberRefNode* node){ return true;}
+bool ASTPrinter::visit(VariableNode* node){ return true;}
+bool ASTPrinter::visit(IntegerLiteralNode* node){ return true;}
+bool ASTPrinter::visit(RealLiteralNode* node){ return true;}
+bool ASTPrinter::visit(StringLiteralNode* node){ return true;}
+bool ASTPrinter::visit(SizeofExprNode* node){ return true;}
+bool ASTPrinter::visit(SizeofTypeNode* node){ return true;}
+bool ASTPrinter::visit(UnaryOpNode* node){ return true;}
+bool ASTPrinter::visit(PrefixOpNode* node){ return true;}   
+bool ASTPrinter::visit(SuffixOpNode* node){ return true;}
 
 // Etc
-void ASTPrinter::visit(FunctionDecl* node){ 
+bool ASTPrinter::visit(FunctionDecl* node){ 
   cout << "[FunctionDecl] : " << node->GetName() << endl;
-  return;
+  return true;
 }
-void ASTPrinter::visit(VariableDecl* node){ return;}
-void ASTPrinter::visit(ConstantDecl* node){ return;}
-void ASTPrinter::visit(TypeNode* node){ return;} 
-void ASTPrinter::visit(ParamNode* node){ return;}
-void ASTPrinter::visit(ImportNode* node){ return;}
-void ASTPrinter::visit(ArgsNode* node){ return;}        
-void ASTPrinter::visit(ClassNode* node){ return;}   
-void ASTPrinter::visit(TypedefNode* node) { 
-  return;
+bool ASTPrinter::visit(VariableDecl* node){ return true;}
+bool ASTPrinter::visit(ConstantDecl* node){ return true;}
+bool ASTPrinter::visit(TypeNode* node){ return true;} 
+bool ASTPrinter::visit(ParamNode* node){ return true;}
+bool ASTPrinter::visit(ImportNode* node){ return true;}
+bool ASTPrinter::visit(ArgsNode* node){ return true;}        
+bool ASTPrinter::visit(ClassNode* node){ return true;}   
+bool ASTPrinter::visit(TypedefNode* node) { 
+  return true;
 } 

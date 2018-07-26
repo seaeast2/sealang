@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include "parser.h"
+#include "ast_printer.h"
 
 char* src =  
 " \
@@ -16,7 +17,8 @@ int main() {
   AST::ASTContext* ac = new AST::ASTContext();
   Parser::SyntaxAnalyzer* s = new Parser::SyntaxAnalyzer(ac, tk, parser_err);
 
-  s->StartParse();
+  s->StartParser();
+  ac->PrintAST();
 
   delete s;
   delete parser_err;

@@ -1,5 +1,6 @@
 #include "astcontext.h"
 #include <iostream>
+#include "ast_printer.h"
 
 using namespace std;
 
@@ -28,6 +29,12 @@ namespace AST {
     Type* ty = type_env_.GetValue(key);
     type_env_.Pop(key);
     return ty;
+  }
+
+  void ASTContext::PrintAST() {
+    ASTPrinter astprt;
+    // TODO : working here
+
   }
 
 };

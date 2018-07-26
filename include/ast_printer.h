@@ -1,71 +1,71 @@
 #ifndef _ast_printer_h_
 #define _ast_printer_h_
 
-#include "visitor.h"
+#include "visitor_base.h"
 #include "ast_node.h"
 
 namespace AST {
 
   // Print AST
-  class ASTPrinter : public Visitor<void> {
+  class ASTPrinter : public VisitorBase {
     private:
       int depth_;
     public:
       ASTPrinter();
       virtual ~ASTPrinter();
 
-      void Print(Declarations* decls);
-      void Print(BaseNode* ast);
+      bool Print(Declarations* decls);
+      bool Print(BaseNode* ast);
 
       // Statements
-      virtual void visit(BlockNode* node);
-      virtual void visit(LabelNode* node);
-      virtual void visit(ExprStmtNode* node);
-      virtual void visit(IfNode* node);    
-      virtual void visit(WhileNode* node);
-      virtual void visit(DoWhileNode* node);
-      virtual void visit(ForNode* node);
-      virtual void visit(CaseNode* node);
-      virtual void visit(SwitchNode* node);
-      virtual void visit(BreakNode* node);
-      virtual void visit(ContinueNode* node);
-      virtual void visit(GotoNode* node);
-      virtual void visit(ReturnNode* node);
+      virtual bool visit(BlockNode* node);
+      virtual bool visit(LabelNode* node);
+      virtual bool visit(ExprStmtNode* node);
+      virtual bool visit(IfNode* node);    
+      virtual bool visit(WhileNode* node);
+      virtual bool visit(DoWhileNode* node);
+      virtual bool visit(ForNode* node);
+      virtual bool visit(CaseNode* node);
+      virtual bool visit(SwitchNode* node);
+      virtual bool visit(BreakNode* node);
+      virtual bool visit(ContinueNode* node);
+      virtual bool visit(GotoNode* node);
+      virtual bool visit(ReturnNode* node);
 
       // Expression
-      virtual void visit(AssignNode* node);
-      virtual void visit(OpAssignNode* node);
-      virtual void visit(AddressNode* node);
-      virtual void visit(BinaryOpNode* node);
-      virtual void visit(LogicalAndNode* node);
-      virtual void visit(LogicalOrNode* node);
-      virtual void visit(CastNode* node);
-      virtual void visit(CondExprNode* node);
-      virtual void visit(FuncCallNode* node);
-      virtual void visit(ArrayRefNode* node);
-      virtual void visit(DereferenceNode* node);
-      virtual void visit(MemberRefNode* node);
-      virtual void visit(PtrMemberRefNode* node);
-      virtual void visit(VariableNode* node);
-      virtual void visit(IntegerLiteralNode* node);
-      virtual void visit(RealLiteralNode* node);
-      virtual void visit(StringLiteralNode* node);
-      virtual void visit(SizeofExprNode* node);
-      virtual void visit(SizeofTypeNode* node);
-      virtual void visit(UnaryOpNode* node);
-      virtual void visit(PrefixOpNode* node);   
-      virtual void visit(SuffixOpNode* node);
+      virtual bool visit(AssignNode* node);
+      virtual bool visit(OpAssignNode* node);
+      virtual bool visit(AddressNode* node);
+      virtual bool visit(BinaryOpNode* node);
+      virtual bool visit(LogicalAndNode* node);
+      virtual bool visit(LogicalOrNode* node);
+      virtual bool visit(CastNode* node);
+      virtual bool visit(CondExprNode* node);
+      virtual bool visit(FuncCallNode* node);
+      virtual bool visit(ArrayRefNode* node);
+      virtual bool visit(DereferenceNode* node);
+      virtual bool visit(MemberRefNode* node);
+      virtual bool visit(PtrMemberRefNode* node);
+      virtual bool visit(VariableNode* node);
+      virtual bool visit(IntegerLiteralNode* node);
+      virtual bool visit(RealLiteralNode* node);
+      virtual bool visit(StringLiteralNode* node);
+      virtual bool visit(SizeofExprNode* node);
+      virtual bool visit(SizeofTypeNode* node);
+      virtual bool visit(UnaryOpNode* node);
+      virtual bool visit(PrefixOpNode* node);   
+      virtual bool visit(SuffixOpNode* node);
 
       // Etc
-      virtual void visit(FunctionDecl* node);
-      virtual void visit(VariableDecl* node);
-      virtual void visit(ConstantDecl* node);
-      virtual void visit(TypeNode* node); 
-      virtual void visit(ParamNode* node);
-      virtual void visit(ImportNode* node);
-      virtual void visit(ArgsNode* node);        
-      virtual void visit(ClassNode* node);   
-      virtual void visit(TypedefNode* node);  
+      virtual bool visit(FunctionDecl* node);
+      virtual bool visit(VariableDecl* node);
+      virtual bool visit(ConstantDecl* node);
+      virtual bool visit(TypeNode* node); 
+      virtual bool visit(ParamNode* node);
+      virtual bool visit(ImportNode* node);
+      virtual bool visit(ArgsNode* node);        
+      virtual bool visit(ClassNode* node);   
+      virtual bool visit(TypedefNode* node);  
   };
 }
 

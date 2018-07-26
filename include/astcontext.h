@@ -33,6 +33,8 @@ namespace AST {
       Type* FindType(const char* type_name);
       bool AddType(const char* key, Type* ty);
       Type* RemoveType(const char* key);
+
+      void PrintAST();
   };
 
 };
