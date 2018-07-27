@@ -1521,19 +1521,19 @@ namespace Parser {
     }
 
     // get expr
-    ParseInfo pi_expr = parse_stack_.Top();
+    ParseInfo pi_array_base = parse_stack_.Top();
     parse_stack_.Pop();
-    if (pi_expr.type_ != ParseInfo::ASTNode) {
+    if (pi_array_base.type_ != ParseInfo::ASTNode) {
       assert("Error on postfix array reference");
       return Error;
     }
-    if(!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+    if(!pi_array_base.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
       assert("Error on postfix array reference");
       return Error;
     }
 
     AST::ArrayRefNode * arnode = 
-      new AST::ArrayRefNode((AST::ExprNode*)pi_expr.data_.node_, 
+      new AST::ArrayRefNode((AST::ExprNode*)pi_array_base.data_.node_, 
                             (AST::ExprNode*)pi_arrsize_expr.data_.node_);
     PushNode(arnode, RuleName::seq_array_reference);
     return True;

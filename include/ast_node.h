@@ -819,6 +819,9 @@ namespace AST {
         return false;
       }
 
+      void SetExpr(ExprNode* expr) { expr_ = expr; }
+      ExprNode* GetExpr() { return expr_; }
+
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
@@ -962,6 +965,9 @@ namespace AST {
         return false;
       }
 
+      TypeNode* GetCastType() { return cast_type_; }
+      ExprNode* GetTermExpr() { return term_expr_; }
+
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
@@ -1065,6 +1071,9 @@ namespace AST {
           return true;
         return false;
       }
+
+      ExprNode* GetFuncExpr() { return func_expr_; }
+      ArgsNode* GetArgs() { return args_; }
       
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
@@ -1088,7 +1097,7 @@ namespace AST {
   };
 
   class ArrayRefNode : public LHSNode {
-    ExprNode* expr_; // array varibale expr
+    ExprNode* array_base_expr_; 
     ExprNode* array_size_expr_;
     int array_size_;
     public:
@@ -1096,11 +1105,11 @@ namespace AST {
         kind_ = ArrayRefNodeTy;
         array_size_ = 0;
       }
-      ArrayRefNode(ExprNode* expr, ExprNode* arr_size) {
+      ArrayRefNode(ExprNode* arr_base_expr, ExprNode* arr_size) {
         kind_ = ArrayRefNodeTy;
         array_size_ = 0;
         array_size_expr_ = arr_size;
-        expr_ = expr;
+        array_base_expr_ = arr_base_expr;
       }
       virtual ~ArrayRefNode() {}
 
@@ -1112,20 +1121,23 @@ namespace AST {
         return false;
       }
 
+      ExprNode* GetArrayBaseExpr() { return array_base_expr_; }
+      ExprNode* GetArraySizeExpr() { return array_size_expr_; }
+
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
   };
 
   class DereferenceNode : public LHSNode {
-    ExprNode* expr_;
+    ExprNode* base_expr_;
     public:
       DereferenceNode() {
         kind_ = DereferenceNodeTy;
       }
-      DereferenceNode(ExprNode* expr) {
+      DereferenceNode(ExprNode* base_expr) {
         kind_ = DereferenceNodeTy;
-        expr_ = expr;
+        base_expr_ = base_expr;
       }
       virtual ~DereferenceNode() {}
 
@@ -1137,21 +1149,23 @@ namespace AST {
         return false;
       }
 
+      ExprNode* GetBaseExpr() { return base_expr_; }
+
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
   };
 
   class MemberRefNode : public LHSNode {
-    ExprNode* expr_;
+    ExprNode* base_expr_;
     std::string member_name_;
     public:
       MemberRefNode() {
         kind_ = MemberRefNodeTy;
       }
-      MemberRefNode(ExprNode* expr, const char* mbname) { 
+      MemberRefNode(ExprNode* base_expr, const char* mbname) { 
         kind_ = MemberRefNodeTy;
-        expr_ = expr;
+        base_expr_ = base_expr;
         member_name_ = mbname;
       }
       virtual ~MemberRefNode() {}
@@ -1163,6 +1177,8 @@ namespace AST {
           return true;
         return false;
       }
+
+      ExprNode* GetBaseExpr() { return base_expr_; }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
