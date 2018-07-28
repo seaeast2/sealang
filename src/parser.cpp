@@ -1654,9 +1654,11 @@ namespace Parser {
     else if (top_pi.type_ == ParseInfo::Identifier) {
       parse_stack_.Pop();
 
-      AST::VariableNode* node = 
-        new AST::VariableNode(top_pi.data_.cstr_, top_pi.cstr_len_);
+      char* tmp = new char[top_pi.cstr_len_+1];
+      strncpy(tmp, top_pi.data_.cstr_, top_pi.cstr_len_+1);
+      AST::VariableNode* node = new AST::VariableNode(tmp);
       PushNode(node, RuleName::primary);
+      delete[] tmp;
     }
     else if (top_pi.type_ == ParseInfo::ASTNode &&
         top_pi.rule_name_ == RuleName::expr &&

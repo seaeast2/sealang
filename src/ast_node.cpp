@@ -128,19 +128,8 @@ namespace AST {
     name_ = str;
   }
 
-  // ClassNode =============================================
-  ClassNode::ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
-      FunctionDecls* mem_func) {
-    kind_ = ClassNodeTy;
-
-    type_name_ = type_name;
-    type_ = ty;
-
-    member_variables_ = *mem_var;
-    member_functions_ = *mem_func;
-  }
-
-  ClassNode::~ClassNode() {
+  // CompositeTypeDefinition =======================================
+  CompositeTypeDefinition::~CompositeTypeDefinition() {
     VariableDecl* var_tmp = nullptr;
     FunctionDecl* fun_tmp = nullptr;
 
@@ -158,6 +147,18 @@ namespace AST {
       }
     }
   }
+  // ClassNode =============================================
+  ClassNode::ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
+      FunctionDecls* mem_func) {
+    kind_ = ClassNodeTy;
+
+    type_name_ = type_name;
+    type_ = ty;
+
+    member_variables_ = *mem_var;
+    member_functions_ = *mem_func;
+  }
+
 
   VariableDecl* ClassNode::GetMemVariable(unsigned int index) { 
     if (index >= member_variables_.GetSize())

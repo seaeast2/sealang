@@ -137,7 +137,10 @@ namespace AST {
         type_ = ty;
         name_ = name;
       }
-      virtual ~ParamNode() {}
+      virtual ~ParamNode() {
+        if (type_)
+          delete type_;
+      }
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ParamNodeTy || kind == BaseNodeTy)
           return true;
@@ -167,7 +170,9 @@ namespace AST {
         kind_ = ImportNodeTy;
         complete_path_ = nullptr;
       }
-      virtual ~ImportNode() {}
+      virtual ~ImportNode() {
+        delete[] complete_path_;
+      }
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ImportNodeTy || kind == BaseNodeTy)
           return true;
@@ -246,8 +251,8 @@ namespace AST {
       VariableDecl* GetVariable(int index);
       StmtNode* GetStmt(int index);
 
-      int GetVarSize() { return vars_.GetSize(); }
-      int GetStmtSize() { return stmts_.GetSize(); }
+      int GetVarNum() { return vars_.GetSize(); }
+      int GetStmtNum() { return stmts_.GetSize(); }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
@@ -691,7 +696,10 @@ namespace AST {
         kind_ = ReturnNodeTy;
         expr_ = expr;
       }
-      virtual ~ReturnNode() {}
+      virtual ~ReturnNode() {
+        if (expr_)
+          delete expr_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ReturnNodeTy || kind == StmtNodeTy || 
@@ -714,9 +722,16 @@ namespace AST {
 
       AbstractAssignNode() {
         kind_ = AbstractAssignNodeTy;
+        lhs_ = nullptr;
+        rhs_ = nullptr;
       }
     public:
-      virtual ~AbstractAssignNode() {}
+      virtual ~AbstractAssignNode() {
+        if(lhs_)
+          delete lhs_;
+        if(rhs_)
+          delete rhs_;
+      }
       
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == AbstractAssignNodeTy|| kind == ExprNodeTy ||
@@ -804,12 +819,16 @@ namespace AST {
     public:
       AddressNode() {
         kind_ = AddressNodeTy;
+        expr_ = nullptr;
       }
       AddressNode(ExprNode* expr) {
         kind_ = AddressNodeTy;
         expr_ = expr;
       }
-      virtual ~AddressNode() {}
+      virtual ~AddressNode() {
+        if (expr_)
+          delete expr_;
+      }
       
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == AddressNodeTy || 
@@ -855,6 +874,8 @@ namespace AST {
     public:
       BinaryOpNode() {
         kind_ = BinaryOpNodeTy;
+        left_ = nullptr;
+        right_ = nullptr;
       }
       BinaryOpNode(ExprNode* left, BinOp op, ExprNode* right) {
         kind_ = BinaryOpNodeTy;
@@ -862,7 +883,12 @@ namespace AST {
         left_ = left;
         right_ = right;
       }
-      virtual ~BinaryOpNode() {}
+      virtual ~BinaryOpNode() {
+        if (left_)
+          delete left_;
+        if (right_)
+          delete right_;
+      }
       
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == BinaryOpNodeTy || kind == ExprNodeTy ||
@@ -888,9 +914,9 @@ namespace AST {
     public:
       LogicalAndNode() {
         kind_ = LogicalAndNodeTy;
-
         bin_op_ = BinaryOpNode::LogicAnd;
       }
+
       LogicalAndNode(ExprNode* left, ExprNode* right) {
         kind_ = LogicalAndNodeTy;
 
@@ -956,7 +982,12 @@ namespace AST {
         cast_type_ = castty;
       }
 
-      virtual ~CastNode() {}
+      virtual ~CastNode() {
+        if (cast_type_)
+          delete cast_type_;
+        if (term_expr_)
+          delete term_expr_;
+      }
       
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == CastNodeTy || kind == ExprNodeTy || 
@@ -988,7 +1019,14 @@ namespace AST {
         then_expr_ = then_expr;
         else_expr_ = else_expr;
       }
-      virtual ~CondExprNode() {}
+      virtual ~CondExprNode() {
+        if (cond_expr_)
+          delete cond_expr_;
+        if (then_expr_)
+          delete then_expr_;
+        if (else_expr_)
+          delete else_expr_;
+      }
       
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == CondExprNodeTy|| kind == ExprNodeTy ||
@@ -1011,16 +1049,16 @@ namespace AST {
   };
 
   class ArgsNode : public BaseNode {
-    enum {MAX_ARGS = 30};
-
-    ExprNode* args_[MAX_ARGS];
-    int count_;
+    SimpleVector<ExprNode*> args_;
     public:
       ArgsNode() {
         kind_ = ArgsNodeTy;
-        count_ = 0;
       }
-      virtual ~ArgsNode() {}
+      virtual ~ArgsNode() {
+        for (int i = 0; i < args_.GetSize(); i++) {
+          delete args_[i];
+        }
+      }
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ArgsNodeTy || kind == BaseNodeTy)
           return true;
@@ -1028,21 +1066,20 @@ namespace AST {
       }
 
       int Add(ExprNode* arg) {
-        if (count_ == MAX_ARGS)
-          return -1;
-
-        args_[count_++] = arg;
-        return count_;
+        args_.PushBack(arg);
+        return args_.GetSize();
       }
-
-      int GetCount() {
-        return count_;
+      int GetArgNum() {
+        return args_.GetSize();
       }
-
       ExprNode* GetArg(int idx) {
-        if (idx < 0 || idx >= count_)
+        if (idx < 0 || idx > args_.GetSize()-1)
           return nullptr;
         return args_[idx];
+      }
+
+      void Clear() {
+        args_.Clear();
       }
 
       virtual bool Accept(VisitorBase* visitor) override {
@@ -1056,6 +1093,8 @@ namespace AST {
     public:
       FuncCallNode() {
         kind_ = FuncCallNodeTy;
+        func_expr_ = nullptr;
+        args_ = nullptr;
       }
 
       FuncCallNode(ExprNode* func, ArgsNode* args) {
@@ -1063,7 +1102,13 @@ namespace AST {
         func_expr_ = func;
         args_ = args;
       }
-      virtual ~FuncCallNode() {}
+
+      virtual ~FuncCallNode() {
+        if(func_expr_)
+          delete func_expr_;
+        if (args_)
+          delete args_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == FuncCallNodeTy || kind == ExprNodeTy || 
@@ -1104,6 +1149,8 @@ namespace AST {
       ArrayRefNode() {
         kind_ = ArrayRefNodeTy;
         array_size_ = 0;
+        array_base_expr_ = nullptr;
+        array_size_expr_ = nullptr;
       }
       ArrayRefNode(ExprNode* arr_base_expr, ExprNode* arr_size) {
         kind_ = ArrayRefNodeTy;
@@ -1111,7 +1158,12 @@ namespace AST {
         array_size_expr_ = arr_size;
         array_base_expr_ = arr_base_expr;
       }
-      virtual ~ArrayRefNode() {}
+      virtual ~ArrayRefNode() {
+        if (array_base_expr_)
+          delete array_base_expr_;
+        if (array_size_expr_)
+          delete array_size_expr_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ArrayRefNodeTy ||
@@ -1134,12 +1186,16 @@ namespace AST {
     public:
       DereferenceNode() {
         kind_ = DereferenceNodeTy;
+        base_expr_ = nullptr;
       }
       DereferenceNode(ExprNode* base_expr) {
         kind_ = DereferenceNodeTy;
         base_expr_ = base_expr;
       }
-      virtual ~DereferenceNode() {}
+      virtual ~DereferenceNode() {
+        if (base_expr_)
+          delete base_expr_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == DereferenceNodeTy || 
@@ -1162,13 +1218,17 @@ namespace AST {
     public:
       MemberRefNode() {
         kind_ = MemberRefNodeTy;
+        base_expr_ = nullptr;
       }
       MemberRefNode(ExprNode* base_expr, const char* mbname) { 
         kind_ = MemberRefNodeTy;
         base_expr_ = base_expr;
         member_name_ = mbname;
       }
-      virtual ~MemberRefNode() {}
+      virtual ~MemberRefNode() {
+        if (base_expr_)
+          delete base_expr_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == MemberRefNodeTy ||
@@ -1179,6 +1239,7 @@ namespace AST {
       }
 
       ExprNode* GetBaseExpr() { return base_expr_; }
+      const char* GetMemberName() { return member_name_.c_str(); }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
@@ -1186,18 +1247,22 @@ namespace AST {
   };
 
   class PtrMemberRefNode : public LHSNode {
-    ExprNode* expr_;
+    ExprNode* base_expr_;
     std::string member_name_;
     public:
       PtrMemberRefNode() {
         kind_ = PtrMemberRefNodeTy;
+        base_expr_ = nullptr;
       }
-      PtrMemberRefNode(ExprNode* expr, const char* mbname) { 
+      PtrMemberRefNode(ExprNode* base_expr, const char* mbname) { 
         kind_ = PtrMemberRefNodeTy;
-        expr_ = expr;
+        base_expr_ = base_expr;
         member_name_ = mbname;
       }
-      virtual ~PtrMemberRefNode() {}
+      virtual ~PtrMemberRefNode() {
+        if (base_expr_)
+          delete base_expr_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == PtrMemberRefNodeTy ||
@@ -1207,23 +1272,23 @@ namespace AST {
         return false;
       }
 
+      ExprNode* GetBaseExpr() { return base_expr_; }
+      const char* GetMemberName() { return member_name_.c_str(); }
+
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
   };
 
   class VariableNode : public LHSNode {
-    char* name_;
-    int str_len_;
+    std::string variable_name_;
     public:
       VariableNode() {
         kind_ = VariableNodeTy;
       }
-      VariableNode(const char* name, int str_len) {
+      VariableNode(const char* name) {
         kind_ = VariableNodeTy;
-        name_ = new char[str_len];
-        strcpy(name_, name);
-        str_len_ = str_len;
+        variable_name_ = name;
       }
       virtual ~VariableNode() {}
 
@@ -1235,22 +1300,28 @@ namespace AST {
         return false;
       }
 
+      const char* GetVarName() { return variable_name_.c_str(); }
+
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
   };
 
   class SizeofExprNode : public ExprNode {
-    ExprNode* expr_;
+    ExprNode* size_expr_;
     public:
       SizeofExprNode() {
         kind_ = SizeofExprNodeTy;
+        size_expr_ = nullptr;
       }
       SizeofExprNode(ExprNode* expr) {
         kind_ = SizeofExprNodeTy;
-        expr_ = expr;
+        size_expr_ = expr;
       }
-      virtual ~SizeofExprNode() {}
+      virtual ~SizeofExprNode() {
+        if (size_expr_)
+          delete size_expr_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == SizeofExprNodeTy || kind == ExprNodeTy || 
@@ -1259,22 +1330,30 @@ namespace AST {
         return false;
       }
 
+      ExprNode* GetSizeExpr() { return size_expr_; }
+
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
   };
 
   class SizeofTypeNode : public ExprNode {
-    ExprNode * expr_;
+    ExprNode * size_expr_;
     public:
       SizeofTypeNode() {
         kind_ = SizeofTypeNodeTy;
+        size_expr_ = nullptr;
       }
+
       SizeofTypeNode(ExprNode* expr) {
         kind_ = SizeofTypeNodeTy;
-        expr_ = expr;
+        size_expr_ = expr;
       }
-      virtual ~SizeofTypeNode() {}
+      
+      virtual ~SizeofTypeNode() {
+        if (size_expr_)
+          delete size_expr_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == SizeofTypeNodeTy || kind == ExprNodeTy || 
@@ -1282,6 +1361,8 @@ namespace AST {
           return true;
         return false;
       }
+
+      ExprNode* GetSizeExpr() { return size_expr_; }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
@@ -1301,20 +1382,28 @@ namespace AST {
       Addr // & : address operator
     };
     protected:
-    ExprNode * expr_;
+    ExprNode * base_expr_;
     UnaryOp op_;
 
     public:
       UnaryOpNode() {
         kind_ = UnaryOpNodeTy;
+        base_expr_ = nullptr;
       }
+
       UnaryOpNode(ExprNode* expr, UnaryOpNode::UnaryOp op) {
         kind_ = UnaryOpNodeTy;
-        expr_ = expr;
+        base_expr_ = expr;
         op_ = op;
       }
-      virtual ~UnaryOpNode() {}
-      ExprNode* GetExpr() { return expr_; }
+
+      virtual ~UnaryOpNode() {
+        if (base_expr_)
+          delete base_expr_;
+      }
+
+      ExprNode* GetBaseExpr() { return base_expr_; }
+      UnaryOp GetOp() { return op_; }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == UnaryOpNodeTy || kind == ExprNodeTy || 
@@ -1353,9 +1442,9 @@ namespace AST {
       PrefixOpNode() {
         kind_ = PrefixOpNodeTy;
       }
-      PrefixOpNode(ExprNode *expr, UnaryOp op) {
+      PrefixOpNode(ExprNode *base_expr, UnaryOp op) {
         kind_ = PrefixOpNodeTy;
-        expr_ = expr; 
+        base_expr_ = base_expr; 
         op_ = op;
       }
       virtual ~PrefixOpNode() {}
@@ -1379,9 +1468,9 @@ namespace AST {
       SuffixOpNode() {
         kind_ = SuffixOpNodeTy;
       }
-      SuffixOpNode(ExprNode *expr, UnaryOp op) {
+      SuffixOpNode(ExprNode *base_expr, UnaryOp op) {
         kind_ = SuffixOpNodeTy;
-        expr_ = expr; 
+        base_expr_ = base_expr; 
         op_ = op;
       }
       virtual ~SuffixOpNode() {}
@@ -1478,18 +1567,15 @@ namespace AST {
 
   class StringLiteralNode : public LiteralNode {
     private:
-      char* str_;
-      int len_;
+      std::string str_;
     
     public:
       StringLiteralNode() { kind_ = StringLiteralNodeTy; }
-      StringLiteralNode(const char* str, int str_len) { kind_ = StringLiteralNodeTy; 
-        str_ = new char[str_len];
-        strcpy(str_, str); // Need to check string length
-        len_ = str_len;
+      StringLiteralNode(const char* str, int str_len) { 
+        kind_ = StringLiteralNodeTy; 
+        str_ = std::string(str, str_len);
       }
       virtual ~StringLiteralNode() {}
-      const char* GetStr() { return str_; }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == StringLiteralNodeTy ||
@@ -1498,6 +1584,8 @@ namespace AST {
           return true;
         return false;
       }
+
+      const char* GetStr() { return str_.c_str(); }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
@@ -1541,7 +1629,7 @@ namespace AST {
         kind_ = CompositeTypeDefinitionTy;
       }
     public:
-      virtual ~CompositeTypeDefinition() {}
+      virtual ~CompositeTypeDefinition();
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == CompositeTypeDefinitionTy|| kind == TypeDefinitionTy ||
@@ -1608,6 +1696,7 @@ namespace AST {
       bool IsStatic() { return is_static_; }
       TypeNode* GetReturnType() { return ret_ty_; }
       const char* GetName() { return name_.c_str(); }
+      int GetParamNum() { return params_.GetSize(); }
       ParamNode* GetParamNode(unsigned int index);
       BlockNode* GetBody() { return body_; }
 
@@ -1653,7 +1742,7 @@ namespace AST {
 
       bool HasInitializer() { return initializer_ ? true : false; }
       bool IsStatic()  { return is_static_; }
-      bool GetType() { return type_; }
+      TypeNode* GetType() { return type_; }
       const char* GetName() { return name_.c_str(); }
       ExprNode* GetInitializer() { return initializer_; }
 
@@ -1674,7 +1763,12 @@ namespace AST {
         initializer_ = nullptr;
       }
       ConstantDecl(TypeNode* type, const char* name, ExprNode* init);
-      virtual ~ConstantDecl() {}
+      virtual ~ConstantDecl() {
+        if (type_)
+          delete type_;
+        if (initializer_)
+          delete initializer_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ConstantDeclTy || kind == BaseNodeTy)
@@ -1689,7 +1783,7 @@ namespace AST {
 
       TypeNode* GetType() { return type_; }
       const char* GetName() { return name_.c_str(); }
-      ExprNode* GetInit() { return initializer_; }
+      ExprNode* GetInitializer() { return initializer_; }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
@@ -1704,7 +1798,7 @@ namespace AST {
       ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
           FunctionDecls* mem_func);
 
-      virtual ~ClassNode();
+      virtual ~ClassNode() {}
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ClassNodeTy || kind == CompositeTypeDefinitionTy ||
@@ -1719,8 +1813,8 @@ namespace AST {
       VariableDecl* GetMemVariable(unsigned int index);
       FunctionDecl* GetMemFunction(unsigned int index);
 
-      int GetMemVarSize() { return member_variables_.GetSize(); }
-      int GetMemFunSize() { return member_functions_.GetSize(); }
+      int GetMemVarNum() { return member_variables_.GetSize(); }
+      int GetMemFunNum() { return member_functions_.GetSize(); }
 
       void ReverseVariableOrder() { member_variables_.Reverse(); }
       void ReverseFunctionOrder() { member_functions_.Reverse(); }
@@ -1750,12 +1844,12 @@ namespace AST {
       void AddTypedef(TypedefNode* node) { typedefs_.PushBack(node); }
       void AddImport(ImportNode* node) { imports_.PushBack(node); }
 
-      int GetFunctionSize() { return funcs_.GetSize(); }
-      int GetConstantSize() { return conss_.GetSize(); }
-      int GetVariableSize() { return vars_.GetSize(); }
-      int GetClassSize() { return classes_.GetSize(); }
-      int GetTypedefSize() { return typedefs_.GetSize(); }
-      int GetImportSize() { return imports_.GetSize(); }
+      int GetFunctionNum() { return funcs_.GetSize(); }
+      int GetConstantNum() { return conss_.GetSize(); }
+      int GetVariableNum() { return vars_.GetSize(); }
+      int GetClassNum() { return classes_.GetSize(); }
+      int GetTypedefNum() { return typedefs_.GetSize(); }
+      int GetImportNum() { return imports_.GetSize(); }
 
       FunctionDecl* GetFunction(int index) { return funcs_[index];}
       ConstantDecl* GetConstant(int index) { return conss_[index];}

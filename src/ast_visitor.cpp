@@ -20,7 +20,7 @@ bool ASTVisitor::VisitExpr(ExprNode* node) {
 bool ASTVisitor::Visit(BlockNode* node){ 
   // variables
   VariableDecl* var = nullptr;
-  for (int i = 0; i < node->GetVarSize(); i++) {
+  for (int i = 0; i < node->GetVarNum(); i++) {
     var = node->GetVariable(i);
     if (var->HasInitializer()) {
       if(!VisitExpr(var->GetInitializer()))
@@ -29,7 +29,7 @@ bool ASTVisitor::Visit(BlockNode* node){
   }
   // statements
   StmtNode* stmt = nullptr;
-  for (int i = 0; i < node->GetStmtSize(); i++) {
+  for (int i = 0; i < node->GetStmtNum(); i++) {
     stmt = node->GetStmt(i);
     if(!VisitStmt(stmt))
       return false;
@@ -98,11 +98,14 @@ bool ASTVisitor::Visit(ForNode* node){
 }
 
 bool ASTVisitor::Visit(CaseNode* node){ 
-  ExprNode* val = node->GetCaseValue();
-  StmtNode* body = node->GetBody();
+  ExprNode* val;
+  for (int i = 0; i < node->GetCaseValueNum(); i++) {
+    val = node->GetCaseValue(i);
+    if(!VisitExpr(val))
+      return false;
+  }
 
-  if(!VisitExpr(val))
-    return false;
+  StmtNode* body = node->GetBody();
   if(!VisitStmt(body))
     return false;
   return true; 
@@ -252,24 +255,118 @@ bool ASTVisitor::Visit(MemberRefNode* node){
   return true; 
 }
 
-bool ASTVisitor::Visit(PtrMemberRefNode* node){ return true; }
+bool ASTVisitor::Visit(PtrMemberRefNode* node){ 
+  ExprNode* base_expr = node->GetBaseExpr();
+  if (!VisitExpr(base_expr))
+    return false;
+  return true; 
+}
+
 bool ASTVisitor::Visit(VariableNode* node){ return true; }
 bool ASTVisitor::Visit(IntegerLiteralNode* node){ return true; }
 bool ASTVisitor::Visit(RealLiteralNode* node){ return true; }
 bool ASTVisitor::Visit(StringLiteralNode* node){ return true; }
-bool ASTVisitor::Visit(SizeofExprNode* node){ return true; }
-bool ASTVisitor::Visit(SizeofTypeNode* node){ return true; }
-bool ASTVisitor::Visit(UnaryOpNode* node){ return true; }
-bool ASTVisitor::Visit(PrefixOpNode* node){ return true; }
-bool ASTVisitor::Visit(SuffixOpNode* node){ return true; }
+bool ASTVisitor::Visit(SizeofExprNode* node){ 
+  ExprNode* size_expr = node->GetSizeExpr();
+  if (!VisitExpr(size_expr))
+    return false;
+  return true; 
+}
+bool ASTVisitor::Visit(SizeofTypeNode* node){ 
+  ExprNode* size_expr = node->GetSizeExpr();
+  if (!VisitExpr(size_expr))
+    return false;
+  return true; 
+}
+bool ASTVisitor::Visit(UnaryOpNode* node){ 
+  ExprNode* base_expr = node->GetBaseExpr();
+  if (!VisitExpr(base_expr))
+    return false;
+  return true; 
+}
+bool ASTVisitor::Visit(PrefixOpNode* node){ 
+  ExprNode* base_expr = node->GetBaseExpr();
+  if (!VisitExpr(base_expr))
+    return false;
+  return true; 
+}
+bool ASTVisitor::Visit(SuffixOpNode* node){ 
+  ExprNode* base_expr = node->GetBaseExpr();
+  if (!VisitExpr(base_expr))
+    return false;
+  return true; 
+}
 
 // Etc
-bool ASTVisitor::Visit(FunctionDecl* node){ return true; }
-bool ASTVisitor::Visit(VariableDecl* node){ return true; }
-bool ASTVisitor::Visit(ConstantDecl* node){ return true; }
+bool ASTVisitor::Visit(FunctionDecl* node){ 
+  // return type 
+  TypeNode* retty = node->GetReturnType();
+  if(!Visit(retty))
+    return false;
+  // parameters
+  for (int i = 0; i < node->GetParamNum(); i++) {
+    if(!Visit(node->GetParamNode(i)))
+      return false;
+  }
+  // body
+  BlockNode* body = node->GetBody();
+  if(!Visit(body))
+    return false;
+  return true; 
+}
+
+bool ASTVisitor::Visit(VariableDecl* node){ 
+  TypeNode* ty = node->GetType();
+  if(!Visit(ty))
+    return false;
+  ExprNode* init = node->GetInitializer();
+  if(!VisitExpr(init))
+    return false;
+  return true; 
+}
+
+bool ASTVisitor::Visit(ConstantDecl* node){ 
+  TypeNode* ty = node->GetType();
+  if(!Visit(ty))
+    return false;
+  ExprNode* init = node->GetInitializer();
+  if(!VisitExpr(init))
+    return false;
+  return true; 
+}
 bool ASTVisitor::Visit(TypeNode* node){ return true; }
-bool ASTVisitor::Visit(ParamNode* node){ return true; }
+bool ASTVisitor::Visit(ParamNode* node){ 
+  TypeNode* ty = node->GetType();
+  if(!Visit(ty))
+    return false;
+  return true; 
+}
+
 bool ASTVisitor::Visit(ImportNode* node){ return true; }
-bool ASTVisitor::Visit(ArgsNode* node){ return true; }
-bool ASTVisitor::Visit(ClassNode* node){ return true; }
-bool ASTVisitor::Visit(TypedefNode* node){ return true; }
+bool ASTVisitor::Visit(ArgsNode* node){ 
+  for (int i = 0; i < node->GetArgNum(); i++) {
+    ExprNode* arg = node->GetArg(i);
+    if(!VisitExpr(arg))
+      return false;
+  }
+  return true; 
+}
+
+bool ASTVisitor::Visit(ClassNode* node){ 
+  for (int i = 0; i < node->GetMemVarNum(); i++) {
+    if(!Visit(node->GetMemVariable(i)))
+      return false;
+  }
+  for (int i = 0; i < node->GetMemFunNum(); i++) {
+    if(!Visit(node->GetMemFunction(i)))
+      return false;
+  }
+  return true; 
+}
+
+bool ASTVisitor::Visit(TypedefNode* node){ 
+  TypeNode* ty = node->GetType();
+  if(!Visit(ty))
+    return false;
+  return true; 
+}
