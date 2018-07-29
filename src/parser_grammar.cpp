@@ -2,16 +2,16 @@
 
 namespace Parser {
   void SyntaxAnalyzer::InitBasicRule() {
-
+    // Initialize rules
     for (int i = 0; i < MAX_RULES; i++) {
       for (int j = 0; j < MAX_SUB_RULES; j++) {
-        rules_[i].sub_rules_[j] = -1;
+        rules_[i].sub_rules_[j] = 0;
       }
     }
 
     // Initialize rules as Terminal.
     for (int i = TokEof; i < TokEnd; i++) {
-      rules_[i] = {Terminal, {i}};
+      rules_[i] = {Terminal, {i,}};
     }
     // compilation_unit 
     //    : import_stmts top_defs <EOF> 
@@ -545,6 +545,7 @@ namespace Parser {
     rules_[primary] = {Select, {TokIntegerLiteral, TokCharactorLiteral, TokStringLiteral, TokIdentifier, seq_po_expr_pc}};
       // "(" expr ")" 
       rules_[seq_po_expr_pc] = {Sequence, {TokParenOpen, expr, TokParenClose,}};
+
   }
 
   void SyntaxAnalyzer::InitRuleAction() {

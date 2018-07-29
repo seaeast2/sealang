@@ -32,9 +32,10 @@ namespace AST {
   }
 
   void ASTContext::PrintAST() {
-    ASTPrinter astprt;
-    // TODO : working here
+    ASTPrinter ast_printer;
 
+    ast_printer.Print(GetLocalDecl());
+    ast_printer.Print(GetImportedDecl());
   }
 
 };

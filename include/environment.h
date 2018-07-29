@@ -15,7 +15,7 @@ class Environment {
     }
 
     V GetValue(const char* key) {
-      return *data_.Find(key);
+      return data_.Find(key);
     }
 
     void PushNewScope() {

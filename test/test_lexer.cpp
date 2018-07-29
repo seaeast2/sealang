@@ -5,11 +5,12 @@
 using namespace Lexer;
 
 char * test_src = {
-  "!! ddd \n < > if else while struct void real string <=>!"
+  "!! ddd \n < > if else while struct void real string <= > !"
 };
 
 int main() {
   Tokenizer tk(test_src);
+  tk.CompileTokens();
 
   Token tok;
   while (true) {

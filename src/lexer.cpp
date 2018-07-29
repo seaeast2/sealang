@@ -20,9 +20,9 @@ namespace Lexer {
   };
 
   TokenInfo TokInfo[] = {
+    { "",         "TokUnknown", 0 },
     { "eof",      "TokEof",     3 },
-    // Keywords
-    { "import",   "TokImport",  6 },
+    { "import",   "TokImport",  6 },// Keywords
     { "static",   "TokStatic",  6 },
     { "if",       "TokIf",      2 },
     { "else",     "TokElse",    4 },
@@ -39,8 +39,7 @@ namespace Lexer {
     { "continue", "TokContinue",8 },
     { "goto",     "TokGoto",    4 },
     { "sizeof",   "TokSizeOf",  6 },
-    // Types : byte int string double void struct
-    { "signed",   "TokSigned",  6 },
+    { "signed",   "TokSigned",  6 },// Types : byte int string double void struct
     { "unsigned", "TokUnsigned", 8 },
     { "char",     "TokChar",    4 },
     { "short",    "TokShort",   5 },
@@ -50,12 +49,10 @@ namespace Lexer {
     { "double",   "TokDouble",  6 },
     { "void",     "TokVoid",    4 },
     { "class",    "TokClass",   5 },
-    // Operators
-    { "<<=",      "TokComBitShiftL",  3 },
+    { "<<=",      "TokComBitShiftL",  3 },// 4 charactor Operators
     { ">>=",      "TokComBitShiftR",  3 },
     { "...",      "TokDotDotDot",     3 },
-    
-    { "<<",       "TokBitShiftL",     2 },
+    { "<<",       "TokBitShiftL",     2 }, // 2 charactor operator
     { ">>",       "TokBitShiftR",     2 },
     { "++",       "TokUnaryInc",      2 },
     { "--",       "TokUnaryDec",      2 },
@@ -63,6 +60,7 @@ namespace Lexer {
     { "-=",       "TokComSub",        2 },
     { "*=",       "TokComMul",        2 },
     { "/=",       "TokComDiv",        2 },
+    { "%=",       "TokComMod",        2 },
     { "&=",       "TokComBitAnd",     2 },
     { "|=",       "TokComBitOr",      2 },
     { "^=",       "TokComBitXor",     2 },
@@ -73,8 +71,7 @@ namespace Lexer {
     { "&&",       "TokConAnd",        2 },
     { "||",       "TokConOr",         2 },
     { "->",       "TokRightArrow",    2 },
-
-    { "+",        "TokAdd",     1 },
+    { "+",        "TokAdd",     1 }, // 1 charactor operator
     { "-",        "TokSub",     1 },
     { "*",        "TokMul",     1 },
     { "/",        "TokDiv",     1 },
@@ -88,38 +85,34 @@ namespace Lexer {
     { ">",        "TokGreatorThan", 1 },
     { "!",        "TokConNot",  1 },
     { "?",        "TokQuestion", 1 },
-
-    { "(",        "TokParenOpen", 1 },
+    { "(",        "TokParenOpen", 1 }, // Parentheses
     { ")",        "TokParenClose", 1 },
     { "{",        "TokBraceOpen", 1 },
     { "}",        "TokBraceClose", 1 },
     { "[",        "TokBracketOpen", 1 },
     { "]",        "TokBracketClose", 1 },
-    
-    { ",",        "TokComma",   1 },
+    { ",",        "TokComma",   1 }, // Commas
     { ".",        "TokDot",     1 },
     { ":",        "TokColon",   1 },
     { ";",        "TokSemiColon", 1 },
-
-    { "\"",       "TokDoubleQuot", 1 },
+    { "\"",       "TokDoubleQuot", 1 }, // Quoto
     { "\'",       "TokSingleQuot", 1 },
-   
-    { "/*",       "TokStarRemark", 2 },
+    { "/*",       "TokStarRemark", 2 }, // Comment
     { "//",       "TokLineRemark", 2 },
-
-    { "ID",       "TokIdentifier", 0 },
+    { "ID",       "TokIdentifier", 0 }, 
     { "IL",       "TokIntegerLiteral", 0},
     { "SL",       "TokStringLiteral", 0},
     { "CL",       "TokCharactorLiteral", 0},
   };
 
   void PrintToken(Token& tok) {
-    printf("TokenType : %s, line : %d, col : %d \n", 
+    printf("TokenType : %s, line : %d, col : %d ", 
         TokInfo[tok.type].name, tok.line, tok.col);
-    //printf("scr : %s \n", tok.c);
+    printf("string : %.*s \n", tok.len, tok.c);
   }
 
   Tokenizer::Tokenizer(const char* src) : src_(src) {
+    cur_tok_ = 0;
     src_len_ = strlen(src_);
 
     err_diag_ = new ErrorDiag::LexerDiag();

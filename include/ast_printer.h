@@ -1,13 +1,13 @@
 #ifndef _ast_printer_h_
 #define _ast_printer_h_
 
-#include "visitor_base.h"
 #include "ast_node.h"
+#include "ast_visitor.h"
 
 namespace AST {
 
   // Print AST
-  class ASTPrinter : public VisitorBase {
+  class ASTPrinter : public ASTVisitor {
     private:
       int depth_;
     public:
@@ -15,57 +15,56 @@ namespace AST {
       virtual ~ASTPrinter();
 
       bool Print(Declarations* decls);
-      bool Print(BaseNode* ast);
 
       // Statements
-      virtual bool visit(BlockNode* node);
-      virtual bool visit(LabelNode* node);
-      virtual bool visit(ExprStmtNode* node);
-      virtual bool visit(IfNode* node);    
-      virtual bool visit(WhileNode* node);
-      virtual bool visit(DoWhileNode* node);
-      virtual bool visit(ForNode* node);
-      virtual bool visit(CaseNode* node);
-      virtual bool visit(SwitchNode* node);
-      virtual bool visit(BreakNode* node);
-      virtual bool visit(ContinueNode* node);
-      virtual bool visit(GotoNode* node);
-      virtual bool visit(ReturnNode* node);
+      virtual bool Visit(BlockNode* node) override;
+      virtual bool Visit(LabelNode* node) override;
+      virtual bool Visit(ExprStmtNode* node) override;
+      virtual bool Visit(IfNode* node) override;    
+      virtual bool Visit(WhileNode* node) override;
+      virtual bool Visit(DoWhileNode* node) override;
+      virtual bool Visit(ForNode* node) override;
+      virtual bool Visit(CaseNode* node) override;
+      virtual bool Visit(SwitchNode* node) override;
+      virtual bool Visit(BreakNode* node) override;
+      virtual bool Visit(ContinueNode* node) override;
+      virtual bool Visit(GotoNode* node) override;
+      virtual bool Visit(ReturnNode* node) override;
 
       // Expression
-      virtual bool visit(AssignNode* node);
-      virtual bool visit(OpAssignNode* node);
-      virtual bool visit(AddressNode* node);
-      virtual bool visit(BinaryOpNode* node);
-      virtual bool visit(LogicalAndNode* node);
-      virtual bool visit(LogicalOrNode* node);
-      virtual bool visit(CastNode* node);
-      virtual bool visit(CondExprNode* node);
-      virtual bool visit(FuncCallNode* node);
-      virtual bool visit(ArrayRefNode* node);
-      virtual bool visit(DereferenceNode* node);
-      virtual bool visit(MemberRefNode* node);
-      virtual bool visit(PtrMemberRefNode* node);
-      virtual bool visit(VariableNode* node);
-      virtual bool visit(IntegerLiteralNode* node);
-      virtual bool visit(RealLiteralNode* node);
-      virtual bool visit(StringLiteralNode* node);
-      virtual bool visit(SizeofExprNode* node);
-      virtual bool visit(SizeofTypeNode* node);
-      virtual bool visit(UnaryOpNode* node);
-      virtual bool visit(PrefixOpNode* node);   
-      virtual bool visit(SuffixOpNode* node);
+      virtual bool Visit(AssignNode* node) override;
+      virtual bool Visit(OpAssignNode* node) override;
+      virtual bool Visit(AddressNode* node) override;
+      virtual bool Visit(BinaryOpNode* node) override;
+      virtual bool Visit(LogicalAndNode* node) override;
+      virtual bool Visit(LogicalOrNode* node) override;
+      virtual bool Visit(CastNode* node) override;
+      virtual bool Visit(CondExprNode* node) override;
+      virtual bool Visit(FuncCallNode* node) override;
+      virtual bool Visit(ArrayRefNode* node) override;
+      virtual bool Visit(DereferenceNode* node) override;
+      virtual bool Visit(MemberRefNode* node) override;
+      virtual bool Visit(PtrMemberRefNode* node) override;
+      virtual bool Visit(VariableNode* node) override;
+      virtual bool Visit(IntegerLiteralNode* node) override;
+      virtual bool Visit(RealLiteralNode* node) override;
+      virtual bool Visit(StringLiteralNode* node) override;
+      virtual bool Visit(SizeofExprNode* node) override;
+      virtual bool Visit(SizeofTypeNode* node) override;
+      virtual bool Visit(UnaryOpNode* node) override;
+      virtual bool Visit(PrefixOpNode* node) override;   
+      virtual bool Visit(SuffixOpNode* node) override;
 
       // Etc
-      virtual bool visit(FunctionDecl* node);
-      virtual bool visit(VariableDecl* node);
-      virtual bool visit(ConstantDecl* node);
-      virtual bool visit(TypeNode* node); 
-      virtual bool visit(ParamNode* node);
-      virtual bool visit(ImportNode* node);
-      virtual bool visit(ArgsNode* node);        
-      virtual bool visit(ClassNode* node);   
-      virtual bool visit(TypedefNode* node);  
+      virtual bool Visit(FunctionDecl* node) override;
+      virtual bool Visit(VariableDecl* node) override;
+      virtual bool Visit(ConstantDecl* node) override;
+      virtual bool Visit(TypeNode* node) override; 
+      virtual bool Visit(ParamNode* node) override;
+      virtual bool Visit(ImportNode* node) override;
+      virtual bool Visit(ArgsNode* node) override;        
+      virtual bool Visit(ClassNode* node) override;   
+      virtual bool Visit(TypedefNode* node) override;  
   };
 }
 

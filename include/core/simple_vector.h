@@ -47,13 +47,13 @@ class SimpleVector {
     }
 
     void Reverse() {
-      T* temp = nullptr; 
+      T temp; 
       int half = count_/2, back = count_ -1;
 
       for (int i = 0; i < half; i++) {
-        *temp = *(data_ + i);
+        temp = *(data_ + i);
         *(data_ + i) = *(data_ + back - i);
-        *(data_ + back - i) = *temp;
+        *(data_ + back - i) = temp;
       }
     }
 

@@ -55,6 +55,7 @@ namespace AST {
   class ArgsNode;
   class ClassNode;
   class TypedefNode;
+  class Declarations;
 
   typedef SimpleVector<TypeNode*>     TypeNodes;
   typedef SimpleVector<FunctionDecl*> FunctionDecls;

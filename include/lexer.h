@@ -6,9 +6,9 @@
 
 namespace Lexer {
   enum TokenType {
-    TokEof = 0,
-    // Keywords
-    TokImport,
+    TokUnknown = 0,
+    TokEof,
+    TokImport, // Keywords
     TokStatic,
     TokIf,
     TokElse,
@@ -25,24 +25,20 @@ namespace Lexer {
     TokContinue,
     TokGoto,
     TokSizeOf,
-    // Types : byte int string double void struct
-    TokSigned,      // unsigned
-    TokUnsigned,        // signed
-    TokChar,          // char
-    TokShort,         // short
-    TokInt,           // int
-    TokLong,          // long
-    TokFloat,         // float
-    TokDouble,        // double
-    TokVoid,          // void
-    TokClass,         // class
-
-    // Operators
-    TokComBitShiftL,  // <<=
+    TokSigned,    // unsigned  // Types : byte int string double void struct
+    TokUnsigned,  // signed
+    TokChar,      // char
+    TokShort,     // short
+    TokInt,       // int
+    TokLong,      // long
+    TokFloat,     // float
+    TokDouble,    // double
+    TokVoid,      // void
+    TokClass,     // class
+    TokComBitShiftL,  // <<= // Operators
     TokComBitShiftR,  // >>=
-    TokDotDotDot,     // ...
-
-    TokBitShiftL,     // <<
+    TokDotDotDot,     // ... // Triple operator
+    TokBitShiftL,     // << // Double operator
     TokBitShiftR,     // >>
     TokUnaryInc,      // ++
     TokUnaryDec,      // --
@@ -57,12 +53,11 @@ namespace Lexer {
     TokEqual,         // ==
     TokNotEqual,      // !=
     TokLessThanEqual, // <=
-    TokGreatorThenEqual, // >=
+    TokGreatorThenEqual,// >=
     TokConAnd,        // &&
     TokConOr,         // ||
     TokRightArrow,    // ->
-
-    TokAdd,           // +
+    TokAdd,           // + // Single operators
     TokSub,           // -
     TokMul,           // *
     TokDiv,           // /
@@ -76,36 +71,25 @@ namespace Lexer {
     TokGreatorThan,   // >
     TokConNot,        // !
     TokQuestion,      // ?
-
-    //  Parentheses
-    TokParenOpen,     // (
+    TokParenOpen,     // ( //  Parentheses
     TokParenClose,    // )
     TokBraceOpen,     // {
     TokBraceClose,    // }
     TokBracketOpen,   // [
     TokBracketClose,  // ]
-
-    /* Etc : , . ; */
-    TokComma,         // ,
+    TokComma,         // , /* Etc : , . ; */
     TokDot,           // .
     TokColon,         // :
     TokSemiColon,     // ;
-
-    // Quoto
-    TokDoubleQuot,    // "
+    TokDoubleQuot,    // "  // Quoto
     TokSingleQuot,    // '
-
-    /* Remark */
-    TokStarRemark,    // /*
+    TokStarRemark,    // /* /* Remark */
     TokLineRemark,    // //
-
-    /* Identifier */
-    TokIdentifier,    // ex) abcd012
+    TokIdentifier,    // ex) abcd012  /* Identifier */
     TokIntegerLiteral, // ex) 12345
     TokStringLiteral, // ex) "test"
     TokCharactorLiteral, // ex) 'A'
-    TokUnknown,
-    TokEnd
+    TokEnd // 84
   };
 
   struct Token {
@@ -129,7 +113,7 @@ namespace Lexer {
 
     private:
     // Produce token from text stream.
-    Token MakeToken(const char*& read_pos, int& line, int& col);
+    Token MakeToken(const char*& src, int& line, int& col);
     Tokenizer() {}
     public:
     Tokenizer(const char* src);

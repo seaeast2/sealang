@@ -22,11 +22,12 @@ namespace Parser {
 
 #define MAX_RULES 300
 #define MAX_SUB_RULES 15
+#define UNDEFINED_RULE 0
   enum RuleName {
     // Token
     
     // Rule
-    compilation_unit = TokEnd,
+    compilation_unit = TokEnd, //84 = 29 + 55
     import_stmts,
       import_stmt,
         rep_dot_name, // ("," name)*
@@ -176,17 +177,17 @@ namespace Parser {
       seq_args_expr, // expr
       rep_args_expr, // ("," expr)*
     primary,
-      seq_po_expr_pc,// "(" expr ")" 
+      seq_po_expr_pc,// "(" expr ")"  // 234
 
-    nil, // nil
+    nil, // nil                   // 235
 
     // BNF Action
-    RepeatStar, // ()*
-    RepeatDagger, // ()+
-    Select, // |
-    Sequence, // rule1 rule2
-    Options, // []
-    Terminal
+    RepeatStar,   // ()*          // 236
+    RepeatDagger, // ()+          // 237
+    Select,       // |            // 238
+    Sequence,     // rule1 rule2  // 239
+    Options,      // []           // 240
+    Terminal                      // 241
   };
 
   struct Rule {

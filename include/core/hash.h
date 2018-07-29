@@ -92,6 +92,8 @@ class HashTable {
     }
 
   private:
+    // ELF hash function
+    // http://www.drdobbs.com/database/hashing-rehashed/184409859
     long Hash(const char* key) {
       long h = 0;
       long g;
@@ -100,7 +102,7 @@ class HashTable {
         g = h & 0xf0000000;
         if (g) 
           h ^= g >> 24;
-        h &= g;
+        h &= ~g;
       }
       return h % MAX_TABLE;
     }

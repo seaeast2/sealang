@@ -29,7 +29,7 @@ namespace Parser {
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
-            for (; rule.sub_rules_[i] > -1; i++) {
+            for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
               res = TraverseRule(rule.sub_rules_[i]);
               if (res == True) { // matched
                 matching_count++;
@@ -61,7 +61,7 @@ namespace Parser {
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
-            for (; rule.sub_rules_[i] > -1; i++) {
+            for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
               res = TraverseRule(rule.sub_rules_[i]);
               if (res == True) { // matched
                 matching_count++;
@@ -90,7 +90,7 @@ namespace Parser {
       case Select:
         {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
-          for (int i = 0; rule.sub_rules_[i] > -1; i++) {
+          for (int i = 0; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) {
               // Run action
@@ -113,7 +113,7 @@ namespace Parser {
           int matching_count = 0;
           int i = 0;
           tok_pos = tokenizer_->GetTokPos(); // backup token position
-          for (; rule.sub_rules_[i] > -1; i++) {
+          for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) { // matched
               matching_count++;
@@ -142,7 +142,7 @@ namespace Parser {
           int matching_count = 0;
           int i = 0;
           tok_pos = tokenizer_->GetTokPos(); // backup token position
-          for (; rule.sub_rules_[i] > -1; i++) {
+          for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) {
               matching_count++;
@@ -193,7 +193,7 @@ namespace Parser {
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
-            for (; rule.sub_rules_[i] > -1; i++) {
+            for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
               res = TestRule(rule.sub_rules_[i]);
               if (res == True) { // matched
                 matching_count++;
@@ -220,7 +220,7 @@ namespace Parser {
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
-            for (; rule.sub_rules_[i] > -1; i++) {
+            for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
               res = TestRule(rule.sub_rules_[i]);
               if (res == True) { // matched
                 matching_count++;
@@ -244,7 +244,7 @@ namespace Parser {
       case Select:
         {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
-          for (int i = 0; rule.sub_rules_[i] > -1; i++) {
+          for (int i = 0; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
             res = TestRule(rule.sub_rules_[i]);
             if (res == True) {
               // Run action
@@ -266,7 +266,7 @@ namespace Parser {
           int matching_count = 0;
           int i = 0;
           tok_pos = tokenizer_->GetTokPos(); // backup token position
-          for (; rule.sub_rules_[i] > -1; i++) {
+          for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
             res = TestRule(rule.sub_rules_[i]);
             if (res == True) { // matched
               matching_count++;
@@ -294,7 +294,7 @@ namespace Parser {
           int matching_count = 0;
           int i = 0;
           tok_pos = tokenizer_->GetTokPos(); // backup token position
-          for (; rule.sub_rules_[i] > -1; i++) {
+          for (; rule.sub_rules_[i] > UNDEFINED_RULE; i++) {
             res = TestRule(rule.sub_rules_[i]);
             if (res == True)
               matching_count++;
