@@ -5,7 +5,7 @@
 char* src =  
 " \
 import test.aaa.bbb.ccc; \n\
-void test() {\n\
+void test(void) {\n\
   int a = 10;\n\
 }";
 

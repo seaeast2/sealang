@@ -7,6 +7,12 @@
 
 typedef std::vector<std::string> VecStr;
 
+template <class T1, class T2> 
+struct Pair {
+  T1 first_;
+  T2 second_;
+};
+
 namespace AST {
   class BaseNode;
   class StmtNode;

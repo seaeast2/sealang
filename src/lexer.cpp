@@ -270,8 +270,7 @@ namespace Lexer {
     }
 
     /* check if it is bin op*/
-    for (int i = TokComBitShiftL; 
-        i < TokSemiColon + 1; i++) {
+    for (int i = TokComBitShiftL; i <= TokSemiColon; i++) {
       char match = 0;
       for (int j = 0; j < TokInfo[i].length; j++) {
         match |= (*(read_pos + j) ^ TokInfo[i].str[j]);
@@ -342,6 +341,7 @@ namespace Lexer {
 
       MoveNext(read_pos, TokInfo[TokSingleQuot].length);
     }
+
     /* Numbers */
     if (isNumber(*read_pos)) {
       tok.type = (TokenType)TokIntegerLiteral;
@@ -354,6 +354,7 @@ namespace Lexer {
         tok.len++;
         read_pos++;
       }
+      return tok;
     }
 
     /* Identifier */

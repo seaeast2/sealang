@@ -20,7 +20,7 @@ namespace Parser {
 
 #define MAX_RULES 300
 #define MAX_SUB_RULES 15
-#define UNDEFINED_RULE 0
+
   enum RuleName {
     // Token
     TokUnknown = 0,
@@ -273,6 +273,7 @@ namespace Parser {
 
   struct Rule {
     RuleName action_; // repeat, select, sequence, terminal
+    int lookahead_; // 0: no look ahead 1~15: look ahead number
     RuleName sub_rules_[15];
   };
 
@@ -348,11 +349,14 @@ namespace Parser {
       SyntaxAnalyzer(AST::ASTContext* ac, Lexer::Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAnalyzer();
 
-      Rule RuleSetter(RuleName action, RuleName sub01 = TokUnknown, RuleName sub02 = TokUnknown, 
-          RuleName sub03 = TokUnknown, RuleName sub04 = TokUnknown, RuleName sub05 = TokUnknown, 
-          RuleName sub06 = TokUnknown, RuleName sub07 = TokUnknown, RuleName sub08 = TokUnknown, 
-          RuleName sub09 = TokUnknown, RuleName sub10 = TokUnknown, RuleName sub11 = TokUnknown, 
-          RuleName sub12 = TokUnknown, RuleName sub13 = TokUnknown, RuleName sub14 = TokUnknown, 
+      Rule RuleSetter(RuleName action, int lookahead, 
+          RuleName sub01 = TokUnknown, RuleName sub02 = TokUnknown, 
+          RuleName sub03 = TokUnknown, RuleName sub04 = TokUnknown, 
+          RuleName sub05 = TokUnknown, RuleName sub06 = TokUnknown, 
+          RuleName sub07 = TokUnknown, RuleName sub08 = TokUnknown, 
+          RuleName sub09 = TokUnknown, RuleName sub10 = TokUnknown, 
+          RuleName sub11 = TokUnknown, RuleName sub12 = TokUnknown, 
+          RuleName sub13 = TokUnknown, RuleName sub14 = TokUnknown, 
           RuleName sub15 = TokUnknown);
 
       void InitBasicRule();

@@ -5,7 +5,8 @@
 using namespace Lexer;
 
 char * test_src = {
-  "!! ddd \n < > if else while struct void real string <= > !"
+  //"!! ddd \n < > if else while struct void real string <= > !"
+  "a = 10;"
 };
 
 int main() {
