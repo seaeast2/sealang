@@ -2,10 +2,9 @@
 #include "parser.h"
 #include <stdlib.h>
 
-using namespace Lexer;
-
 namespace Parser {
-  SyntaxAnalyzer::SyntaxAnalyzer(AST::ASTContext* ac, Tokenizer* tk, ErrorDiag::Diagnosis* ed) {
+  SyntaxAnalyzer::SyntaxAnalyzer(AST::ASTContext* ac, Lexer::Tokenizer* tk, 
+      ErrorDiag::Diagnosis* ed) {
     tokenizer_ = tk;
     ac_ = ac;
     err_diag_ = ed;
@@ -17,7 +16,7 @@ namespace Parser {
   SyntaxAnalyzer::~SyntaxAnalyzer() {
   }
 
-  eResult SyntaxAnalyzer::TraverseRule(int entry) {
+  eResult SyntaxAnalyzer::TraverseRule(RuleName entry) {
     Rule rule = rules_[entry];
     eResult res;
     int tok_pos;
@@ -34,14 +33,9 @@ namespace Parser {
               if (res == True) { // matched
                 matching_count++;
               }
-              else if (res == False) { // not matching
-                if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                  matching_count++;
-                }
-                else {
-                  tokenizer_->SetTokPos(tok_pos); // restore token position.
-                  return True; // reached unmatching point.
-                }
+              else if (res == False) { // unmatched
+                tokenizer_->SetTokPos(tok_pos);
+                return True;
               }
               else
                 return Error;
@@ -58,6 +52,7 @@ namespace Parser {
       case RepeatDagger:
         {
           while(true) {
+            bool success = false;
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
@@ -66,14 +61,11 @@ namespace Parser {
               if (res == True) { // matched
                 matching_count++;
               }
-              else if (res == False) { // not matching
-                if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                  matching_count++;
-                }
-                else {
-                  tokenizer_->SetTokPos(tok_pos); // restore token position.
-                  return True; // reached unmatching point.
-                }
+              else if (res == False) { // Rereached unmached point 
+                tokenizer_->SetTokPos(tok_pos);
+                if (success)
+                  return True;
+                return False;
               }
               else
                 return Error;
@@ -82,6 +74,7 @@ namespace Parser {
             if (matching_count == i) {
               // if every rules are matching, run action.
               (this->*rule_actions_[entry])();
+              success = true;
             }
           };
         }
@@ -118,10 +111,9 @@ namespace Parser {
             if (res == True) { // matched
               matching_count++;
             }
-            else if (res == False) { // not matching
-              if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                matching_count++;
-              }
+            else if (res == False) { // unmatched
+              tokenizer_->SetTokPos(tok_pos); // restore token position.
+              return False; // unmatching
             }
             else
               return Error;
@@ -151,14 +143,16 @@ namespace Parser {
               return Error;
           }
 
+          // matched
           if (matching_count == i) {
             // Run action
             (this->*rule_actions_[entry])();
             return True;
           }
 
+          // unmatched
           tokenizer_->SetTokPos(tok_pos); // restore token position.
-          return False; // unmatching
+          return True; // unmatched but return true
         }
         break;
 
@@ -180,7 +174,7 @@ namespace Parser {
     }
   }
 
-  eResult SyntaxAnalyzer::TestRule(int entry) {
+  eResult SyntaxAnalyzer::TestRule(RuleName entry) {
     Rule rule = rules_[entry];
     eResult res;
     int tok_pos;
@@ -3061,7 +3055,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::ActTokIntegerLiteral(void) {
     ParseInfo pi;
-    Token tok = tokenizer_->GetCurToken(0);
+    Lexer::Token tok = tokenizer_->GetCurToken(0);
 
     pi.type_ = ParseInfo::Integer;
     pi.data_.integer_ = atol(tok.c);
@@ -3073,7 +3067,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::ActTokCharacterLiteral(void) {
     ParseInfo pi;
-    Token tok = tokenizer_->GetCurToken(0);
+    Lexer::Token tok = tokenizer_->GetCurToken(0);
 
     pi.type_ = ParseInfo::Character;
     pi.data_.character_ = *tok.c;
@@ -3085,7 +3079,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::ActTokStringLiteral(void) {
     ParseInfo pi;
-    Token tok = tokenizer_->GetCurToken(0);
+    Lexer::Token tok = tokenizer_->GetCurToken(0);
 
     pi.type_ = ParseInfo::String;
     pi.data_.cstr_ = tok.c;
@@ -3098,7 +3092,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::ActTokIdentifier(void) {
     ParseInfo pi;
-    Token tok = tokenizer_->GetCurToken(0);
+    Lexer::Token tok = tokenizer_->GetCurToken(0);
 
     pi.type_ = ParseInfo::Identifier;
     pi.data_.cstr_ = tok.c;
@@ -3119,7 +3113,7 @@ namespace Parser {
 
   void SyntaxAnalyzer::PushToken(int pos_offset, RuleName rname) {
     ParseInfo pi;
-    Token tok = tokenizer_->GetCurToken(pos_offset);
+    Lexer::Token tok = tokenizer_->GetCurToken(pos_offset);
 
     pi.type_ = ParseInfo::TokenType;
     pi.data_.tok_type_ = tok.type;

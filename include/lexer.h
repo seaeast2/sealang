@@ -89,7 +89,7 @@ namespace Lexer {
     TokIntegerLiteral, // ex) 12345
     TokStringLiteral, // ex) "test"
     TokCharactorLiteral, // ex) 'A'
-    TokEnd // 84
+    TokEnd // 83
   };
 
   struct Token {

@@ -14,7 +14,7 @@ class Environment {
     ~Environment() {
     }
 
-    V GetValue(const char* key) {
+    V* GetValue(const char* key) {
       return data_.Find(key);
     }
 

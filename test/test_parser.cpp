@@ -10,7 +10,7 @@ void test() {\n\
 }";
 
 int main() {
-  Tokenizer* tk = new Tokenizer(src);
+  Lexer::Tokenizer* tk = new Lexer::Tokenizer(src);
   tk->CompileTokens();
 
   ErrorDiag::ParserDiag* parser_err = new ErrorDiag::ParserDiag();

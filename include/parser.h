@@ -10,8 +10,6 @@
 #include "astcontext.h"
 #include "ast_node.h"
 
-using namespace Lexer;
-
 namespace Parser {  
   // default 3 rusult.
   enum eResult {
@@ -25,9 +23,92 @@ namespace Parser {
 #define UNDEFINED_RULE 0
   enum RuleName {
     // Token
-    
+    TokUnknown = 0,
+    TokEof,
+    TokImport, // Keywords
+    TokStatic,
+    TokIf,
+    TokElse,
+    TokDo,
+    TokWhile,
+    TokReturn,
+    TokFor,
+    TokBreak,
+    TokTypeDef,
+    TokConst,
+    TokSwitch,
+    TokCase,
+    TokDefault,
+    TokContinue,
+    TokGoto,
+    TokSizeOf,
+    TokSigned,    // unsigned  // Types : byte int string double void struct
+    TokUnsigned,  // signed
+    TokChar,      // char
+    TokShort,     // short
+    TokInt,       // int
+    TokLong,      // long
+    TokFloat,     // float
+    TokDouble,    // double
+    TokVoid,      // void
+    TokClass,     // class
+    TokComBitShiftL,  // <<= // Operators
+    TokComBitShiftR,  // >>=
+    TokDotDotDot,     // ... // Triple operator
+    TokBitShiftL,     // << // Double operator
+    TokBitShiftR,     // >>
+    TokUnaryInc,      // ++
+    TokUnaryDec,      // --
+    TokComAdd,        // +=
+    TokComSub,        // -= 
+    TokComMul,        // *=
+    TokComDiv,        // /=
+    TokComMod,        // %=
+    TokComBitAnd,     // &=
+    TokComBitOr,      // |=
+    TokComBitXor,     // ^=
+    TokEqual,         // ==
+    TokNotEqual,      // !=
+    TokLessThanEqual, // <=
+    TokGreatorThenEqual,// >=
+    TokConAnd,        // &&
+    TokConOr,         // ||
+    TokRightArrow,    // ->
+    TokAdd,           // + // Single operators
+    TokSub,           // -
+    TokMul,           // *
+    TokDiv,           // /
+    TokMod,           // %
+    TokAssign,        // =
+    TokBitAnd,        // &
+    TokBitOr,         // |
+    TokBitXor,        // ^
+    TokBitNot,        // ~
+    TokLessThan,      // < 
+    TokGreatorThan,   // >
+    TokConNot,        // !
+    TokQuestion,      // ?
+    TokParenOpen,     // ( //  Parentheses
+    TokParenClose,    // )
+    TokBraceOpen,     // {
+    TokBraceClose,    // }
+    TokBracketOpen,   // [
+    TokBracketClose,  // ]
+    TokComma,         // , /* Etc : , . ; */
+    TokDot,           // .
+    TokColon,         // :
+    TokSemiColon,     // ;
+    TokDoubleQuot,    // "  // Quoto
+    TokSingleQuot,    // '
+    TokStarRemark,    // /* /* Remark */
+    TokLineRemark,    // //
+    TokIdentifier,    // ex) abcd012  /* Identifier */
+    TokIntegerLiteral, // ex) 12345
+    TokStringLiteral, // ex) "test"
+    TokCharactorLiteral, // ex) 'A'
+    TokEnd,
     // Rule
-    compilation_unit = TokEnd, //84 = 29 + 55
+    compilation_unit, 
     import_stmts,
       import_stmt,
         rep_dot_name, // ("," name)*
@@ -191,10 +272,9 @@ namespace Parser {
   };
 
   struct Rule {
-    int action_; // repeat, select, sequence, terminal
-    int sub_rules_[15];
+    RuleName action_; // repeat, select, sequence, terminal
+    RuleName sub_rules_[15];
   };
-
 
   struct ParseInfo {
     enum RawDataType {
@@ -254,7 +334,7 @@ namespace Parser {
   //           False - unmatching
   //           Error - Syntax error
   class SyntaxAnalyzer {
-    Tokenizer* tokenizer_;
+    Lexer::Tokenizer* tokenizer_;
     AST::ASTContext* ac_;
     ErrorDiag::Diagnosis* err_diag_;
 
@@ -265,13 +345,20 @@ namespace Parser {
     fnRuleAction rule_actions_[MAX_RULES];
     
     public:
-      SyntaxAnalyzer(AST::ASTContext* ac, Tokenizer* tk, ErrorDiag::Diagnosis* ed);
+      SyntaxAnalyzer(AST::ASTContext* ac, Lexer::Tokenizer* tk, ErrorDiag::Diagnosis* ed);
       ~SyntaxAnalyzer();
+
+      Rule RuleSetter(RuleName action, RuleName sub01 = TokUnknown, RuleName sub02 = TokUnknown, 
+          RuleName sub03 = TokUnknown, RuleName sub04 = TokUnknown, RuleName sub05 = TokUnknown, 
+          RuleName sub06 = TokUnknown, RuleName sub07 = TokUnknown, RuleName sub08 = TokUnknown, 
+          RuleName sub09 = TokUnknown, RuleName sub10 = TokUnknown, RuleName sub11 = TokUnknown, 
+          RuleName sub12 = TokUnknown, RuleName sub13 = TokUnknown, RuleName sub14 = TokUnknown, 
+          RuleName sub15 = TokUnknown);
 
       void InitBasicRule();
       void InitRuleAction();
-      eResult TraverseRule(int entry);
-      eResult TestRule(int entry);
+      eResult TraverseRule(RuleName entry);
+      eResult TestRule(RuleName entry);
 
       // Entry point of parsing process
       eResult StartParser();

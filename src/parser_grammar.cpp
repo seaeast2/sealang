@@ -1,21 +1,41 @@
 #include "parser.h"
 
 namespace Parser {
+  Rule SyntaxAnalyzer::RuleSetter(RuleName action,   
+        RuleName sub01, RuleName sub02, RuleName sub03, 
+        RuleName sub04, RuleName sub05, RuleName sub06, 
+        RuleName sub07, RuleName sub08, RuleName sub09, 
+        RuleName sub10, RuleName sub11, RuleName sub12, 
+        RuleName sub13, RuleName sub14, RuleName sub15) {
+    Rule new_rule;
+    new_rule.action_ = action;
+    new_rule.sub_rules_[0] = sub01;
+    new_rule.sub_rules_[1] = sub02;
+    new_rule.sub_rules_[2] = sub03;
+    new_rule.sub_rules_[3] = sub04;
+    new_rule.sub_rules_[4] = sub05;
+    new_rule.sub_rules_[5] = sub06;
+    new_rule.sub_rules_[6] = sub07;
+    new_rule.sub_rules_[7] = sub08;
+    new_rule.sub_rules_[8] = sub09;
+    new_rule.sub_rules_[9] = sub10;
+    new_rule.sub_rules_[10] = sub11;
+    new_rule.sub_rules_[11] = sub12;
+    new_rule.sub_rules_[12] = sub13;
+    new_rule.sub_rules_[13] = sub14;
+    new_rule.sub_rules_[14] = sub15;
+    return new_rule;
+  }
+
   void SyntaxAnalyzer::InitBasicRule() {
-    // Initialize rules
-    for (int i = 0; i < MAX_RULES; i++) {
-      for (int j = 0; j < MAX_SUB_RULES; j++) {
-        rules_[i].sub_rules_[j] = 0;
-      }
+    // Initialize token rules as Terminal.
+    for (int i = 0; i < TokEnd; i++) {
+      rules_[i] = RuleSetter(Terminal, (RuleName)i);
     }
 
-    // Initialize rules as Terminal.
-    for (int i = TokEof; i < TokEnd; i++) {
-      rules_[i] = {Terminal, {i,}};
-    }
     // compilation_unit 
     //    : import_stmts top_defs <EOF> 
-    rules_[compilation_unit] = {Sequence, {import_stmts, top_defs, TokEof,}};
+    rules_[compilation_unit] = RuleSetter(Sequence, import_stmts, top_defs, TokEof);
 
     //  typeref_base  
     //    : <VOID> 
@@ -30,44 +50,43 @@ namespace Parser {
     //      | <FLOAT> 
     //      | <DOUBLE>
     //      | <CLASS> <IDENTIFIER> 
-    rules_[typeref_base] = {Select, { seq_void, 
-                                      seq_char,
-                                      seq_short, 
-                                      seq_int, 
-                                      seq_long, 
-                                      seq_unsigned_char,
-                                      seq_unsigned_short,
-                                      seq_unsigned_int,
-                                      seq_unsigned_long,
-                                      seq_float,
-                                      seq_double,
-                                      seq_class_identifier,
-                                      }};
-      rules_[seq_void] = {Sequence, {TokVoid}};
-      rules_[seq_char] = {Sequence, {TokChar}};
-      rules_[seq_short] = {Sequence, {TokShort}};
-      rules_[seq_int] = {Sequence, {TokInt}};
-      rules_[seq_long] = {Sequence, {TokLong}};
-      rules_[seq_unsigned_char] = {Sequence, {TokUnsigned, TokChar}};
-      rules_[seq_unsigned_short] = {Sequence, {TokUnsigned, TokShort}};
-      rules_[seq_unsigned_int] = {Sequence, {TokUnsigned, TokInt}};
-      rules_[seq_unsigned_long] = {Sequence, {TokUnsigned, TokLong}};
-      rules_[seq_float] = {Sequence, {TokFloat}};
-      rules_[seq_double] = {Sequence, {TokDouble}};
-      rules_[seq_class_identifier] = {Sequence, {TokClass, TokIdentifier}};
+    rules_[typeref_base] = RuleSetter(Select, seq_void, 
+                                              seq_char,
+                                              seq_short, 
+                                              seq_int, 
+                                              seq_long, 
+                                              seq_unsigned_char,
+                                              seq_unsigned_short,
+                                              seq_unsigned_int,
+                                              seq_unsigned_long,
+                                              seq_float,
+                                              seq_double,
+                                              seq_class_identifier);
+      rules_[seq_void] = RuleSetter(Sequence, TokVoid);
+      rules_[seq_char] = RuleSetter(Sequence, TokChar);
+      rules_[seq_short] = RuleSetter(Sequence, TokShort);
+      rules_[seq_int] = RuleSetter(Sequence, TokInt);
+      rules_[seq_long] = RuleSetter(Sequence, TokLong);
+      rules_[seq_unsigned_char] = RuleSetter(Sequence, TokUnsigned, TokChar);
+      rules_[seq_unsigned_short] = RuleSetter(Sequence, TokUnsigned, TokShort);
+      rules_[seq_unsigned_int] = RuleSetter(Sequence, TokUnsigned, TokInt);
+      rules_[seq_unsigned_long] = RuleSetter(Sequence, TokUnsigned, TokLong);
+      rules_[seq_float] = RuleSetter(Sequence, TokFloat);
+      rules_[seq_double] = RuleSetter(Sequence, TokDouble);
+      rules_[seq_class_identifier] = RuleSetter(Sequence, TokClass, TokIdentifier);
     
     // import_stmts  
     //   : (import_stmt)* 
-    rules_[import_stmts] = {RepeatStar, {import_stmt}};
+    rules_[import_stmts] = RuleSetter(RepeatStar, import_stmt);
       // import_stmt 
       //   : <IMPORT> name ("." name)* ";" 
-      rules_[import_stmt] = {Sequence, {TokImport, name, rep_dot_name, TokSemiColon}};
+      rules_[import_stmt] = RuleSetter(Sequence, TokImport, name, rep_dot_name, TokSemiColon);
         // ("." name)*
-        rules_[rep_dot_name] = {RepeatStar, {TokDot, name}};
+        rules_[rep_dot_name] = RuleSetter(RepeatStar, TokDot, name);
 
     // name 
     //   : <IDENTIFIER> 
-    rules_[name] = {Sequence, {TokIdentifier}};
+    rules_[name] = RuleSetter(Sequence, TokIdentifier);
 
     // top_defs // top definitions 
     //   : ( deffunc 
@@ -75,125 +94,125 @@ namespace Parser {
     //     | defconst 
     //     | defclass 
     //     | typedef_ )* 
-    rules_[top_defs] = {RepeatStar, {sel_fun_var_const_class_typedef}};
-      rules_[sel_fun_var_const_class_typedef] = {Select, {deffunc, defvars, defconst, defclass, typedef_ }};
+    rules_[top_defs] = RuleSetter(RepeatStar, sel_fun_var_const_class_typedef);
+      rules_[sel_fun_var_const_class_typedef] = RuleSetter(Select, deffunc, defvars, defconst, defclass, typedef_ );
 
     // defvars // variable definition. ex) int a = 0, b=19; 
     //   : storage type name ["=" expr] [("," name ["=" expr])*] ";" 
-    rules_[defvars] = {Sequence, {storage, type, name, opt_var_initialize, opt_rep_var_initialize, TokSemiColon }};
-      rules_[opt_var_initialize] = {Options, {TokAssign, expr}}; // ["=" expr]
+    rules_[defvars] = RuleSetter(Sequence, storage, type, name, opt_var_initialize, opt_rep_var_initialize, TokSemiColon );
+      rules_[opt_var_initialize] = RuleSetter(Options, TokAssign, expr); // ["=" expr]
       // [("," name ["=" expr])*]
-      rules_[opt_rep_var_initialize] = {Options, {rep_var_initialize}}; 
+      rules_[opt_rep_var_initialize] = RuleSetter(Options, rep_var_initialize); 
         // ("," name ["=" expr])*
-        rules_[rep_var_initialize] = {RepeatStar, {TokComma, name, opt_var_initialize}};
+        rules_[rep_var_initialize] = RuleSetter(RepeatStar, TokComma, name, opt_var_initialize);
         
     // defconst
     //   : <CONST> type name "=" expr ";"
-    rules_[defconst] = {Sequence, {TokConst, type, name, TokAssign, expr, TokSemiColon}};
+    rules_[defconst] = RuleSetter(Sequence, TokConst, type, name, TokAssign, expr, TokSemiColon);
 
     // storage 
     //   : [<STATIC>] 
-    rules_[storage] = {Options, {TokStatic}};
+    rules_[storage] = RuleSetter(Options, TokStatic);
     
     // type 
     //   : typeref 
-    rules_[type] = {Sequence, {typeref}};
+    rules_[type] = RuleSetter(Sequence, typeref);
 
     // deffunc // function definition 
     //   : storage typeref name "(" params ")" block 
-    rules_[deffunc] = {Sequence, {storage, typeref, name, TokParenClose, params, TokParenClose, block }};
+    rules_[deffunc] = RuleSetter(Sequence, storage, typeref, name, TokParenClose, params, TokParenClose, block );
 
     // params // parameter definition 
     //   : <VOID> 
     //   | fixedparams ["," "..."] 
-    rules_[params] = {Select, {seq_param_void, seq_param_list}};
+    rules_[params] = RuleSetter(Select, seq_param_void, seq_param_list);
       // <VOID>
-      rules_[seq_param_void] = {Sequence, {TokVoid}};
+      rules_[seq_param_void] = RuleSetter(Sequence, TokVoid);
       // fixedparams ["," "..."] 
-      rules_[seq_param_list] = {Sequence, {fixedparams, opt_vararg}};
+      rules_[seq_param_list] = RuleSetter(Sequence, fixedparams, opt_vararg);
         // ["," "..."] 
-        rules_[opt_vararg] = {Options, {TokComma, TokDotDotDot}};
+        rules_[opt_vararg] = RuleSetter(Options, TokComma, TokDotDotDot);
 
     // fixedparams // fixed parameter definition 
     //   : param ("," param)* 
-    rules_[fixedparams] = {Sequence, {param, rep_comma_param}};
+    rules_[fixedparams] = RuleSetter(Sequence, param, rep_comma_param);
       // ("," param)* 
-      rules_[rep_comma_param] = {RepeatStar, {TokComma, param}};
+      rules_[rep_comma_param] = RuleSetter(RepeatStar, TokComma, param);
       
     // param 
     //   : type name 
-    rules_[param] = {Sequence, {type, name}};
+    rules_[param] = RuleSetter(Sequence, type, name);
 
     // defvar_list 
     //   : (defvars)*
-    rules_[defvar_list] = {RepeatStar, {defvars}};
+    rules_[defvar_list] = RuleSetter(RepeatStar, defvars);
 
     // block 
     //   : "{" defvar_list stmts "}" 
-    rules_[block] = {Sequence, {TokBraceOpen, defvar_list, stmts, TokBraceClose}};
+    rules_[block] = RuleSetter(Sequence, TokBraceOpen, defvar_list, stmts, TokBraceClose);
 
     // defclass // class definition 
     //   : <CLASS> name class_member_list ";" 
-    rules_[defclass] = {Sequence, {TokClass, name, class_member_list, TokSemiColon}};
+    rules_[defclass] = RuleSetter(Sequence, TokClass, name, class_member_list, TokSemiColon);
       // class_member_list //  
       //   : "{" (class_member ";")* "}" 
-      rules_[class_member_list] = {Sequence, {TokBraceOpen, rep_class_member, TokBraceClose}};
+      rules_[class_member_list] = RuleSetter(Sequence, TokBraceOpen, rep_class_member, TokBraceClose);
         // (class_member ";")*
-        rules_[rep_class_member] = {RepeatStar, {class_member, TokSemiColon}};
+        rules_[rep_class_member] = RuleSetter(RepeatStar, class_member, TokSemiColon);
           // class_member // class member definition 
           //   : defvars 
           //   | deffunc
-          rules_[class_member] = {Select, {seq_class_member_variable, seq_class_member_function}};
+          rules_[class_member] = RuleSetter(Select, seq_class_member_variable, seq_class_member_function);
             // defvars 
-            rules_[seq_class_member_variable] = {Sequence, {defvars}};
+            rules_[seq_class_member_variable] = RuleSetter(Sequence, defvars);
             // deffunc
-            rules_[seq_class_member_function] = {Sequence, {deffunc}};
+            rules_[seq_class_member_function] = RuleSetter(Sequence, deffunc);
 
     // typedef // ex) typedef int i32; 
     //   : <TYPEDEF> typeref <IDENTIFIER> ";" 
-    rules_[typedef_] = {Sequence, {TokTypeDef, typeref, TokIdentifier, TokSemiColon}};
+    rules_[typedef_] = RuleSetter(Sequence, TokTypeDef, typeref, TokIdentifier, TokSemiColon);
 
     // typeref 
     //   : typeref_base  ( "[""]"                    // unassigned array
     //                   | "["<INTEGER>"]"           // assigned array
     //                   | "*"                       // pointer 
     //                   | "(" param_typerefs ")")*  // function type
-    rules_[typeref] = {Sequence, {typeref_base, rep_sel_arry_ptr_fnptr}};
+    rules_[typeref] = RuleSetter(Sequence, typeref_base, rep_sel_arry_ptr_fnptr);
       //   ( "[""]"                    // unassigned array
       //   | "["<INTEGER>"]"           // assigned array
       //   | "*"                       // pointer 
       //   | "(" param_typerefs ")")*  // function type 
-      rules_[rep_sel_arry_ptr_fnptr] = {RepeatStar, {sel_arry_ptr_fnptr}};
+      rules_[rep_sel_arry_ptr_fnptr] = RuleSetter(RepeatStar, sel_arry_ptr_fnptr);
         //   "[""]"                    // unassigned array
         //   | "["<INTEGER>"]"           // assigned array
         //   | "*"                       // pointer 
         //   | "(" param_typerefs ")"  // function type
-        rules_[sel_arry_ptr_fnptr] = {Select, {seq_unassigned_array, seq_assigned_array, seq_ptr, seq_func}};
+        rules_[sel_arry_ptr_fnptr] = RuleSetter(Select, seq_unassigned_array, seq_assigned_array, seq_ptr, seq_func);
           // "[""]
-          rules_[seq_unassigned_array] = {Sequence, {TokBracketOpen, TokBracketClose}};
+          rules_[seq_unassigned_array] = RuleSetter(Sequence, TokBracketOpen, TokBracketClose);
           // "["<INTEGER>"]"
-          rules_[seq_assigned_array] = {Sequence, {TokBracketOpen, TokIntegerLiteral, TokBracketClose}};
+          rules_[seq_assigned_array] = RuleSetter(Sequence, TokBracketOpen, TokIntegerLiteral, TokBracketClose);
           // "*"
-          rules_[seq_ptr] = {Sequence, {TokMul}};
+          rules_[seq_ptr] = RuleSetter(Sequence, TokMul);
           // "(" param_typerefs ")"
-          rules_[seq_func] = {Sequence, {TokParenOpen, param_typerefs, TokParenClose}};
+          rules_[seq_func] = RuleSetter(Sequence, TokParenOpen, param_typerefs, TokParenClose);
 
     // param_typerefs // function pointer param type definition 
     //   : <VOID> 
     //   | typeref ("," typeref)* ["," "..."] 
-    rules_[param_typerefs] = {Select, {seq_param_type_void, seq_param_type_list}};
+    rules_[param_typerefs] = RuleSetter(Select, seq_param_type_void, seq_param_type_list);
       // <VOID>
-      rules_[seq_param_type_void] = {Sequence, {TokVoid}};
+      rules_[seq_param_type_void] = RuleSetter(Sequence, TokVoid);
       // typeref ("," typeref)* ["," "..."] 
-      rules_[seq_param_type_list] = {Sequence, {typeref, rep_param_comma_type, opt_vararg_type}};
+      rules_[seq_param_type_list] = RuleSetter(Sequence, typeref, rep_param_comma_type, opt_vararg_type);
         // ("," typeref)*
-        rules_[rep_param_comma_type] = {RepeatStar, {TokComma, typeref}};
+        rules_[rep_param_comma_type] = RuleSetter(RepeatStar, TokComma, typeref);
         // ["," "..."] 
-        rules_[opt_vararg_type] = {RepeatStar, {TokComma, TokDotDotDot}};
+        rules_[opt_vararg_type] = RuleSetter(RepeatStar, TokComma, TokDotDotDot);
 
     // stmts 
     //   : (stmt)* 
-    rules_[stmts] = {RepeatStar, {stmt}};
+    rules_[stmts] = RuleSetter(RepeatStar, stmt);
 
     // stmt 
     //   :";" 
@@ -209,109 +228,109 @@ namespace Parser {
     //   | continue_stmt 
     //   | goto_stmt 
     //   | return_stmt 
-    rules_[stmt] = {Select, { TokSemiColon, 
-                              labeled_stmt, 
-                              expr_stmt,
-                              block,
-                              if_stmt,
-                              while_stmt,
-                              dowhile_stmt,
-                              for_stmt,
-                              switch_stmt,
-                              break_stmt,
-                              continue_stmt,
-                              goto_stmt,
-                              return_stmt}};
+    rules_[stmt] = RuleSetter(Select, TokSemiColon, 
+                                      labeled_stmt, 
+                                      expr_stmt,
+                                      block,
+                                      if_stmt,
+                                      while_stmt,
+                                      dowhile_stmt,
+                                      for_stmt,
+                                      switch_stmt,
+                                      break_stmt,
+                                      continue_stmt,
+                                      goto_stmt,
+                                      return_stmt);
 
     // labeled_stmt
     //   : <IDENTIFIER> ":" stmt
-    rules_[labeled_stmt] = {Sequence, {TokIdentifier, TokColon, stmt}};
+    rules_[labeled_stmt] = RuleSetter(Sequence, TokIdentifier, TokColon, stmt);
 
     // expr_stmt
     //  : expr ";"
-    rules_[expr_stmt] = {Sequence, {expr, TokSemiColon}};
+    rules_[expr_stmt] = RuleSetter(Sequence, expr, TokSemiColon);
      
     // if_stmt  
     //   : <IF> "(" expr ")" stmt [<ELSE> stmt] 
-    rules_[if_stmt] = {Sequence, {TokIf, TokParenOpen, expr, TokParenClose, stmt, opt_else_stmt}};
-      rules_[opt_else_stmt] = {Options, {TokElse, stmt}}; // [<ELSE> stmt] 
+    rules_[if_stmt] = RuleSetter(Sequence, TokIf, TokParenOpen, expr, TokParenClose, stmt, opt_else_stmt);
+      rules_[opt_else_stmt] = RuleSetter(Options, TokElse, stmt); // [<ELSE> stmt] 
      
     // while_stmt 
     //   : <WHILE> "(" expr ")" stmt 
-    rules_[while_stmt] = {Sequence, {TokWhile, TokParenOpen, expr, TokParenClose, stmt}};
+    rules_[while_stmt] = RuleSetter(Sequence, TokWhile, TokParenOpen, expr, TokParenClose, stmt);
      
     // dowhile_stmt
     //   : <DO> stmt <WHILE> "(" expr ")" ";"
-    rules_[dowhile_stmt] = {Sequence, {TokDo, stmt, TokWhile, TokParenOpen, expr, TokParenClose, TokSemiColon}};
+    rules_[dowhile_stmt] = RuleSetter(Sequence, TokDo, stmt, TokWhile, TokParenOpen, expr, TokParenClose, TokSemiColon);
 
     // for_stmt 
     //   : <FOR> "(" [expr] ";" [expr] ";" [expr] ")" stmt 
-    rules_[for_stmt] = {Sequence, {TokFor, TokParenOpen, opt_for_init_expr, TokSemiColon, opt_for_cond_expr, TokSemiColon, opt_for_inc_expr, TokParenClose, stmt }};
+    rules_[for_stmt] = RuleSetter(Sequence, TokFor, TokParenOpen, opt_for_init_expr, TokSemiColon, opt_for_cond_expr, TokSemiColon, opt_for_inc_expr, TokParenClose, stmt );
       // [expr]
-      rules_[opt_for_init_expr] = {Options, {expr}};
+      rules_[opt_for_init_expr] = RuleSetter(Options, expr);
       // [expr]
-      rules_[opt_for_cond_expr] = {Options, {expr}};
+      rules_[opt_for_cond_expr] = RuleSetter(Options, expr);
       // [expr]
-      rules_[opt_for_inc_expr] = {Options, {expr}};
+      rules_[opt_for_inc_expr] = RuleSetter(Options, expr);
 
     // switch_stmt
     //   : <SWITCH> "(" expr ")" "{" case_clauses "}"
-    rules_[switch_stmt] = {Sequence, {TokSwitch, TokParenOpen, expr, TokParenClose, TokBraceOpen, case_clauses, TokBraceClose}};
+    rules_[switch_stmt] = RuleSetter(Sequence, TokSwitch, TokParenOpen, expr, TokParenClose, TokBraceOpen, case_clauses, TokBraceClose);
 
     // case_clauses
     //   : (case_clause)* [default_clause]
-    rules_[case_clauses] = {Sequence, {rep_case_clause, opt_default_clause}};
+    rules_[case_clauses] = RuleSetter(Sequence, rep_case_clause, opt_default_clause);
       // (case_clause)*
-      rules_[rep_case_clause] = {RepeatStar, {case_clause}};
+      rules_[rep_case_clause] = RuleSetter(RepeatStar, case_clause);
       // [default_clause]
-      rules_[opt_default_clause] = {Options, {default_clause}};
+      rules_[opt_default_clause] = RuleSetter(Options, default_clause);
     
     // case_clause
     //   : case_list case_body
-    rules_[case_clause] = {Sequence, {case_list, case_body}};
+    rules_[case_clause] = RuleSetter(Sequence, case_list, case_body);
      
     // case_list
     //   : (<CASE> primary ":")+
-    rules_[case_list] = {RepeatDagger, {TokCase, primary, TokColon}};
+    rules_[case_list] = RuleSetter(RepeatDagger, TokCase, primary, TokColon);
     
     // default_clause
     //   : <DEFAULT> ":" case_body
-    rules_[default_clause] = {Sequence, {TokDefault, TokColon, case_body}};
+    rules_[default_clause] = RuleSetter(Sequence, TokDefault, TokColon, case_body);
    
     // case_body
     //   : stmt
-    rules_[case_body] = {Sequence, {stmt}};
+    rules_[case_body] = RuleSetter(Sequence, stmt);
 
     // break_stmt 
     //   : <BREAK> ";" 
-    rules_[break_stmt] = {Sequence, {TokBreak, TokSemiColon}};
+    rules_[break_stmt] = RuleSetter(Sequence, TokBreak, TokSemiColon);
 
     // continue_stmt
     //   : <CONTINUE> ";"
-    rules_[continue_stmt] = {Sequence, {TokContinue, TokSemiColon}};
+    rules_[continue_stmt] = RuleSetter(Sequence, TokContinue, TokSemiColon);
      
     // goto_stmt
     //   : <GOTO> <IDENTIFIER> ";"
-    rules_[goto_stmt] = {Sequence, {TokGoto, TokIdentifier, TokSemiColon}};
+    rules_[goto_stmt] = RuleSetter(Sequence, TokGoto, TokIdentifier, TokSemiColon);
      
     // return_stmt 
     //   : <RETURN> ";" 
     //   | <RETURN> expr ";" 
-    rules_[return_stmt] = {Select, {seq_return, seq_return_expr}};
+    rules_[return_stmt] = RuleSetter(Select, seq_return, seq_return_expr);
       // <RETURN> ";"
-      rules_[seq_return] = {Sequence, {TokReturn, TokSemiColon}};
+      rules_[seq_return] = RuleSetter(Sequence, TokReturn, TokSemiColon);
       // <RETURN> expr ";"
-      rules_[seq_return_expr] = {Sequence, {TokReturn, expr, TokSemiColon}};
+      rules_[seq_return_expr] = RuleSetter(Sequence, TokReturn, expr, TokSemiColon);
      
     // expr 
     //   : term "=" expr 
     //   | term opassign_op expr 
     //   | expr10 
-    rules_[expr] = {Select, {seq_assign_value, seq_opassign_value, expr10}};
+    rules_[expr] = RuleSetter(Select, seq_assign_value, seq_opassign_value, expr10);
       // term "=" expr 
-      rules_[seq_assign_value] = {Select, {term, TokAssign, expr}};
+      rules_[seq_assign_value] = RuleSetter(Select, term, TokAssign, expr);
       // term opassign_op expr 
-      rules_[seq_opassign_value] = {Select, {term, opassign_op, expr}};
+      rules_[seq_opassign_value] = RuleSetter(Select, term, opassign_op, expr);
      
     // opassign_op 
     //   : "+=" 
@@ -324,7 +343,7 @@ namespace Parser {
     //   | "^=" 
     //   | "<<=" 
     //   | ">>=" 
-    rules_[opassign_op] = {Select, {TokComAdd, 
+    rules_[opassign_op] = RuleSetter(Select, TokComAdd, 
                                     TokComSub,
                                     TokComMul,
                                     TokComDiv,
@@ -333,25 +352,25 @@ namespace Parser {
                                     TokComBitOr,
                                     TokComBitXor,
                                     TokComBitShiftL,
-                                    TokComBitShiftR}};
+                                    TokComBitShiftR);
      
     // expr10 
     //   : expr9 ["?" expr ":" expr10] 
-    rules_[expr10] = {Sequence, {expr9, opt_ternaryop}};
+    rules_[expr10] = RuleSetter(Sequence, expr9, opt_ternaryop);
       // ["?" expr ":" expr10] 
-      rules_[opt_ternaryop] = {Options, {TokQuestion, expr, TokColon, expr10}};
+      rules_[opt_ternaryop] = RuleSetter(Options, TokQuestion, expr, TokColon, expr10);
      
     // expr9 
     //   : expr8 ("||" expr8)* 
-    rules_[expr9] = {Sequence, {expr8, rep_or_expr8}};
+    rules_[expr9] = RuleSetter(Sequence, expr8, rep_or_expr8);
       //("||" expr8)* 
-      rules_[rep_or_expr8] = {RepeatStar, {TokConOr, expr8}};
+      rules_[rep_or_expr8] = RuleSetter(RepeatStar, TokConOr, expr8);
      
     // expr8 
     //   : expr7 ("&&" expr7)* 
-    rules_[expr8] = {Sequence, {expr7, rep_and_expr7}};
+    rules_[expr8] = RuleSetter(Sequence, expr7, rep_and_expr7);
       // ("&&" expr7)* 
-      rules_[rep_and_expr7] = {RepeatStar, {TokConAnd, expr7}};
+      rules_[rep_and_expr7] = RuleSetter(RepeatStar, TokConAnd, expr7);
      
     // expr7  
     //   : expr7 ( ">" expr6  
@@ -361,103 +380,103 @@ namespace Parser {
     //           | "==" expr6 
     //           | "!=" expr6 )* 
     //
-    rules_[expr7] = {Sequence, {expr7, rep_op_expr6}};
+    rules_[expr7] = RuleSetter(Sequence, expr7, rep_op_expr6);
       //(sel_op_expr6)*
-      rules_[rep_op_expr6] = {RepeatStar, {sel_op_expr6}};
+      rules_[rep_op_expr6] = RuleSetter(RepeatStar, sel_op_expr6);
         // ">" expr6  
         //| "<" expr6 
         //| ">=" expr6 
         //| "<=" expr6 
         //| "==" expr6 
         //| "!=" expr6
-        rules_[sel_op_expr6] = {Select, { seq_gr_expr6, 
+        rules_[sel_op_expr6] = RuleSetter(Select,  seq_gr_expr6, 
                                           seq_ls_expr6,
                                           seq_geq_expr6,
                                           seq_leq_expr6,
                                           seq_eq_expr6,
-                                          seq_neq_expr6 }};
+                                          seq_neq_expr6 );
           // ">" expr6  
-          rules_[seq_gr_expr6] = {Sequence, {TokGreatorThan, expr6}};
+          rules_[seq_gr_expr6] = RuleSetter(Sequence, TokGreatorThan, expr6);
           // "<" expr6 
-          rules_[seq_ls_expr6] = {Sequence, {TokLessThan, expr6}};
+          rules_[seq_ls_expr6] = RuleSetter(Sequence, TokLessThan, expr6);
           // ">=" expr6 
-          rules_[seq_geq_expr6] = {Sequence, {TokGreatorThenEqual, expr6}};
+          rules_[seq_geq_expr6] = RuleSetter(Sequence, TokGreatorThenEqual, expr6);
           // "<=" expr6 
-          rules_[seq_leq_expr6] = {Sequence, {TokLessThanEqual, expr6}};
+          rules_[seq_leq_expr6] = RuleSetter(Sequence, TokLessThanEqual, expr6);
           // "==" expr6 
-          rules_[seq_eq_expr6] = {Sequence, {TokEqual, expr6}};
+          rules_[seq_eq_expr6] = RuleSetter(Sequence, TokEqual, expr6);
           // "!=" expr6 
-          rules_[seq_neq_expr6] = {Sequence, {TokNotEqual, expr6}};
+          rules_[seq_neq_expr6] = RuleSetter(Sequence, TokNotEqual, expr6);
      
     // expr6 
     //   : expr5 ("|" expr5)* 
-    rules_[expr6] = {Sequence, {expr5, rep_bitor_expr5}};
+    rules_[expr6] = RuleSetter(Sequence, expr5, rep_bitor_expr5);
       // ("|" expr5)* 
-      rules_[rep_bitor_expr5] = {RepeatStar, {TokBitOr, expr5}};
+      rules_[rep_bitor_expr5] = RuleSetter(RepeatStar, TokBitOr, expr5);
 
     // expr5 
     //   : expr4 ("^" expr4)* 
-    rules_[expr5] = {Sequence, {expr4, rep_bitxor_expr4}};
+    rules_[expr5] = RuleSetter(Sequence, expr4, rep_bitxor_expr4);
       // ("^" expr4)* 
-      rules_[rep_bitxor_expr4] = {RepeatStar, {TokBitXor, expr4}};
+      rules_[rep_bitxor_expr4] = RuleSetter(RepeatStar, TokBitXor, expr4);
      
     // expr4 
     //   : expr3 ("&" expr3)* 
-    rules_[expr4] = {Sequence, {expr3, rep_bitand_expr3}};
+    rules_[expr4] = RuleSetter(Sequence, expr3, rep_bitand_expr3);
       // ("&" expr3)* 
-      rules_[rep_bitand_expr3] = {RepeatStar, {TokBitAnd, expr3}};
+      rules_[rep_bitand_expr3] = RuleSetter(RepeatStar, TokBitAnd, expr3);
 
     // expr3 
     //   : expr2 ( ">>" expr2 | "<<" expr2)* 
-    rules_[expr3] = {Sequence, {expr2, rep_shift_expr2}};
+    rules_[expr3] = RuleSetter(Sequence, expr2, rep_shift_expr2);
       // ( ">>" expr2 | "<<" expr2)*
-      rules_[rep_shift_expr2] = {RepeatStar, {sel_shift_expr2}};
+      rules_[rep_shift_expr2] = RuleSetter(RepeatStar, sel_shift_expr2);
         // ">>" expr2 | "<<" expr2
-        rules_[sel_shift_expr2] = {Select, {seq_rshft_expr2, seq_lshft_expr2}};
+        rules_[sel_shift_expr2] = RuleSetter(Select, seq_rshft_expr2, seq_lshft_expr2);
           // ">>" expr2
-          rules_[seq_rshft_expr2] = {Sequence, {TokBitShiftR, expr2}};
+          rules_[seq_rshft_expr2] = RuleSetter(Sequence, TokBitShiftR, expr2);
           // "<<" expr2
-          rules_[seq_lshft_expr2] = {Sequence, {TokBitShiftL, expr2}};
+          rules_[seq_lshft_expr2] = RuleSetter(Sequence, TokBitShiftL, expr2);
      
     // expr2 
     //   : expr1 ( "+" expr1 | "-" expr1)* 
-    rules_[expr2] = {Sequence, {expr1, rep_sumsub_expr1}};
+    rules_[expr2] = RuleSetter(Sequence, expr1, rep_sumsub_expr1);
       // ( "+" expr1 | "-" expr1)* 
-      rules_[rep_sumsub_expr1] = {RepeatStar, {sel_sumsub_expr1}};
+      rules_[rep_sumsub_expr1] = RuleSetter(RepeatStar, sel_sumsub_expr1);
         // "+" expr1 | "-" expr1 
-        rules_[sel_sumsub_expr1] = {RepeatStar, {seq_sum_expr1, seq_sub_expr1}};
+        rules_[sel_sumsub_expr1] = RuleSetter(RepeatStar, seq_sum_expr1, seq_sub_expr1);
           // "+" expr1
-          rules_[seq_sum_expr1] = {Sequence, {TokAdd, expr1}};
+          rules_[seq_sum_expr1] = RuleSetter(Sequence, TokAdd, expr1);
           // "-" expr1
-          rules_[seq_sub_expr1] = {Sequence, {TokSub, expr1}};
+          rules_[seq_sub_expr1] = RuleSetter(Sequence, TokSub, expr1);
      
     // expr1 
     //   : term (  "*" term  
     //           | "/" term 
     //           | "%" term 
     //           )* 
-    rules_[expr1] = {Sequence, {term, rep_muldivmod_term}};
+    rules_[expr1] = RuleSetter(Sequence, term, rep_muldivmod_term);
       //("*" term 
       //| "/" term 
       //| "%" term)* 
-      rules_[rep_muldivmod_term] = {RepeatStar, {sel_muldivmod_term}};
+      rules_[rep_muldivmod_term] = RuleSetter(RepeatStar, sel_muldivmod_term);
         //"*" term  
         //| "/" term 
         //| "%" term
-        rules_[sel_muldivmod_term] = {Select, {seq_mul_term, seq_div_term, seq_mod_term}};
+        rules_[sel_muldivmod_term] = RuleSetter(Select, seq_mul_term, seq_div_term, seq_mod_term);
           // "*" term  
-          rules_[seq_mul_term] = {Sequence, {TokMul, term}};
+          rules_[seq_mul_term] = RuleSetter(Sequence, TokMul, term);
           // "/" term 
-          rules_[seq_div_term] = {Sequence, {TokDiv, term}};
+          rules_[seq_div_term] = RuleSetter(Sequence, TokDiv, term);
           // "%" term
-          rules_[seq_mod_term] = {Sequence, {TokMod, term}};
+          rules_[seq_mod_term] = RuleSetter(Sequence, TokMod, term);
      
     // term 
     //   : "(" type ")" term          // type casting 
     //   | unary 
-    rules_[term] = {Select, {seq_type_term, unary}};
+    rules_[term] = RuleSetter(Select, seq_type_term, unary);
       //"(" type ")" term
-      rules_[seq_type_term] = {Sequence, {TokParenOpen, type, TokParenClose, term}};
+      rules_[seq_type_term] = RuleSetter(Sequence, TokParenOpen, type, TokParenClose, term);
      
     // unary 
     //   : "++" unary                 // pre ++ 
@@ -471,7 +490,7 @@ namespace Parser {
     //   | <SIZEOF> "(" type ")"      // sizeof(type) 
     //   | <SIZEOF> unary             // sizeof unary 
     //   | postfix                    // postfix  
-    rules_[unary] = {Select, {seq_preinc_unary, 
+    rules_[unary] = RuleSetter(Select, seq_preinc_unary, 
                               seq_predec_unary,
                               seq_pos_term,
                               seq_neg_term,
@@ -480,27 +499,27 @@ namespace Parser {
                               seq_ptr_term,
                               seq_adr_term,
                               seq_sizeof_type,
-                              seq_sizeof_unary}};
+                              seq_sizeof_unary);
       // "++" unary
-      rules_[seq_preinc_unary] = {Sequence, {TokUnaryInc, unary}};
+      rules_[seq_preinc_unary] = RuleSetter(Sequence, TokUnaryInc, unary);
       // "--" unary
-      rules_[seq_predec_unary] = {Sequence, {TokUnaryDec, unary}};
+      rules_[seq_predec_unary] = RuleSetter(Sequence, TokUnaryDec, unary);
       // "+" term 
-      rules_[seq_pos_term] = {Sequence, {TokAdd, term}};
+      rules_[seq_pos_term] = RuleSetter(Sequence, TokAdd, term);
       // "-" term
-      rules_[seq_neg_term] = {Sequence, {TokSub, term}};
+      rules_[seq_neg_term] = RuleSetter(Sequence, TokSub, term);
       // "!" term 
-      rules_[seq_not_term] = {Sequence, {TokBitNot, term}};
+      rules_[seq_not_term] = RuleSetter(Sequence, TokBitNot, term);
       // "~" term 
-      rules_[seq_bitnot_term] = {Sequence, {TokConNot, term}};
+      rules_[seq_bitnot_term] = RuleSetter(Sequence, TokConNot, term);
       // "*" term
-      rules_[seq_ptr_term] = {Sequence, {TokMul, term}};
+      rules_[seq_ptr_term] = RuleSetter(Sequence, TokMul, term);
       // "&" term 
-      rules_[seq_adr_term] = {Sequence, {TokBitAnd, term}};
+      rules_[seq_adr_term] = RuleSetter(Sequence, TokBitAnd, term);
       // <SIZEOF> "(" type ")"
-      rules_[seq_sizeof_type] = {Sequence, {TokSizeOf, TokParenOpen, type, TokParenClose}};
+      rules_[seq_sizeof_type] = RuleSetter(Sequence, TokSizeOf, TokParenOpen, type, TokParenClose);
       // <SIZEOF> unary
-      rules_[seq_sizeof_unary] = {Sequence, {TokSizeOf, unary}};
+      rules_[seq_sizeof_unary] = RuleSetter(Sequence, TokSizeOf, unary);
      
     // postfix 
     //   : primary ("++"               // post ++ 
@@ -510,31 +529,31 @@ namespace Parser {
     //             |"->" name          // class member pointer reference 
     //             |"(" args ")"       // function call 
     //             )* 
-    rules_[postfix] = {Sequence, {primary, rep_reffunc}};
+    rules_[postfix] = RuleSetter(Sequence, primary, rep_reffunc);
       //("++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")")*
-      rules_[rep_reffunc] = {RepeatStar, {sel_reffunc}};
+      rules_[rep_reffunc] = RuleSetter(RepeatStar, sel_reffunc);
         // "++" | "--" | "[" expr "]" | "." name | "->" name | "(" args ")"
-        rules_[sel_reffunc] = {Select, {seq_post_inc, seq_post_dec, seq_array_reference, seq_dot_name, seq_arrow_name, seq_fncall}};
+        rules_[sel_reffunc] = RuleSetter(Select, seq_post_inc, seq_post_dec, seq_array_reference, seq_dot_name, seq_arrow_name, seq_fncall);
           // "++"
-          rules_[seq_post_inc] = {Sequence, {TokUnaryInc}};
+          rules_[seq_post_inc] = RuleSetter(Sequence, TokUnaryInc);
           // "--"
-          rules_[seq_post_dec] = {Sequence, {TokUnaryDec}};
+          rules_[seq_post_dec] = RuleSetter(Sequence, TokUnaryDec);
           //"[" expr "]"
-          rules_[seq_array_reference] = {Sequence, {TokBracketOpen, expr, TokBracketClose}};
+          rules_[seq_array_reference] = RuleSetter(Sequence, TokBracketOpen, expr, TokBracketClose);
           //"." name
-          rules_[seq_dot_name] = {Sequence, {TokDot, name}};
+          rules_[seq_dot_name] = RuleSetter(Sequence, TokDot, name);
           //"->" name
-          rules_[seq_arrow_name] = {Sequence, {TokRightArrow, name}};
+          rules_[seq_arrow_name] = RuleSetter(Sequence, TokRightArrow, name);
           //"(" args ")"
-          rules_[seq_fncall] = {Sequence, {TokParenOpen, args, TokParenClose}};
+          rules_[seq_fncall] = RuleSetter(Sequence, TokParenOpen, args, TokParenClose);
      
     // args 
     //   : [expr ("," expr)*] 
-    rules_[args] = {Options, {seq_args_expr, rep_args_expr}};
+    rules_[args] = RuleSetter(Options, seq_args_expr, rep_args_expr);
       // expr
-      rules_[seq_args_expr] = {Sequence, {expr}};
+      rules_[seq_args_expr] = RuleSetter(Sequence, expr);
       // ("," expr)*
-      rules_[rep_args_expr] = {RepeatStar, {TokComma, expr}};
+      rules_[rep_args_expr] = RuleSetter(RepeatStar, TokComma, expr);
      
     // primary 
     //   : <INTEGER> 
@@ -542,9 +561,9 @@ namespace Parser {
     //   | <STRING> 
     //   | <IDENTIFIER> 
     //   | "(" expr ")" 
-    rules_[primary] = {Select, {TokIntegerLiteral, TokCharactorLiteral, TokStringLiteral, TokIdentifier, seq_po_expr_pc}};
+    rules_[primary] = RuleSetter(Select, TokIntegerLiteral, TokCharactorLiteral, TokStringLiteral, TokIdentifier, seq_po_expr_pc);
       // "(" expr ")" 
-      rules_[seq_po_expr_pc] = {Sequence, {TokParenOpen, expr, TokParenClose,}};
+      rules_[seq_po_expr_pc] = RuleSetter(Sequence, TokParenOpen, expr, TokParenClose);
 
   }
 
