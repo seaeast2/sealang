@@ -884,6 +884,7 @@ namespace Parser {
     AST::FunctionDecl* func = 
       new AST::FunctionDecl(is_storage, ret_ty_node, fn_name, parms, body);
     delete[] fn_name;
+    delete parms;
 
     PushNode(func, RuleName::deffunc);
     return True;
@@ -2991,6 +2992,7 @@ namespace Parser {
     AST::CaseNode* case_node = new AST::CaseNode(
         (AST::ExprNodes*)pi_case_list.data_.expr_nodes_,
         (AST::StmtNode*)pi_case_body.data_.node_);
+    delete pi_case_list.data_.expr_nodes_;
 
     PushNode(case_node, RuleName::case_clause);
     return True;

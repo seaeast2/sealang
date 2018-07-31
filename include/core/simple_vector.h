@@ -14,22 +14,42 @@ class SimpleVector {
   int count_; // item count 
 
   public:
-    SimpleVector();
-    SimpleVector(const SimpleVector& sv);
-    ~SimpleVector();
+    SimpleVector() {
+      count_ = 0;
+      max_size_ = DefaultExtendSize;
+      data_ = new T[max_size_];
+    }
+
+    SimpleVector(SimpleVector<T> const& sv) {
+      if (data_)
+        delete[] data_;
+
+      max_size_ = sv.GetMaxSize();
+      count_ = sv.GetSize();
+
+      for (int i = 0; i < count_; i++) {
+        data_[i] = sv.data_[i];
+      }
+    }
+
+    ~SimpleVector() {
+      Clear();
+    }
 
     void PushBack(const T& t) {
       if (count_ + 1 > max_size_) {
-        T* new_data = new T[max_size_ + DefaultExtendSize];
         max_size_ += DefaultExtendSize;
-        // copy items
-        Copy(new_data, data_, count_);
+        T* new_data = new T[max_size_];
+
+        for (int i = 0; i < max_size_; i++) {
+          new_data[i] = data_[i];
+        }
+
         delete[] data_;
         data_ = new_data;
       }
 
-      count_++;
-      *(data_ + count_-1) = t;
+      data_[count_++] = t;
     }
 
     const T& PopBack() {
@@ -57,7 +77,7 @@ class SimpleVector {
       }
     }
 
-    int GetMaxSize() {
+    int GetMaxSize() const {
       return max_size_;
     }
 
@@ -93,31 +113,28 @@ class SimpleVector {
       return *(data_ + index);
     }
 
-  private:
-    void Copy(T* dest, T* src, int size) {
-      for (int i = 0; i < size; i++) {
-        *(dest+i) = *(src+i);
+    SimpleVector<T>& operator= (SimpleVector<T> const& sv) {
+      if (data_)
+        delete[] data_;
+
+      max_size_ = sv.GetMaxSize();
+      count_ = sv.GetSize();
+
+      for (int i = 0; i < count_; i++) {
+        data_[i] = sv.data_[i];
       }
+
+      return *this;
     }
 };
 
-template <class T>
-SimpleVector<T>::SimpleVector() {
-  count_ = 0;
-  max_size_ = DefaultExtendSize;
-  data_ = new T[max_size_];
-}
-
-template <class T>
-SimpleVector<T>::SimpleVector(const SimpleVector& sv) {
-  for (int i = 0; i < sv.GetSize(); i++) {
-    PushBack(sv[i]);
+template<typename T>
+bool operator== (SimpleVector<T> const& lhs, SimpleVector<T> const& rhs) {
+  for (int i = 0; i < lhs.GetSize(); i++) {
+    if (*lhs[i] != *rhs[i])
+      return false;
   }
-}
-
-template <class T>
-SimpleVector<T>::~SimpleVector() {
-  Clear();
+  return true;
 }
 
 #endif

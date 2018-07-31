@@ -422,7 +422,7 @@ namespace AST {
         is_incomplete_ = false;
       }
 
-      FunctionType(Type* retty, Types param_types) {
+      FunctionType(Type* retty, Types const & param_types) {
         kind_ = FunctionTy;
         is_incomplete_ = false;
 
