@@ -22,17 +22,28 @@ namespace Parser {
     int tok_pos;
 
     switch(rule.action_) {
-      case RepeatStar:
+      case RepeatStar: // Repeat more than zero
         {
           while(true) {
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
+            
+            // check look ahead
+            if (rule.lookahead_ > 0) {
+              for (int j = 0; j < rule.lookahead_; j++) {
+                if (TestRule(rule.sub_rules_[j]) == False) {
+                  tokenizer_->SetTokPos(tok_pos); // restore token position.
+                  return True; // anyway return true in repeat star
+                }
+              }
+            }
+
+            tokenizer_->SetTokPos(tok_pos); // restore token position.
             for (; rule.sub_rules_[i] > TokUnknown; i++) {
               res = TraverseRule(rule.sub_rules_[i]);
-              if (res == True) { // matched
+              if (res == True) // matched
                 matching_count++;
-              }
               else if (res == False) { // unmatched
                 tokenizer_->SetTokPos(tok_pos);
                 return True;
@@ -42,25 +53,36 @@ namespace Parser {
             }
 
             if (matching_count == i) {
-              // if every rules are matching, run action.
+              // when every rules are matched, run action.
               (this->*rule_actions_[entry])();
             }
           };
         }
         break;
 
-      case RepeatDagger:
+      case RepeatDagger: // Repeat more than once
         {
           while(true) {
             bool success = false;
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
+
+            // check look ahead
+            if (rule.lookahead_ > 0) {
+              for (int j = 0; j < rule.lookahead_; j++) {
+                if (TestRule(rule.sub_rules_[j]) == False) {
+                  tokenizer_->SetTokPos(tok_pos); // restore token position.
+                  return True; // anyway return true in repeat star
+                }
+              }
+            }
+
+            tokenizer_->SetTokPos(tok_pos); // restore token position.
             for (; rule.sub_rules_[i] > TokUnknown; i++) {
               res = TraverseRule(rule.sub_rules_[i]);
-              if (res == True) { // matched
+              if (res == True) // matched
                 matching_count++;
-              }
               else if (res == False) { // Rereached unmached point 
                 tokenizer_->SetTokPos(tok_pos);
                 if (success)
@@ -80,9 +102,10 @@ namespace Parser {
         }
         break;
 
-      case Select:
+      case Select: // select one of list
         {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
+
           for (int i = 0; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) {
@@ -90,13 +113,12 @@ namespace Parser {
               (this->*rule_actions_[entry])();
               return True; // found matching
             }
-            else if (res == False) {
+            else if (res == False)
               tokenizer_->SetTokPos(tok_pos); // restore token position.
-            }
             else
               return Error;
           }
-          return False;
+          return False; // unmatched
         }
         break;
 
@@ -105,26 +127,36 @@ namespace Parser {
           int matching_count = 0;
           int i = 0;
           tok_pos = tokenizer_->GetTokPos(); // backup token position
+
+          // check look ahead
+          if (rule.lookahead_ > 0) {
+            for (int j = 0; j < rule.lookahead_; j++) {
+              if (TestRule(rule.sub_rules_[j]) == False) {
+                tokenizer_->SetTokPos(tok_pos); // restore token position.
+                return False;
+              }
+            }
+          }
+
+          tokenizer_->SetTokPos(tok_pos); // restore token position.
           for (; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
-            if (res == True) { // matched
+            if (res == True) // matched
               matching_count++;
-            }
             else if (res == False) { // unmatched
               tokenizer_->SetTokPos(tok_pos); // restore token position.
-              return False; // unmatching
+              return False; // unmatched 
             }
             else
               return Error;
           }
 
           if (matching_count == i) {
-            // if every rules are matching, run action.
-            (this->*rule_actions_[entry])();
-            return True;
+            (this->*rule_actions_[entry])(); // run action
+            return True; // matched
           }
-          tokenizer_->SetTokPos(tok_pos); // restore token position.
-          return False; // unmatching
+          tokenizer_->SetTokPos(tok_pos);
+          return False; // unmatched
         }
         break;
 
@@ -133,25 +165,34 @@ namespace Parser {
           int matching_count = 0;
           int i = 0;
           tok_pos = tokenizer_->GetTokPos(); // backup token position
+
+          // check look ahead
+          if (rule.lookahead_ > 0) {
+            for (int j = 0; j < rule.lookahead_; j++) {
+              if (TestRule(rule.sub_rules_[j]) == False) {
+                tokenizer_->SetTokPos(tok_pos); // restore token position.
+                return True;
+              }
+            }
+          }
+
+          tokenizer_->SetTokPos(tok_pos); // restore token position.
           for (; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
-            if (res == True) {
+            if (res == True)
               matching_count++;
+            else if (res == False)  {
+              tokenizer_->SetTokPos(tok_pos);
+              return True; // unmatched but return true
             }
             else if (res == Error)
               return Error;
           }
 
-          // matched
-          if (matching_count == i) {
-            // Run action
-            (this->*rule_actions_[entry])();
+          if (matching_count == i) { // matched
+            (this->*rule_actions_[entry])(); // run action
             return True;
           }
-
-          // unmatched
-          tokenizer_->SetTokPos(tok_pos); // restore token position.
-          return True; // unmatched but return true
         }
         break;
 
@@ -171,6 +212,7 @@ namespace Parser {
         assert("Error wrong rule action.");
         break;
     }
+    return Error;
   }
 
   eResult SyntaxAnalyzer::TestRule(RuleName entry) {
@@ -178,9 +220,8 @@ namespace Parser {
     eResult res;
     int tok_pos;
 
-
     switch(rule.action_) {
-      case RepeatStar:
+      case RepeatStar: // Repeat more than zero
         {
           while(true) {
             int matching_count = 0;
@@ -192,13 +233,8 @@ namespace Parser {
                 matching_count++;
               }
               else if (res == False) { // not matching
-                if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                  matching_count++;
-                }
-                else {
-                  tokenizer_->SetTokPos(tok_pos); // restore token position.
-                  return True; // reached unmatching point.
-                }
+                tokenizer_->SetTokPos(tok_pos); // restore token position.
+                return True; // reached unmatching point.
               }
               else
                 return Error;
@@ -207,9 +243,10 @@ namespace Parser {
         }
         break;
 
-      case RepeatDagger:
+      case RepeatDagger: // Repeat more than once
         {
           while(true) {
+            bool success = false;
             int matching_count = 0;
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
@@ -218,39 +255,38 @@ namespace Parser {
               if (res == True) { // matched
                 matching_count++;
               }
-              else if (res == False) { // not matching
-                if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                  matching_count++;
-                }
-                else {
-                  tokenizer_->SetTokPos(tok_pos); // restore token position.
-                  return True; // reached unmatching point.
-                }
+              else if (res == False) {// Rereached unmached point 
+                tokenizer_->SetTokPos(tok_pos);
+                if (success)
+                  return True;
+                return False;
               }
               else
                 return Error;
+            }
+
+            if (matching_count == i) {
+              success = true;
             }
           };
         }
         break;
 
-      case Select:
+      case Select: // select one of list
         {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
           for (int i = 0; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TestRule(rule.sub_rules_[i]);
             if (res == True) {
-              // Run action
               return True; // found matching
             }
             else if (res == False) {
               tokenizer_->SetTokPos(tok_pos); // restore token position.
-              return False;
             }
             else
               return Error;
           }
-          return False;
+          return False; // unmatched
         }
         break;
 
@@ -258,26 +294,24 @@ namespace Parser {
         {
           int matching_count = 0;
           int i = 0;
-          tok_pos = tokenizer_->GetTokPos(); // backup token position
+          tok_pos = tokenizer_->GetTokPos();
           for (; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TestRule(rule.sub_rules_[i]);
             if (res == True) { // matched
               matching_count++;
             }
-            else if (res == False) { // not matching
-              if (rules_[rule.sub_rules_[i]].action_ == Options) {
-                matching_count++;
-              }
+            else if (res == False) {
+              tokenizer_->SetTokPos(tok_pos);
+              return False; // unmatched
             }
             else
               return Error;
           }
 
           if (matching_count == i) {
-            // if every rules are matching, run action.
-            return True;
+            return True; // matched
           }
-          tokenizer_->SetTokPos(tok_pos); // restore token position.
+          tokenizer_->SetTokPos(tok_pos);
           return False; // unmatching
         }
         break;
@@ -291,22 +325,22 @@ namespace Parser {
             res = TestRule(rule.sub_rules_[i]);
             if (res == True)
               matching_count++;
+            else if (res == False)  {
+              tokenizer_->SetTokPos(tok_pos);
+              return True; // unmatched but return true
+            }
             else if (res == Error)
               return Error;
           }
 
-          if (matching_count == i)
+          if (matching_count == i) // matched
             return True;
-
-          tokenizer_->SetTokPos(tok_pos); // restore token position.
-          return False; // unmatching
         }
         break;
 
       case Terminal:
         {
           if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
-            // Run action
             tokenizer_->ConsumeToken(1);
             return True;
           }
@@ -318,7 +352,7 @@ namespace Parser {
         assert("Error wrong rule action.");
         break;
     }
-    return True;
+    return Error;
   }
 
   eResult SyntaxAnalyzer::StartParser() {
@@ -1092,7 +1126,8 @@ namespace Parser {
       expr_node = nullptr;
       if (pi.type_ == ParseInfo::ASTNode) {
         expr_node = pi.data_.node_;
-        if (!expr_node->IsKindOf(AST::BaseNode::ExprNodeTy))
+        if (!expr_node->IsKindOf(AST::BaseNode::ExprNodeTy) ||
+            pi.rule_name_ != RuleName::expr)
           return Error;
         parse_stack_.Pop();
         pi = parse_stack_.Top(); // read variable name
@@ -2027,7 +2062,7 @@ namespace Parser {
     // Check if top is right.
     pi_expr7 = parse_stack_.Top();
     if (pi_expr7.type_ != ParseInfo::ASTNode ||
-        (pi_expr7.rule_name_ != RuleName::expr7 &&
+        (pi_expr7.rule_name_ != RuleName::expr6 &&
          pi_expr7.rule_name_ != RuleName::seq_gr_expr6 &&
          pi_expr7.rule_name_ != RuleName::seq_ls_expr6 &&
          pi_expr7.rule_name_ != RuleName::seq_geq_expr6 &&
@@ -2053,7 +2088,7 @@ namespace Parser {
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
-        (pi_lhs.rule_name_ != RuleName::expr7 &&
+        (pi_lhs.rule_name_ != RuleName::expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
@@ -2086,7 +2121,7 @@ namespace Parser {
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
-        (pi_lhs.rule_name_ != RuleName::expr7 &&
+        (pi_lhs.rule_name_ != RuleName::expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
@@ -2119,7 +2154,7 @@ namespace Parser {
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
-        (pi_lhs.rule_name_ != RuleName::expr7 &&
+        (pi_lhs.rule_name_ != RuleName::expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
@@ -2152,7 +2187,7 @@ namespace Parser {
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
-        (pi_lhs.rule_name_ != RuleName::expr7 &&
+        (pi_lhs.rule_name_ != RuleName::expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
@@ -2185,7 +2220,7 @@ namespace Parser {
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
-        (pi_lhs.rule_name_ != RuleName::expr7 &&
+        (pi_lhs.rule_name_ != RuleName::expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
@@ -2218,7 +2253,7 @@ namespace Parser {
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
-        (pi_lhs.rule_name_ != RuleName::expr7 &&
+        (pi_lhs.rule_name_ != RuleName::expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_gr_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_ls_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
@@ -2370,7 +2405,7 @@ namespace Parser {
     // Check if top is right.
     pi_expr2 = parse_stack_.Top();
     if (pi_expr2.type_ != ParseInfo::ASTNode ||
-        (pi_expr2.rule_name_ != RuleName::expr3 &&
+        (pi_expr2.rule_name_ != RuleName::expr2 &&
          pi_expr2.rule_name_ != RuleName::seq_rshft_expr2&&
          pi_expr2.rule_name_ != RuleName::seq_lshft_expr2))
       return Error;
@@ -2626,6 +2661,7 @@ namespace Parser {
       parse_stack_.Pop();
 
       sm->PushBack((AST::StmtNode*)pi.data_.node_);
+      pi = parse_stack_.Top();
     }
 
     sm->Reverse();
@@ -3048,6 +3084,7 @@ namespace Parser {
     ParseInfo pi = parse_stack_.Top();
     if(pi.type_ != ParseInfo::ASTNode || pi.rule_name_ != RuleName::expr)
       return Error;
+    parse_stack_.Pop();
 
     AST::ReturnNode* rn = new AST::ReturnNode((AST::ExprNode*)pi.data_.node_);
 

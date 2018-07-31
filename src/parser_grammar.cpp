@@ -52,18 +52,18 @@ namespace Parser {
     //      | <DOUBLE>
     //      | <CLASS> <IDENTIFIER> 
     rules_[typeref_base] = RuleSetter(Select, 0, 
-        seq_void, 
-        seq_char,
-        seq_short, 
-        seq_int, 
-        seq_long, 
-        seq_unsigned_char,
-        seq_unsigned_short,
-        seq_unsigned_int,
-        seq_unsigned_long,
-        seq_float,
-        seq_double,
-        seq_class_identifier);
+              seq_void, 
+              seq_char,
+              seq_short, 
+              seq_int, 
+              seq_long, 
+              seq_unsigned_char,
+              seq_unsigned_short,
+              seq_unsigned_int,
+              seq_unsigned_long,
+              seq_float,
+              seq_double,
+              seq_class_identifier);
       rules_[seq_void] = RuleSetter(Sequence, 0, TokVoid);
       rules_[seq_char] = RuleSetter(Sequence, 0, TokChar);
       rules_[seq_short] = RuleSetter(Sequence, 0, TokShort);
@@ -100,8 +100,8 @@ namespace Parser {
       rules_[sel_fun_var_const_class_typedef] = RuleSetter(Select, 0, deffunc, defvars, defconst, defclass, typedef_ );
 
     // defvars // variable definition. ex) int a = 0, b=19; 
-    //   : storage type name ["=" expr] [("," name ["=" expr])*] ";" 
-    rules_[defvars] = RuleSetter(Sequence, 0, storage, type, name, opt_var_initialize, opt_rep_var_initialize, TokSemiColon );
+    //   : LOOKAHEAD(storage type name) ["=" expr] [("," name ["=" expr])*] ";" 
+    rules_[defvars] = RuleSetter(Sequence, 3, storage, type, name, opt_var_initialize, opt_rep_var_initialize, TokSemiColon );
       rules_[opt_var_initialize] = RuleSetter(Options, 0, TokAssign, expr); // ["=" expr]
       // [("," name ["=" expr])*]
       rules_[opt_rep_var_initialize] = RuleSetter(Options, 0, rep_var_initialize); 
@@ -121,8 +121,8 @@ namespace Parser {
     rules_[type] = RuleSetter(Sequence, 0, typeref);
 
     // deffunc // function definition 
-    //   : storage typeref name "(" params ")" block 
-    rules_[deffunc] = RuleSetter(Sequence, 0, storage, typeref, name, TokParenOpen, params, TokParenClose, block );
+    //   : LOOKAHEAD(storage typeref name "(") params ")" block 
+    rules_[deffunc] = RuleSetter(Sequence, 4, storage, typeref, name, TokParenOpen, params, TokParenClose, block );
 
     // params // parameter definition 
     //   : <VOID> 
@@ -245,8 +245,8 @@ namespace Parser {
                                       return_stmt);
 
     // labeled_stmt
-    //   : <IDENTIFIER> ":" stmt
-    rules_[labeled_stmt] = RuleSetter(Sequence, 0, TokIdentifier, TokColon, stmt);
+    //   : LOOKAHEAD(<IDENTIFIER> ":") stmt
+    rules_[labeled_stmt] = RuleSetter(Sequence, 2, TokIdentifier, TokColon, stmt);
 
     // expr_stmt
     //  : expr ";"
@@ -316,23 +316,23 @@ namespace Parser {
     rules_[goto_stmt] = RuleSetter(Sequence, 0, TokGoto, TokIdentifier, TokSemiColon);
      
     // return_stmt 
-    //   : <RETURN> ";" 
+    //   : LOOKAHEAD(<RETURN> ";")
     //   | <RETURN> expr ";" 
     rules_[return_stmt] = RuleSetter(Select, 0, seq_return, seq_return_expr);
       // <RETURN> ";"
-      rules_[seq_return] = RuleSetter(Sequence, 0, TokReturn, TokSemiColon);
+      rules_[seq_return] = RuleSetter(Sequence, 2, TokReturn, TokSemiColon);
       // <RETURN> expr ";"
       rules_[seq_return_expr] = RuleSetter(Sequence, 0, TokReturn, expr, TokSemiColon);
      
     // expr 
-    //   : term "=" expr 
-    //   | term opassign_op expr 
+    //   : LOOKAHEAD(term "=") expr 
+    //   | LOOKAHEAD(term opassign_op) expr 
     //   | expr10 
     rules_[expr] = RuleSetter(Select, 0, seq_assign_value, seq_opassign_value, expr10);
       // term "=" expr 
-      rules_[seq_assign_value] = RuleSetter(Sequence, 0, term, TokAssign, expr);
+      rules_[seq_assign_value] = RuleSetter(Sequence, 2, term, TokAssign, expr);
       // term opassign_op expr 
-      rules_[seq_opassign_value] = RuleSetter(Sequence, 0, term, opassign_op, expr);
+      rules_[seq_opassign_value] = RuleSetter(Sequence, 2, term, opassign_op, expr);
      
     // opassign_op 
     //   : "+=" 
@@ -375,14 +375,14 @@ namespace Parser {
       rules_[rep_and_expr7] = RuleSetter(RepeatStar, 0, TokConAnd, expr7);
      
     // expr7  
-    //   : expr7 ( ">" expr6  
+    //   : expr6 ( ">" expr6  
     //           | "<" expr6 
     //           | ">=" expr6 
     //           | "<=" expr6 
     //           | "==" expr6 
     //           | "!=" expr6 )* 
     //
-    rules_[expr7] = RuleSetter(Sequence, 0, expr7, rep_op_expr6);
+    rules_[expr7] = RuleSetter(Sequence, 0, expr6, rep_op_expr6);
       //(sel_op_expr6)*
       rules_[rep_op_expr6] = RuleSetter(RepeatStar, 0, sel_op_expr6);
         // ">" expr6  
@@ -446,7 +446,7 @@ namespace Parser {
       // ( "+" expr1 | "-" expr1)* 
       rules_[rep_sumsub_expr1] = RuleSetter(RepeatStar, 0, sel_sumsub_expr1);
         // "+" expr1 | "-" expr1 
-        rules_[sel_sumsub_expr1] = RuleSetter(RepeatStar, 0, seq_sum_expr1, seq_sub_expr1);
+        rules_[sel_sumsub_expr1] = RuleSetter(Select, 0, seq_sum_expr1, seq_sub_expr1);
           // "+" expr1
           rules_[seq_sum_expr1] = RuleSetter(Sequence, 0, TokAdd, expr1);
           // "-" expr1
@@ -489,7 +489,7 @@ namespace Parser {
     //   | "~" term                   // bit negation 
     //   | "*" term                   // Pointer reference 
     //   | "&" term                   // adress operator 
-    //   | <SIZEOF> "(" type ")"      // sizeof(type) 
+    //   | LOOKAHEAD(<SIZEOF> "(") type ")"      // sizeof(type) 
     //   | <SIZEOF> unary             // sizeof unary 
     //   | postfix                    // postfix  
     rules_[unary] = RuleSetter(Select, 0, seq_preinc_unary, 
@@ -520,7 +520,7 @@ namespace Parser {
       // "&" term 
       rules_[seq_adr_term] = RuleSetter(Sequence, 0, TokBitAnd, term);
       // <SIZEOF> "(" type ")"
-      rules_[seq_sizeof_type] = RuleSetter(Sequence, 0, TokSizeOf, TokParenOpen, type, TokParenClose);
+      rules_[seq_sizeof_type] = RuleSetter(Sequence, 2, TokSizeOf, TokParenOpen, type, TokParenClose);
       // <SIZEOF> unary
       rules_[seq_sizeof_unary] = RuleSetter(Sequence, 0, TokSizeOf, unary);
      

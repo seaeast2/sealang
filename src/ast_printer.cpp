@@ -14,6 +14,11 @@ ASTPrinter::~ASTPrinter() {
 }
 
 bool ASTPrinter::Print(Declarations* decls) {
+  if (!decls) {
+    cout << "No Decls" << endl;
+    return false;
+  }
+
   for (int i = 0; i < decls->GetFunctionNum(); i++) {
     if(!Visit(decls->GetFunction(i)))
       return false;
@@ -42,211 +47,480 @@ bool ASTPrinter::Print(Declarations* decls) {
 
 // Statements
 bool ASTPrinter::Visit(BlockNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "BlockNode" << endl;
-  return ASTVisitor::Visit(node);
+
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
+
 bool ASTPrinter::Visit(LabelNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "LabelNode" << endl;
-  return ASTVisitor::Visit(node);
+
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
+
 bool ASTPrinter::Visit(ExprStmtNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ExprStmtNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
+
 bool ASTPrinter::Visit(IfNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "IfNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }    
 bool ASTPrinter::Visit(WhileNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "WhileNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(DoWhileNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "DoWhileNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(ForNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ForNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(CaseNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "CaseNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(SwitchNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "SwitchNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(BreakNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "BreakNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(ContinueNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ContinueNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(GotoNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "GotoNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(ReturnNode* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ReturnNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 // Expression
 bool ASTPrinter::Visit(AssignNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "AssignNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(OpAssignNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "OpAssignNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(AddressNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "AddressNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(BinaryOpNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "BinaryOpNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(LogicalAndNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+  
   cout << "LogicalAndNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(LogicalOrNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "LogicalOrNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(CastNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "CastNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(CondExprNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "CondExprNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(FuncCallNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "FuncCallNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(ArrayRefNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ArrayRefNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(DereferenceNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "DereferenceNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(MemberRefNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "MemberRefNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(PtrMemberRefNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "PtrMemberRefNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(VariableNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "VariableNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(IntegerLiteralNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "IntegerLiteralNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(RealLiteralNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "RealLiteralNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(StringLiteralNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "StringLiteralNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(SizeofExprNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "SizeofExprNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(SizeofTypeNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "SizeofTypeNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(UnaryOpNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "UnaryOpNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(PrefixOpNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "PrefixOpNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
    
 bool ASTPrinter::Visit(SuffixOpNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "SuffixOpNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 
 // Etc
 bool ASTPrinter::Visit(FunctionDecl* node){ 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "FunctionDecl" << endl;
-  return true;
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 bool ASTPrinter::Visit(VariableDecl* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "VariableDecl" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(ConstantDecl* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ConstantDecl" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(TypeNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "TypeNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
  
 bool ASTPrinter::Visit(ParamNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ParamNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(ImportNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ImportNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
 
 bool ASTPrinter::Visit(ArgsNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ArgsNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
         
 bool ASTPrinter::Visit(ClassNode* node){
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "ClassNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 }
    
 bool ASTPrinter::Visit(TypedefNode* node) { 
+  for (int i = 0; i < depth_; i++)
+    cout << "  ";
+
   cout << "TypedefNode" << endl;
-  return ASTVisitor::Visit(node);
+  depth_++;
+  bool res = ASTVisitor::Visit(node);
+  depth_--;
+  return res;
 } 

@@ -362,7 +362,7 @@ namespace Parser {
       void InitBasicRule();
       void InitRuleAction();
       eResult TraverseRule(RuleName entry);
-      eResult TestRule(RuleName entry);
+      eResult TestRule(RuleName entry); // Do not run action. just run test
 
       // Entry point of parsing process
       eResult StartParser();

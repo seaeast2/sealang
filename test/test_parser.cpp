@@ -3,11 +3,10 @@
 #include "ast_printer.h"
 
 char* src =  
-" \
-import test.aaa.bbb.ccc; \n\
-void test(void) {\n\
-  int a = 10;\n\
-}";
+"int test(void) { \
+    int a = 10;\n\
+    return a;\
+ }";
 
 int main() {
   Lexer::Tokenizer* tk = new Lexer::Tokenizer(src);
