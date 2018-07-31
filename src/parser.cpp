@@ -1121,30 +1121,31 @@ namespace Parser {
     AST::VariableDecls* vardecls = new AST::VariableDecls();
 
     while(true) {
-      pi = parse_stack_.Top();
+      expr_node = nullptr;
 
       // Read variable initializer Expr
-      expr_node = nullptr;
-      if (pi.type_ == ParseInfo::ASTNode) {
-        expr_node = pi.data_.node_;
-        if (!expr_node->IsKindOf(AST::BaseNode::ExprNodeTy) ||
-            pi.rule_name_ != RuleName::expr)
-          return Error;
-        parse_stack_.Pop();
-        pi = parse_stack_.Top(); // read variable name
-      }
+      pi = parse_stack_.Top();
+      if (pi.type_ != ParseInfo::ASTNode ||
+          pi.rule_name_ != RuleName::expr)
+        return Error;
+      expr_node = pi.data_.node_;
+      if (!expr_node->IsKindOf(AST::BaseNode::ExprNodeTy))
+        return Error;
+      parse_stack_.Pop();
 
       // Read variable name
-      if (pi.type_ == ParseInfo::Identifier) {
-        AST::VariableDecl* new_var = new AST::VariableDecl();
-        if(expr_node)
-          new_var->SetInit((AST::ExprNode*)expr_node);
-        new_var->SetName(pi.data_.cstr_, pi.cstr_len_);
-        vardecls->PushBack(new_var);
+      pi = parse_stack_.Top(); // read variable name
+      if (pi.type_ != ParseInfo::Identifier ||
+          pi.rule_name_ != RuleName::name)
+        return Error;
+      AST::VariableDecl* new_var = new AST::VariableDecl();
+      if(expr_node)
+        new_var->SetInit((AST::ExprNode*)expr_node);
+      new_var->SetName(pi.data_.cstr_, pi.cstr_len_);
+      vardecls->PushBack(new_var);
 
-        parse_stack_.Pop();
-        pi = parse_stack_.Top(); // read variable type
-      }
+      parse_stack_.Pop();
+      pi = parse_stack_.Top(); // read variable type
 
       // Read variable type
       if (pi.type_ == ParseInfo::ASTNode && 

@@ -1078,10 +1078,6 @@ namespace AST {
         return args_[idx];
       }
 
-      void Clear() {
-        args_.Clear();
-      }
-
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }

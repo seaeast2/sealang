@@ -3,9 +3,8 @@
 #include "ast_printer.h"
 
 char* src =  
-"int test(void) { \
-    int a = 10;\n\
-    return a;\
+"void test(void) { \
+    return;\
  }";
 
 int main() {

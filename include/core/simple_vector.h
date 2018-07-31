@@ -33,7 +33,9 @@ class SimpleVector {
     }
 
     ~SimpleVector() {
-      Clear();
+      delete[] data_;
+      max_size_ = 0;
+      count_ = 0;
     }
 
     void PushBack(const T& t) {
@@ -89,12 +91,6 @@ class SimpleVector {
       if (count_ > 0) 
         return false;
       return true;
-    }
-
-    void Clear() {
-      delete[] data_;
-      max_size_ = 0;
-      count_ = 0;
     }
 
     T& operator[] (int index) {
