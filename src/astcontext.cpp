@@ -18,9 +18,9 @@ namespace AST {
   }
 
   Type* ASTContext::FindType(const char* type_name) {
-    Type** ty = type_env_.GetValue(type_name);
+    Type* ty = type_env_.GetValue(type_name);
     if (ty)
-      return *ty;
+      return ty;
     return nullptr;
   }
 
@@ -29,10 +29,10 @@ namespace AST {
   }
 
   Type* ASTContext::RemoveType(const char* key) {
-    Type** ty = type_env_.GetValue(key);
+    Type* ty = type_env_.GetValue(key);
     if (ty) {
       type_env_.Pop(key);
-      return *ty;
+      return ty;
     }
     return nullptr;
   }
