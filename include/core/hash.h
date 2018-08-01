@@ -1,14 +1,18 @@
 #ifndef _hash_h_
 #define _hash_h_
 
-#include <string>
+#include <string.h>
+#include <type_traits>
+#include <iostream>
+
+using namespace std;
 
 // string key hash table
-template <class V, unsigned int MAX_TABLE> 
+template <typename V, unsigned int MAX_TABLE> 
 class HashTable {
   struct Element {
     char* key_;
-    V* value_;
+    V value_;
     Element* next_;
     Element* prev_;
   };
@@ -29,14 +33,14 @@ class HashTable {
       }
     }
 
-    V* Insert(const char* key, V& value) {
+    V* Insert(const char* key, const V& value) {
       Element* res = FindElement(key);
       if (!res) {
         // creates new element.
         Element* new_item = new Element;
         new_item->key_ = new char[strlen(key)];
         strcpy(new_item->key_, key);
-        new_item->value_ = &value;
+        new_item->value_ = value;
         new_item->prev_ = nullptr;
         new_item->next_ = nullptr;
 
@@ -44,16 +48,16 @@ class HashTable {
         long hash_code = Hash(key);
         if (!table_[hash_code]) {
           table_[hash_code] = new_item;
-          return new_item->value_;
+          return &new_item->value_;
         }
 
         // insert first.
         table_[hash_code]->prev_ = new_item;
         new_item->next_ = table_[hash_code];
         table_[hash_code] = new_item;
-        return new_item->value_;
+        return &new_item->value_;
       }
-      return res->value_;
+      return &res->value_;
     }
 
     V* Find(const char* key) {
@@ -62,7 +66,7 @@ class HashTable {
         Element* cur = table_[hash_code];
         while(cur) {
           if (!strcmp(key, cur->key_)) {
-            return cur->value_;
+            return &cur->value_;
           }
           cur = cur->next_; 
         }
@@ -70,10 +74,10 @@ class HashTable {
       return nullptr;
     }
 
-    V* Delete(const char* key) {
+    bool Delete(const char* key) {
       Element* res = FindElement(key);
       if (!res)
-        return nullptr;
+        return false;
 
       long hash_code = Hash(key);
       if (res->prev_)
@@ -84,11 +88,12 @@ class HashTable {
       if (res->next_)
         res->next_->prev_ = res->prev_;
 
-      V* v = res->value_;
       delete[] res->key_;
+      if (std::is_pointer<V>::value)
+        delete res->value_;
       delete res;
 
-      return v;
+      return true;
     }
 
   private:
@@ -125,6 +130,9 @@ class HashTable {
       Element* cur = e, *next;
       while(cur) {
         next = cur->next_;
+        delete[] cur->key_;
+        if (std::is_pointer<V>::value)
+          delete cur->value_;
         delete cur;
         cur = next;
       }

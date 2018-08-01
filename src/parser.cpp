@@ -450,6 +450,7 @@ namespace Parser {
       import_node = new AST::ImportNode();
       
       char* first_import_path = new char[pi_import.cstr_len_ + 1];
+      memset(first_import_path, 0, sizeof(first_import_path));
       strncpy(first_import_path, pi_import.data_.cstr_,pi_import.cstr_len_);
       import_node->AddImportPath(first_import_path);
       delete[] first_import_path;
@@ -459,6 +460,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* import_path = new char[pi_name.cstr_len_ + 1];
+    memset(import_path, 0, sizeof(import_path));
     strncpy(import_path, pi_name.data_.cstr_, pi_name.cstr_len_);
     import_node->AddImportPath(import_path);
     delete[] import_path;
@@ -470,10 +472,10 @@ namespace Parser {
   eResult SyntaxAnalyzer::TopDefs(void) {
     ParseInfo pi = parse_stack_.Top();
 
-    if (pi.rule_name_ != RuleName::deffunc ||
-        pi.rule_name_ != RuleName::defvars ||
-        pi.rule_name_ != RuleName::defconst ||
-        pi.rule_name_ != RuleName::defclass ||
+    if (pi.rule_name_ != RuleName::deffunc &&
+        pi.rule_name_ != RuleName::defvars &&
+        pi.rule_name_ != RuleName::defconst && 
+        pi.rule_name_ != RuleName::defclass &&
         pi.rule_name_ != RuleName::typedef_)
       return Error;
 
@@ -738,6 +740,7 @@ namespace Parser {
 
     // create temp new typename char buff
     char* tyname = new char[pi_id.cstr_len_ + 1];
+    memset(tyname, 0, sizeof(tyname));
     strncpy(tyname, pi_id.data_.cstr_, pi_id.cstr_len_);
 
     AST::TypedefNode* typedef_node = new AST::TypedefNode(ori_type, tyname);
@@ -831,10 +834,10 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::DefFunc(void) {
     ParseInfo pi_block, pi_params, pi_name, pi_type, pi_storage;
-    AST::BlockNode* body;
-    AST::ParamNodes* parms;
-    char* fn_name;
-    AST::Type* ret_type;
+    AST::BlockNode* body = nullptr;
+    AST::ParamNodes* parms = nullptr;
+    char* fn_name = nullptr;
+    AST::Type* ret_type = nullptr;
 
     // Read block (function body)
     pi_block = parse_stack_.Top();
@@ -859,6 +862,7 @@ namespace Parser {
       return Error;
     parse_stack_.Pop();
     fn_name = new char[pi_name.cstr_len_+1];
+    memset(fn_name, 0, sizeof(fn_name));
     strncpy(fn_name, pi_name.data_.cstr_, pi_name.cstr_len_);
 
     // Read return type
@@ -958,6 +962,7 @@ namespace Parser {
 
     // Set class name
     char* classname = new char[pi_class_name.cstr_len_ + 1];
+    memset(classname, 0, sizeof(classname));
     strncpy(classname, pi_class_name.data_.cstr_, pi_class_name.cstr_len_);
     class_node->SetTypeName(classname);
     // Set class type
@@ -1016,6 +1021,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* param_name = new char[pi_name.cstr_len_+1];
+    memset(param_name, 0, sizeof(param_name));
     strncpy(param_name, pi_name.data_.cstr_, pi_name.cstr_len_);
     AST::ParamNode* param_node = 
       new AST::ParamNode((AST::TypeNode*)pi_type.data_.node_, param_name, false);
@@ -1203,6 +1209,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* const_name = new char[pi_name.cstr_len_+1];
+    memset(const_name, 0, sizeof(const_name));
     strncpy(const_name, pi_name.data_.cstr_, pi_name.cstr_len_);
     AST::ConstantDecl* constdecl = new AST::ConstantDecl((AST::TypeNode*)pi_type.data_.node_,
         const_name, (AST::ExprNode*)pi_expr.data_.node_);
@@ -1688,6 +1695,7 @@ namespace Parser {
       parse_stack_.Pop();
 
       char* tmp = new char[top_pi.cstr_len_+1];
+      memset(tmp, 0, sizeof(tmp));
       strncpy(tmp, top_pi.data_.cstr_, top_pi.cstr_len_+1);
       AST::VariableNode* node = new AST::VariableNode(tmp);
       PushNode(node, RuleName::primary);
@@ -2711,6 +2719,7 @@ namespace Parser {
 
     // Create label stmt 
     char* lname = new char[pi_label_name.cstr_len_+1];
+    memset(lname, 0, sizeof(lname));
     strncpy(lname, pi_label_name.data_.cstr_, pi_label_name.cstr_len_);
     AST::LabelNode* label = new AST::LabelNode(lname, (AST::StmtNode*)pi_stmt.data_.node_);
     delete[] lname;
@@ -3059,6 +3068,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* target = new char[pi_target.cstr_len_ + 1];
+    memset(target, 0, sizeof(target));
     strncpy(target, pi_target.data_.cstr_, pi_target.cstr_len_);
     AST::GotoNode* gn = new AST::GotoNode(target);
     delete target;

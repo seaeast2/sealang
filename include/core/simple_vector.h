@@ -16,26 +16,19 @@ class SimpleVector {
   public:
     SimpleVector() {
       count_ = 0;
-      max_size_ = DefaultExtendSize;
-      data_ = new T[max_size_];
+      max_size_ = 0;
+      data_ = nullptr;
     }
 
     SimpleVector(SimpleVector<T> const& sv) {
-      if (data_)
-        delete[] data_;
-
-      max_size_ = sv.GetMaxSize();
-      count_ = sv.GetSize();
-
-      for (int i = 0; i < count_; i++) {
-        data_[i] = sv.data_[i];
+      Clear();
+      for (int i = 0; i < sv.GetSize(); i++) {
+        PushBack(sv[i]);
       }
     }
 
     ~SimpleVector() {
-      delete[] data_;
-      max_size_ = 0;
-      count_ = 0;
+      Clear();
     }
 
     void PushBack(const T& t) {
@@ -43,11 +36,14 @@ class SimpleVector {
         max_size_ += DefaultExtendSize;
         T* new_data = new T[max_size_];
 
-        for (int i = 0; i < max_size_; i++) {
-          new_data[i] = data_[i];
+        if (data_) {
+          for (int i = 0; i < max_size_; i++) {
+            new_data[i] = data_[i];
+          }
         }
 
-        delete[] data_;
+        if (data_)
+          delete[] data_;
         data_ = new_data;
       }
 
@@ -110,17 +106,20 @@ class SimpleVector {
     }
 
     SimpleVector<T>& operator= (SimpleVector<T> const& sv) {
-      if (data_)
-        delete[] data_;
-
-      max_size_ = sv.GetMaxSize();
-      count_ = sv.GetSize();
-
-      for (int i = 0; i < count_; i++) {
-        data_[i] = sv.data_[i];
+      Clear();
+      for (int i = 0; i < sv.GetSize(); i++) {
+        PushBack(sv[i]);
       }
 
       return *this;
+    }
+  private:
+    void Clear() {
+      if (data_)
+        delete[] data_;
+      data_ = nullptr;
+      count_ = 0;
+      max_size_ = 0;
     }
 };
 

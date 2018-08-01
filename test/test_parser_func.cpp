@@ -4,6 +4,7 @@
 
 char* src =  
 "void test(void) { \
+    long hoho = 20; \
     return;\
  }";
 

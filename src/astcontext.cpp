@@ -41,7 +41,7 @@ namespace AST {
     ASTPrinter ast_printer;
 
     ast_printer.Print(GetLocalDecl());
-    //ast_printer.Print(GetImportedDecl());
+    ast_printer.Print(GetImportedDecl());
   }
 
 };

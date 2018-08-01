@@ -431,7 +431,7 @@ bool ASTPrinter::Visit(FunctionDecl* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "FunctionDecl" << endl;
+  cout << "FunctionDecl : " << node->GetName() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;
@@ -463,7 +463,12 @@ bool ASTPrinter::Visit(TypeNode* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "TypeNode" << endl;
+  AST::Type* ty = node->GetType();
+  if (ty)
+    cout << "TypeNode : " << ty->GetTypeName() << endl;
+  else
+    cout << "TypeNode" << endl;
+
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;

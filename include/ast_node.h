@@ -99,6 +99,7 @@ namespace AST {
     public:
       TypeNode() {
         kind_ = TypeNodeTy;
+        type_ = nullptr;
       }
       TypeNode(AST::Type* ty) {
         kind_ = TypeNodeTy;

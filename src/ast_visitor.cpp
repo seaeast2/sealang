@@ -22,10 +22,8 @@ bool ASTVisitor::Visit(BlockNode* node){
   VariableDecl* var = nullptr;
   for (int i = 0; i < node->GetVarNum(); i++) {
     var = node->GetVariable(i);
-    if (var->HasInitializer()) {
-      if(!VisitExpr(var->GetInitializer()))
-        return false;
-    }
+    if (!Visit(var))
+      return false;
   }
   // statements
   StmtNode* stmt = nullptr;
