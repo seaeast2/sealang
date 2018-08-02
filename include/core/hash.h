@@ -8,7 +8,7 @@
 using namespace std;
 
 // string key hash table
-template <typename V, unsigned int MAX_TABLE>
+template <typename V, int MAX_TABLE>
 class HashTable {
   struct Element {
     char* key_;
@@ -137,7 +137,7 @@ class HashTable {
 };
 
 // Pointer specialization
-template <typename V, unsigned int MAX_TABLE> 
+template <typename V, int MAX_TABLE> 
 class HashTable<V*, MAX_TABLE> {
   struct Element {
     char* key_;

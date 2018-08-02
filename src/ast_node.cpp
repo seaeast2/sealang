@@ -96,7 +96,7 @@ namespace AST {
     }
   }
   
-  ParamNode* FunctionDecl::GetParamNode(unsigned int index) {
+  ParamNode* FunctionDecl::GetParamNode(int index) {
     if (index >= params_.GetSize())
       return nullptr;
     return params_[index];
@@ -160,13 +160,13 @@ namespace AST {
   }
 
 
-  VariableDecl* ClassNode::GetMemVariable(unsigned int index) { 
+  VariableDecl* ClassNode::GetMemVariable(int index) { 
     if (index >= member_variables_.GetSize())
       return nullptr;
     return member_variables_[index]; 
   }
 
-  FunctionDecl* ClassNode::GetMemFunction(unsigned int index) { 
+  FunctionDecl* ClassNode::GetMemFunction(int index) { 
     if (index >= member_functions_.GetSize())
       return nullptr;
     return member_functions_[index]; 

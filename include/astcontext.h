@@ -4,6 +4,7 @@
 #include "common.h"
 #include "ast_type.h"
 #include "ast_node.h"
+#include "core/hash.h"
 #include "environment.h"
 
 
@@ -14,10 +15,8 @@ namespace AST {
       Declarations* imported_decls_;
       Declarations* decls_;
 
-      // type environment
-      Environment<Type*> type_env_;
-      // variable evironment
-      Environment<VariableDecl*> var_evn_;
+      // type table 
+      HashTable<Type*, 64> type_table_;
 
     public:
       ASTContext();
@@ -32,7 +31,7 @@ namespace AST {
       // Type environment control
       Type* FindType(const char* type_name);
       bool AddType(const char* key, Type* ty);
-      Type* RemoveType(const char* key);
+      bool RemoveType(const char* key);
 
       void PrintAST();
   };

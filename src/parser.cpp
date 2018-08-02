@@ -48,8 +48,10 @@ namespace Parser {
                 tokenizer_->SetTokPos(tok_pos);
                 return True;
               }
-              else
+              else {
+                assert(0 && "Error on RepeatStar");
                 return Error;
+              }
             }
 
             if (matching_count == i) {
@@ -89,8 +91,10 @@ namespace Parser {
                   return True;
                 return False;
               }
-              else
+              else {
+                assert(0 && "Error on RepeatDagger");
                 return Error;
+              }
             }
 
             if (matching_count == i) {
@@ -115,8 +119,10 @@ namespace Parser {
             }
             else if (res == False)
               tokenizer_->SetTokPos(tok_pos); // restore token position.
-            else
+            else {
+              assert(0 && "Error on Select");
               return Error;
+            }
           }
           return False; // unmatched
         }
@@ -147,8 +153,10 @@ namespace Parser {
               tokenizer_->SetTokPos(tok_pos); // restore token position.
               return False; // unmatched 
             }
-            else
+            else {
+              assert(0 && "Error on Sequence");
               return Error;
+            }
           }
 
           if (matching_count == i) {
@@ -185,8 +193,10 @@ namespace Parser {
               tokenizer_->SetTokPos(tok_pos);
               return True; // unmatched but return true
             }
-            else if (res == Error)
+            else if (res == Error) {
+              assert(0 && "Error on Options");
               return Error;
+            }
           }
 
           if (matching_count == i) { // matched
@@ -209,9 +219,11 @@ namespace Parser {
         break;
 
       default:
-        assert("Error wrong rule action.");
+        assert(0 && "Error wrong rule action.");
         break;
     }
+
+    assert(0 && "Unexpected parsing error");
     return Error;
   }
 
@@ -236,8 +248,10 @@ namespace Parser {
                 tokenizer_->SetTokPos(tok_pos); // restore token position.
                 return True; // reached unmatching point.
               }
-              else
+              else {
+                assert(0 && "Error on Lookahead RepeatStar.");
                 return Error;
+              }
             }
           };
         }
@@ -261,8 +275,10 @@ namespace Parser {
                   return True;
                 return False;
               }
-              else
+              else {
+                assert(0 && "Error on Lookahead RepeatDagger.");
                 return Error;
+              }
             }
 
             if (matching_count == i) {
@@ -283,8 +299,10 @@ namespace Parser {
             else if (res == False) {
               tokenizer_->SetTokPos(tok_pos); // restore token position.
             }
-            else
+            else {
+              assert(0 && "Error on Lookahead Select.");
               return Error;
+            }
           }
           return False; // unmatched
         }
@@ -304,8 +322,10 @@ namespace Parser {
               tokenizer_->SetTokPos(tok_pos);
               return False; // unmatched
             }
-            else
+            else {
+              assert(0 && "Error on Lookahead Sequence.");
               return Error;
+            }
           }
 
           if (matching_count == i) {
@@ -329,8 +349,10 @@ namespace Parser {
               tokenizer_->SetTokPos(tok_pos);
               return True; // unmatched but return true
             }
-            else if (res == Error)
+            else{
+              assert(0 && "Error on Lookahead Options.");
               return Error;
+            }
           }
 
           if (matching_count == i) // matched
@@ -349,9 +371,11 @@ namespace Parser {
         break;
 
       default:
-        assert("Error wrong rule action.");
+        assert(0 && "Error wrong rule action.");
         break;
     }
+
+    assert(0 && "Unexpected Lookahead parsing error");
     return Error;
   }
 
@@ -458,7 +482,7 @@ namespace Parser {
       import_node = new AST::ImportNode();
       
       char* first_import_path = new char[pi_import.cstr_len_ + 1];
-      memset(first_import_path, 0, sizeof(first_import_path));
+      memset(first_import_path, 0, pi_import.cstr_len_ + 1);
       strncpy(first_import_path, pi_import.data_.cstr_,pi_import.cstr_len_);
       import_node->AddImportPath(first_import_path);
       delete[] first_import_path;
@@ -470,7 +494,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* import_path = new char[pi_name.cstr_len_ + 1];
-    memset(import_path, 0, sizeof(import_path));
+    memset(import_path, 0, pi_name.cstr_len_ + 1);
     strncpy(import_path, pi_name.data_.cstr_, pi_name.cstr_len_);
     import_node->AddImportPath(import_path);
     delete[] import_path;
@@ -563,6 +587,7 @@ namespace Parser {
     AST::Type* basety = pi.data_.type_;
     AST::ArrayType* arrty = AST::ArrayType::Get(ac_, basety);
     PushType((AST::Type*)arrty, RuleName::seq_unassigned_array);
+    return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_assigned_array(void) {
@@ -745,10 +770,11 @@ namespace Parser {
       return Error;
     }
 
-    char iden[256];
-    memset(iden, 0, sizeof(iden));
-    strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
+    char* iden = new char[pi_iden.cstr_len_ + 1];
+    memset(iden, 0, pi_iden.cstr_len_ + 1);
+    strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_+1);
     AST::ClassType* cty = AST::ClassType::Get(ac_, iden);
+    delete[] iden;
     if (!cty) {
       assert(0 && "Failed to assign ClassType.");
       return Error;
@@ -782,7 +808,7 @@ namespace Parser {
 
     // create temp new typename char buff
     char* tyname = new char[pi_id.cstr_len_ + 1];
-    memset(tyname, 0, sizeof(tyname));
+    memset(tyname, 0, pi_id.cstr_len_ + 1);
     strncpy(tyname, pi_id.data_.cstr_, pi_id.cstr_len_);
 
     AST::TypedefNode* typedef_node = new AST::TypedefNode(ori_type, tyname);
@@ -919,7 +945,7 @@ namespace Parser {
     }
     parse_stack_.Pop();
     fn_name = new char[pi_name.cstr_len_+1];
-    memset(fn_name, 0, sizeof(fn_name));
+    memset(fn_name, 0, pi_name.cstr_len_+1);
     strncpy(fn_name, pi_name.data_.cstr_, pi_name.cstr_len_);
 
     // Read return type
@@ -1029,7 +1055,7 @@ namespace Parser {
 
     // Set class name
     char* classname = new char[pi_class_name.cstr_len_ + 1];
-    memset(classname, 0, sizeof(classname));
+    memset(classname, 0, pi_class_name.cstr_len_ + 1);
     strncpy(classname, pi_class_name.data_.cstr_, pi_class_name.cstr_len_);
     class_node->SetTypeName(classname);
     // Set class type
@@ -1096,7 +1122,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* param_name = new char[pi_name.cstr_len_+1];
-    memset(param_name, 0, sizeof(param_name));
+    memset(param_name, 0, pi_name.cstr_len_+1);
     strncpy(param_name, pi_name.data_.cstr_, pi_name.cstr_len_);
     AST::ParamNode* param_node = 
       new AST::ParamNode((AST::TypeNode*)pi_type.data_.node_, param_name, false);
@@ -1335,7 +1361,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* const_name = new char[pi_name.cstr_len_+1];
-    memset(const_name, 0, sizeof(const_name));
+    memset(const_name, 0, pi_name.cstr_len_+1);
     strncpy(const_name, pi_name.data_.cstr_, pi_name.cstr_len_);
     AST::ConstantDecl* constdecl = new AST::ConstantDecl((AST::TypeNode*)pi_type.data_.node_,
         const_name, (AST::ExprNode*)pi_expr.data_.node_);
@@ -1829,7 +1855,7 @@ namespace Parser {
       parse_stack_.Pop();
 
       char* tmp = new char[top_pi.cstr_len_+1];
-      memset(tmp, 0, sizeof(tmp));
+      memset(tmp, 0, top_pi.cstr_len_+1);
       strncpy(tmp, top_pi.data_.cstr_, top_pi.cstr_len_+1);
       AST::VariableNode* node = new AST::VariableNode(tmp);
       PushNode(node, RuleName::primary);
@@ -2191,8 +2217,8 @@ namespace Parser {
     // Check if top is right.
     pi_expr7 = parse_stack_.Top();
     if (pi_expr7.type_ != ParseInfo::ASTNode ||
-        (pi_expr7.rule_name_ != RuleName::expr7) && 
-        (pi_expr7.rule_name_ != RuleName::rep_and_expr7)) {
+        (pi_expr7.rule_name_ != RuleName::expr7 && 
+         pi_expr7.rule_name_ != RuleName::rep_and_expr7)) {
       assert(0 && "Invalid And Expression");
       return Error;
     }
@@ -2970,7 +2996,7 @@ namespace Parser {
 
     // Create label stmt 
     char* lname = new char[pi_label_name.cstr_len_+1];
-    memset(lname, 0, sizeof(lname));
+    memset(lname, 0, pi_label_name.cstr_len_+1);
     strncpy(lname, pi_label_name.data_.cstr_, pi_label_name.cstr_len_);
     AST::LabelNode* label = new AST::LabelNode(lname, (AST::StmtNode*)pi_stmt.data_.node_);
     delete[] lname;
@@ -3368,7 +3394,7 @@ namespace Parser {
     parse_stack_.Pop();
 
     char* target = new char[pi_target.cstr_len_ + 1];
-    memset(target, 0, sizeof(target));
+    memset(target, 0, pi_target.cstr_len_ + 1);
     strncpy(target, pi_target.data_.cstr_, pi_target.cstr_len_);
     AST::GotoNode* gn = new AST::GotoNode(target);
     delete target;

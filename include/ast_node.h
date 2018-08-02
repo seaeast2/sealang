@@ -1694,7 +1694,7 @@ namespace AST {
       TypeNode* GetReturnType() { return ret_ty_; }
       const char* GetName() { return name_.c_str(); }
       int GetParamNum() { return params_.GetSize(); }
-      ParamNode* GetParamNode(unsigned int index);
+      ParamNode* GetParamNode(int index);
       BlockNode* GetBody() { return body_; }
 
       //FunctionType* GetType(); // TODO: need to get funciton type
@@ -1807,8 +1807,8 @@ namespace AST {
       void AddMemVariable(VariableDecl* var) { member_variables_.PushBack(var); }
       void AddMemFunction(FunctionDecl* fun) { member_functions_.PushBack(fun); }
 
-      VariableDecl* GetMemVariable(unsigned int index);
-      FunctionDecl* GetMemFunction(unsigned int index);
+      VariableDecl* GetMemVariable(int index);
+      FunctionDecl* GetMemFunction(int index);
 
       int GetMemVarNum() { return member_variables_.GetSize(); }
       int GetMemFunNum() { return member_functions_.GetSize(); }

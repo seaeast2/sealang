@@ -10,10 +10,10 @@ namespace ErrorDiag {
   }
 
   void LexerDiag::Print(ErrorKind ekind, int line, int col, char* errMsg) {
-    if (ekind == Err_Lexer_UnexpectedEof) {
+    if (ekind == ErrorKind::Err_Lexer_UnexpectedEof) {
       cout << "line:"<<line<<" col:"<<col<<" Lexer meet unexpected eof."<< endl;
     }
-    if (ekind == Err_Lexer_WrongCharLiteral) {
+    if (ekind == ErrorKind::Err_Lexer_WrongCharLiteral) {
       cout << "line:"<<line<<" col:"<<col<<" Lexer : Wrong Charactorliteral."<< endl;
     }
   }
@@ -27,6 +27,8 @@ namespace ErrorDiag {
         break;
       case Err_Parser_NoSemicolon:
         cout << "line:"<<line<<" col:"<<col<<" No Semicolon."<< errMsg << endl;
+        break;
+      default:
         break;
     }
   }

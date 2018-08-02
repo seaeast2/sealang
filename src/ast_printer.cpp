@@ -43,6 +43,8 @@ bool ASTPrinter::Print(Declarations* decls) {
     if(!Visit(decls->GetImport(i)))
       return false;
   }
+
+  return true;
 }
 
 // Statements
@@ -221,7 +223,7 @@ bool ASTPrinter::Visit(BinaryOpNode* node){
     cout << "  ";
 
   char* op = new char[3];
-  memset(op, 0, sizeof(op));
+  memset(op, 0, 3);
   switch(node->GetOp()) {
     case BinaryOpNode::LogicOr:      // ||
       strcpy(op, "||");

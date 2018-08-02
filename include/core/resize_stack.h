@@ -3,7 +3,7 @@
 
 // resizable array stack 
 template <class T> 
-class RSStack{
+class ResizableStack{
   enum eInnerDefines {
     DefualtExtendSize = 8,
   };
@@ -13,20 +13,20 @@ class RSStack{
   int top_;
 
   public:
-  RSStack() {
+  ResizableStack() {
     data_ = nullptr;
     stack_size_ = 0;
     top_ = -1;
   }
 
   // copy constructor
-  RSStack(const RSStack &st) {
+  ResizableStack(const ResizableStack &st) {
     for (int i = 0; i < st.TopIndex()+1; i++) {
       Push(st.GetAt(i));
     }
   }
 
-  ~RSStack() {
+  ~ResizableStack() {
     Clear();
   }
 
