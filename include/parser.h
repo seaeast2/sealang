@@ -415,6 +415,7 @@ namespace Parser {
 
       eResult Params(void); // params
         eResult Act_seq_param_void(void);// seq_param_void
+        eResult Act_seq_param_list(void);// seq_param_list
         eResult Act_opt_vararg(void); // opt_vararg
       eResult FixedParams(void); // fixedparams
         eResult Act_rep_comma_param(void); // rep_comma_param

@@ -220,7 +220,70 @@ bool ASTPrinter::Visit(BinaryOpNode* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "BinaryOpNode" << endl;
+  char* op = new char[3];
+  memset(op, 0, sizeof(op));
+  switch(node->GetOp()) {
+    case BinaryOpNode::LogicOr:      // ||
+      strcpy(op, "||");
+      break;
+    case BinaryOpNode::LogicAnd:     // &&
+      strcpy(op, "&&");
+      break;
+    case BinaryOpNode::GreatorThan:  // >
+      strcpy(op, ">");
+      break;
+    case BinaryOpNode::LessThan:     // <
+      strcpy(op, "<");
+      break;
+    case BinaryOpNode::GreatorThanEq:// >=
+      strcpy(op, ">=");
+      break;
+    case BinaryOpNode::LessThanEq:   // <=
+      strcpy(op, "<=");
+      break;
+    case BinaryOpNode::Equal:        // ==
+      strcpy(op, "==");
+      break;
+    case BinaryOpNode::NotEqual:     // !=
+      strcpy(op, "!=");
+      break;
+    case BinaryOpNode::BitOr:        // |
+      strcpy(op, "|");
+      break;
+    case BinaryOpNode::BitAnd:       // &
+      strcpy(op, "&");
+      break;
+    case BinaryOpNode::BitXor:       // ^
+      strcpy(op, "^");
+      break;
+    case BinaryOpNode::BitShiftLeft: // <<
+      strcpy(op, "<<");
+      break;
+    case BinaryOpNode::BitShiftRight:// >>
+      strcpy(op, ">>");
+      break;
+    case BinaryOpNode::BinSum:       // +
+      strcpy(op, "+");
+      break;
+    case BinaryOpNode::BinSub:       // -
+      strcpy(op, "-");
+      break;
+    case BinaryOpNode::BinMul:       // *
+      strcpy(op, "*");
+      break;
+    case BinaryOpNode::BinDiv:       // /
+      strcpy(op, "/");
+      break;
+    case BinaryOpNode::BinMod:       // %
+      strcpy(op, "%");
+      break;
+    default:
+      break;
+  }
+
+  cout << "BinaryOpNode : " << op << endl;
+  delete[] op;
+
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;
@@ -330,7 +393,7 @@ bool ASTPrinter::Visit(VariableNode* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "VariableNode" << endl;
+  cout << "VariableNode : " << node->GetVarName() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;
@@ -341,7 +404,7 @@ bool ASTPrinter::Visit(IntegerLiteralNode* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "IntegerLiteralNode" << endl;
+  cout << "IntegerLiteralNode : " << node->GetValue() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;
@@ -441,7 +504,7 @@ bool ASTPrinter::Visit(VariableDecl* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "VariableDecl" << endl;
+  cout << "VariableDecl : " << node->GetName() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;
@@ -479,7 +542,7 @@ bool ASTPrinter::Visit(ParamNode* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "ParamNode" << endl;
+  cout << "ParamNode : " << node->GetName() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;

@@ -587,7 +587,8 @@ namespace Parser {
 
     rule_actions_[params] = &SyntaxAnalyzer::Params;
       rule_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
-      rule_actions_[opt_vararg] = &SyntaxAnalyzer::Act_opt_vararg;
+      rule_actions_[seq_param_list] = &SyntaxAnalyzer::Act_seq_param_list;
+        rule_actions_[opt_vararg] = &SyntaxAnalyzer::Act_opt_vararg;
 
     rule_actions_[fixedparams] = &SyntaxAnalyzer::FixedParams;
       rule_actions_[rep_comma_param] = &SyntaxAnalyzer::Act_rep_comma_param;

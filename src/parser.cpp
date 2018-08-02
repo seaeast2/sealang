@@ -393,8 +393,10 @@ namespace Parser {
           delete vars;
         }
       }
-      else
+      else {
+        assert(0 && "Unidentified grammar.");
         return Error;
+      }
 
       parse_stack_.Pop();
     }
@@ -407,8 +409,10 @@ namespace Parser {
   eResult SyntaxAnalyzer::ImportStmts(void) {
     ParseInfo pi = parse_stack_.Top();
     if (pi.type_ != ParseInfo::ASTNode ||
-        pi.rule_name_ != RuleName::import_stmt)
+        pi.rule_name_ != RuleName::import_stmt) {
+      assert(0 && "Wrong import_stmt.");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::import_stmts);
     return True;
@@ -417,8 +421,10 @@ namespace Parser {
   eResult SyntaxAnalyzer::ImportStmt() {
     ParseInfo pi_import = parse_stack_.Top();
     if(pi_import.type_ != ParseInfo::ASTNode ||
-        pi_import.rule_name_ != RuleName::rep_dot_name)
+        pi_import.rule_name_ != RuleName::rep_dot_name) {
+      assert(0 && "Wrong import path.");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::ImportNode* im = (AST::ImportNode*)pi_import.data_.node_;
@@ -435,8 +441,10 @@ namespace Parser {
     // Read import path name
     pi_name = parse_stack_.Top();
     if (pi_name.type_ != ParseInfo::Identifier ||
-        pi_name.rule_name_ != RuleName::name) 
+        pi_name.rule_name_ != RuleName::name) {
+      assert(0 && "Unidentified import path name.");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read first path name or ImportNode
@@ -455,8 +463,10 @@ namespace Parser {
       import_node->AddImportPath(first_import_path);
       delete[] first_import_path;
     }
-    else
+    else {
+      assert(0 && "Unidentified import path name.");
       return Error;
+    }
     parse_stack_.Pop();
 
     char* import_path = new char[pi_name.cstr_len_ + 1];
@@ -476,8 +486,10 @@ namespace Parser {
         pi.rule_name_ != RuleName::defvars &&
         pi.rule_name_ != RuleName::defconst && 
         pi.rule_name_ != RuleName::defclass &&
-        pi.rule_name_ != RuleName::typedef_)
+        pi.rule_name_ != RuleName::typedef_) {
+      assert(0 && "Unidentified top level feature.");
       return Error;
+    }
 
     return True;
   }
@@ -485,8 +497,10 @@ namespace Parser {
   eResult SyntaxAnalyzer::Name(void) {
     // check if stack top is Identifier.
     ParseInfo pi = parse_stack_.Top();
-    if(pi.type_ != ParseInfo::Identifier)
-      return Error;
+    if(pi.type_ != ParseInfo::Identifier) {
+      assert(0 && "Unidentified Identifier.");
+      return Error; 
+    }
 
     SetRuleNameForPI(RuleName::name);
     return True;
@@ -503,8 +517,10 @@ namespace Parser {
   eResult SyntaxAnalyzer::Type(void) {
     ParseInfo pi = parse_stack_.Top();
     if (pi.type_ != ParseInfo::ASTType || 
-        pi.rule_name_ != RuleName::typeref)
+        pi.rule_name_ != RuleName::typeref) {
+      assert(0 && "Unidentified typeref.");
       return Error;
+    }
     parse_stack_.Pop();
     
     // convert type to TypeNode 
@@ -520,8 +536,10 @@ namespace Parser {
           pi.rule_name_ != RuleName::seq_unassigned_array &&
           pi.rule_name_ != RuleName::seq_assigned_array &&
           pi.rule_name_ != RuleName::seq_ptr &&
-          pi.rule_name_ != RuleName::seq_func))
+          pi.rule_name_ != RuleName::seq_func)) {
+      assert(0 && "Unidentified type.");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::typeref);
     return True;
@@ -536,8 +554,10 @@ namespace Parser {
           pi.rule_name_ != RuleName::seq_unassigned_array &&
           pi.rule_name_ != RuleName::seq_assigned_array &&
           pi.rule_name_ != RuleName::seq_ptr &&
-          pi.rule_name_ != RuleName::seq_func))
+          pi.rule_name_ != RuleName::seq_func)) {
+      assert(0 && "Unidentified base type.");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::Type* basety = pi.data_.type_;
@@ -550,8 +570,10 @@ namespace Parser {
 
     // Read array size
     pi_int = parse_stack_.Top();
-    if (pi_int.type_ != ParseInfo::Integer)
+    if (pi_int.type_ != ParseInfo::Integer) {
+      assert(0 && "Unidentified array size.");
       return Error;
+    }
     parse_stack_.Pop();
     
     // Read base type
@@ -561,15 +583,19 @@ namespace Parser {
           pi_basety.rule_name_ != RuleName::seq_unassigned_array &&
           pi_basety.rule_name_ != RuleName::seq_assigned_array &&
           pi_basety.rule_name_ != RuleName::seq_ptr &&
-          pi_basety.rule_name_ != RuleName::seq_func))
+          pi_basety.rule_name_ != RuleName::seq_func)) {
+      assert(0 && "Unidentified base type.");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::Type* basety = pi_basety.data_.type_;
     
     long array_size = pi_int.data_.integer_;
-    if (array_size < 0)
-        return Error; // invalid array size
+    if (array_size < 0) {
+      assert(0 && "Invalid array size.");
+      return Error;
+    }
 
     AST::ArrayType* arrty = AST::ArrayType::Get(ac_, basety, array_size);
     PushType((AST::Type*)arrty, RuleName::seq_assigned_array);
@@ -586,8 +612,10 @@ namespace Parser {
         pi_basety.rule_name_ != RuleName::seq_unassigned_array &&
         pi_basety.rule_name_ != RuleName::seq_assigned_array &&
         pi_basety.rule_name_ != RuleName::seq_ptr &&
-        pi_basety.rule_name_ != RuleName::seq_func))
+        pi_basety.rule_name_ != RuleName::seq_func)) {
+      assert(0 && "Unidentified base type.");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::Type* basety = pi_basety.data_.type_;
@@ -603,8 +631,10 @@ namespace Parser {
     // Read param list
     pi_params = parse_stack_.Top();
     if (pi_params.type_ != ParseInfo::Types || 
-        pi_params.rule_name_ != param_typerefs) 
+        pi_params.rule_name_ != param_typerefs) {
+      assert(0 && "Unidentified param type list.");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::Types* params = pi_params.data_.types_;
@@ -616,8 +646,10 @@ namespace Parser {
         pi_retty.rule_name_ != RuleName::seq_unassigned_array &&
         pi_retty.rule_name_ != RuleName::seq_assigned_array &&
         pi_retty.rule_name_ != RuleName::seq_ptr &&
-        pi_retty.rule_name_ != RuleName::seq_func))
+        pi_retty.rule_name_ != RuleName::seq_func)) {
+      assert(0 && "Unidentified return type.");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::Type* retty = pi_retty.data_.type_; // get return type
@@ -632,8 +664,10 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::TypeRefBase(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ != ParseInfo::ASTType)
+    if (pi.type_ != ParseInfo::ASTType) {
+      assert(0 && "Unidentified typeref base type.");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::typeref_base);
     return True;
@@ -706,17 +740,21 @@ namespace Parser {
     // forward class declaration.
     ParseInfo pi_iden = parse_stack_.Top();
     parse_stack_.Pop();
-    if (pi_iden.type_ == ParseInfo::Identifier) {
-      char iden[256];
-      memset(iden, 0, sizeof(iden));
-      strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
-      AST::ClassType* cty = AST::ClassType::Get(ac_, iden);
-      if (cty) {
-        PushType(cty, RuleName::seq_class_identifier);
-        return True;
-      }
+    if (pi_iden.type_ != ParseInfo::Identifier) {
+      assert(0 && "Unidentified Identifier");
+      return Error;
     }
-    return Error;
+
+    char iden[256];
+    memset(iden, 0, sizeof(iden));
+    strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
+    AST::ClassType* cty = AST::ClassType::Get(ac_, iden);
+    if (!cty) {
+      assert(0 && "Failed to assign ClassType.");
+      return Error;
+    }
+    PushType(cty, RuleName::seq_class_identifier);
+    return True;
   }
 
   eResult SyntaxAnalyzer::TypeDef(void) {
@@ -724,15 +762,19 @@ namespace Parser {
 
     // read new type name
     pi_id = parse_stack_.Top();
-    if (pi_id.type_ != ParseInfo::Identifier)
+    if (pi_id.type_ != ParseInfo::Identifier) {
+      assert(0 && "Unidentified Identifier");
       return Error;
+    }
     parse_stack_.Pop();
 
     // read type
     pi_type = parse_stack_.Top();
     if(pi_type.type_ != ParseInfo::ASTType ||
-       pi_type.rule_name_ != RuleName::typeref)
+       pi_type.rule_name_ != RuleName::typeref) {
+      assert(0 && "Unidentified typeref");
       return Error;
+    }
     parse_stack_.Pop();
 
     // create TypeNode
@@ -755,8 +797,10 @@ namespace Parser {
     
     if (pi.type_ != ParseInfo::Types ||
         (pi.rule_name_ != RuleName::seq_param_type_void &&
-        pi.rule_name_ != RuleName::seq_param_type_list))
+        pi.rule_name_ != RuleName::seq_param_type_list)) {
+      assert(0 && "Unidentified Param typeref");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::param_typerefs);
     return True;
@@ -777,8 +821,10 @@ namespace Parser {
     ParseInfo pi = parse_stack_.Top();
     if (pi.type_ != ParseInfo::Types || 
         (pi.rule_name_ != RuleName::rep_param_comma_type && 
-         pi.rule_name_ != RuleName::opt_vararg_type))
+         pi.rule_name_ != RuleName::opt_vararg_type)) {
+      assert(0 && "Unidentified param list or vararg");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::seq_param_type_list);
     return True;
@@ -790,8 +836,10 @@ namespace Parser {
 
     // read type
     if (pi_type.type_ != ParseInfo::ASTType ||
-        pi_type.rule_name_ != RuleName::typeref)
+        pi_type.rule_name_ != RuleName::typeref) {
+      assert(0 && "Unidentified typeref");
       return Error;
+    }
     parse_stack_.Pop();
 
     pi_type_list = parse_stack_.Top();
@@ -805,12 +853,13 @@ namespace Parser {
       param_types = new AST::Types();
       param_types->PushBack(pi_type_list.data_.type_);
     }
-    else
+    else {
+      assert(0 && "Unidentified type list");
       return Error;
+    }
     parse_stack_.Pop();
 
     param_types->PushBack(pi_type.data_.type_);// push new param type
-
     PushTypes(param_types, RuleName::rep_param_comma_type);
     return True;
   }
@@ -820,8 +869,10 @@ namespace Parser {
 
     // read param list
     if (pi.type_ != ParseInfo::Types ||
-        pi.rule_name_ != RuleName::rep_param_comma_type)
+        pi.rule_name_ != RuleName::rep_param_comma_type) {
+      assert(0 && "Unidentified param list");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::Types* param_types = pi.data_.types_;
@@ -842,24 +893,30 @@ namespace Parser {
     // Read block (function body)
     pi_block = parse_stack_.Top();
     if (pi_block.type_ != ParseInfo::ASTNode || 
-        pi_block.rule_name_ != RuleName::block)
+        pi_block.rule_name_ != RuleName::block) {
+      assert(0 && "Invalid block");
       return Error;
+    }
     parse_stack_.Pop();
     body = (AST::BlockNode*)pi_block.data_.node_;
     
     // Read params
     pi_params = parse_stack_.Top();
     if (pi_params.type_ != ParseInfo::ParamNodeList || 
-        pi_params.rule_name_ != RuleName::params)
+        pi_params.rule_name_ != RuleName::params) {
+      assert(0 && "Invalid function parameters. ");
       return Error;
+    }
     parse_stack_.Pop();
     parms = pi_params.data_.param_nodes_;
 
     // Read name
     pi_name = parse_stack_.Top();
     if (pi_name.type_ != ParseInfo::Identifier || 
-        pi_name.rule_name_ != RuleName::name)
+        pi_name.rule_name_ != RuleName::name) {
+      assert(0 && "Invalid function name");
       return Error;
+    }
     parse_stack_.Pop();
     fn_name = new char[pi_name.cstr_len_+1];
     memset(fn_name, 0, sizeof(fn_name));
@@ -868,8 +925,10 @@ namespace Parser {
     // Read return type
     pi_type = parse_stack_.Top();
     if (pi_type.type_ != ParseInfo::ASTType || 
-        pi_type.rule_name_ != RuleName::typeref)
+        pi_type.rule_name_ != RuleName::typeref) {
+      assert(0 && "Invalid function return type");
       return Error;
+    }
     parse_stack_.Pop();
     ret_type = pi_type.data_.type_;
     AST::TypeNode* ret_ty_node = new AST::TypeNode(ret_type);
@@ -912,8 +971,10 @@ namespace Parser {
         blk->SetStmts(pi.data_.stmt_nodes_);
         delete pi.data_.stmt_nodes_;
       }
-      else 
+      else  {
+        assert(0 && "Unidentified stmt in block.");
         return Error;
+      }
 
       pi = parse_stack_.Top();
     }
@@ -940,16 +1001,20 @@ namespace Parser {
           }
           delete vars; // removes simplevector
         }
-        else 
+        else  {
+          assert(0 && "Invalid class member variable list.");
           return Error;
+        }
       }
       else {
         if (pi_class_member.type_ == ParseInfo::ASTNode) {
           AST::FunctionDecl* fd = (AST::FunctionDecl*)pi_class_member.data_.node_;
           class_node->AddMemFunction(fd);
         }
-        else 
+        else  {
+          assert(0 && "Invalid class member function list.");
           return Error;
+        }
       }
       pi_class_member = parse_stack_.Top();
     }
@@ -957,8 +1022,10 @@ namespace Parser {
     // Read Class type name
     pi_class_name = parse_stack_.Top();
     if (pi_class_name.type_ != ParseInfo::Identifier ||
-        pi_class_name.rule_name_ != RuleName::name)
+        pi_class_name.rule_name_ != RuleName::name) {
+      assert(0 && "Invalid class name.");
       return Error;
+    }
 
     // Set class name
     char* classname = new char[pi_class_name.cstr_len_ + 1];
@@ -984,8 +1051,10 @@ namespace Parser {
 
     // Read class memeber variable
     if (pi_vars.type_ != ParseInfo::VarDeclList|| 
-        pi_vars.rule_name_ != RuleName::defvars)
+        pi_vars.rule_name_ != RuleName::defvars) {
+      assert(0 && "Invalid class name.");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::seq_class_member_variable);
     return True;
@@ -996,8 +1065,10 @@ namespace Parser {
 
     // Read class memeber variable
     if (pi_func.type_ != ParseInfo::ASTNode || 
-        pi_func.rule_name_ != RuleName::deffunc)
+        pi_func.rule_name_ != RuleName::deffunc) {
+      assert(0 && "Invalid class name.");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::seq_class_member_function);
     return True;
@@ -1009,15 +1080,19 @@ namespace Parser {
     // Read name
     pi_name = parse_stack_.Top();
     if (pi_name.type_ != ParseInfo::Identifier ||
-        pi_name.rule_name_ != RuleName::name)
+        pi_name.rule_name_ != RuleName::name) {
+      assert(0 && "Invalid param name.");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read type
     pi_type = parse_stack_.Top();
     if (pi_type.type_ != ParseInfo::ASTNode ||
-        pi_type.rule_name_ != RuleName::type)
+        pi_type.rule_name_ != RuleName::type) {
+      assert(0 && "Invalid param type.");
       return Error;
+    }
     parse_stack_.Pop();
 
     char* param_name = new char[pi_name.cstr_len_+1];
@@ -1037,8 +1112,10 @@ namespace Parser {
     // confirm param list 
     if (pi.type_ != ParseInfo::ParamNodeList ||
        (pi.rule_name_ != RuleName::seq_param_void &&
-        pi.rule_name_ != RuleName::seq_param_list))
+        pi.rule_name_ != RuleName::seq_param_list)) {
+      assert(0 && "Invalid param list.");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::params);
     return True;
@@ -1055,14 +1132,30 @@ namespace Parser {
     PushParamNodes(params, RuleName::seq_param_void);
     return True;
   }
+
+  eResult SyntaxAnalyzer::Act_seq_param_list(void) {
+    ParseInfo pi = parse_stack_.Top();
+
+    if (pi.type_ != ParseInfo::ParamNodeList ||
+        (pi.rule_name_ != RuleName::opt_vararg &&
+         pi.rule_name_ != RuleName::fixedparams)) {
+      assert(0 && "Invalid parameters");
+      return Error; 
+    }
+
+    SetRuleNameForPI(RuleName::seq_param_list);
+    return True;
+  }
         
   eResult SyntaxAnalyzer::Act_opt_vararg(void) {
     ParseInfo pi = parse_stack_.Top();
 
     // read param list
     if (pi.type_ != ParseInfo::ParamNodeList ||
-        pi.rule_name_ != RuleName::fixedparams)
+        pi.rule_name_ != RuleName::fixedparams) {
+      assert(0 && "Invalid fixed param list.");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::ParamNodes* params = pi.data_.param_nodes_;
@@ -1071,52 +1164,70 @@ namespace Parser {
     var_arg->SetName("...");
     params->PushBack(var_arg);
     
-    PushParamNodes(params, RuleName::opt_vararg_type);
+    PushParamNodes(params, RuleName::opt_vararg);
     return True;
   }
   
   eResult SyntaxAnalyzer::FixedParams(void) {
     ParseInfo pi_params;
+    AST::ParamNodes* params = nullptr;
 
     pi_params = parse_stack_.Top();
-    if (pi_params.type_ != ParseInfo::ParamNodeList || 
-        pi_params.rule_name_ != RuleName::rep_comma_param)
-      return Error;
+    // single parameter
+    if (pi_params.type_ == ParseInfo::ASTNode && 
+        pi_params.rule_name_ == RuleName::param) {
+      parse_stack_.Pop();
+      // In case node is first param
+      params = new AST::ParamNodes();
+      params->PushBack((AST::ParamNode*)pi_params.data_.node_);
+      PushParamNodes(params, RuleName::fixedparams);
+      return True;
+    }
 
-    SetRuleNameForPI(RuleName::fixedparams);
-    return True;
+    // multi parameters
+    if (pi_params.type_ == ParseInfo::ParamNodeList &&
+         pi_params.rule_name_ == RuleName::rep_comma_param) {
+      SetRuleNameForPI(RuleName::fixedparams);
+      return True;
+    }
+
+    assert(0 && "Invalid fixed param.");
+    return Error;
   }
 
   eResult SyntaxAnalyzer::Act_rep_comma_param(void) {
-    ParseInfo pi_param_list, pi_param;
+    ParseInfo pi_paramlist_or_param, pi_param;
     AST::ParamNodes* params = nullptr;
     
-    // Read param
+    // Read last param
     pi_param = parse_stack_.Top();
-    // check if this param is first param or param list
     if (pi_param.type_ != ParseInfo::ASTNode ||
-        pi_param.rule_name_ != RuleName::param )
+        pi_param.rule_name_ != RuleName::param ) {
+      assert(0 && "Invalid param.");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read first param or param list
-    pi_param_list = parse_stack_.Top();
-    if (pi_param_list.type_ == ParseInfo::ASTNode ||
-        pi_param_list.rule_name_ == RuleName::param ) {
+    pi_paramlist_or_param = parse_stack_.Top();
+    if (pi_paramlist_or_param.type_ == ParseInfo::ASTNode && 
+        pi_paramlist_or_param.rule_name_ == RuleName::param ) {
       // In case node is first param
       params = new AST::ParamNodes();
-      params->PushBack((AST::ParamNode*)pi_param_list.data_.node_);
+      params->PushBack((AST::ParamNode*)pi_paramlist_or_param.data_.node_);
     }
-    else if (pi_param_list.type_ == ParseInfo::ParamNodeList && 
-        pi_param_list.rule_name_ == RuleName::fixedparams) {
-      params = pi_param_list.data_.param_nodes_;
+    else if (pi_paramlist_or_param.type_ == ParseInfo::ParamNodeList && 
+        pi_paramlist_or_param.rule_name_ == RuleName::fixedparams) {
+      params = pi_paramlist_or_param.data_.param_nodes_;
     }
-    else
+    else {
+      assert(0 && "Unidentified param.");
       return Error;
+    }
     parse_stack_.Pop();
-
     params->PushBack((AST::ParamNode*)pi_param.data_.node_);
-    PushParamNodes(params, RuleName::fixedparams);
+
+    PushParamNodes(params, RuleName::rep_comma_param);
     return True;
   }
 
@@ -1126,38 +1237,40 @@ namespace Parser {
     AST::BaseNode* expr_node = nullptr;
     AST::VariableDecls* vardecls = new AST::VariableDecls();
 
-    while(true) {
+    while(!parse_stack_.IsEmpty()) {
       expr_node = nullptr;
 
-      // Read variable initializer Expr
+      // In case we have variable initializer.
       pi = parse_stack_.Top();
-      if (pi.type_ != ParseInfo::ASTNode ||
-          pi.rule_name_ != RuleName::expr)
-        return Error;
-      expr_node = pi.data_.node_;
-      if (!expr_node->IsKindOf(AST::BaseNode::ExprNodeTy))
-        return Error;
-      parse_stack_.Pop();
+      if (pi.type_ == ParseInfo::ASTNode &&
+          pi.rule_name_ == RuleName::expr) {
+        parse_stack_.Pop();
+        expr_node = pi.data_.node_;
+        if (!expr_node->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+          assert(0 && "Unidentified variable initializer.");
+          return Error;
+        }
+      }
 
       // Read variable name
       pi = parse_stack_.Top(); // read variable name
       if (pi.type_ != ParseInfo::Identifier ||
-          pi.rule_name_ != RuleName::name)
+          pi.rule_name_ != RuleName::name) {
+        assert(0 && "Unidentified variable name.");
         return Error;
+      }
+      parse_stack_.Pop();
       AST::VariableDecl* new_var = new AST::VariableDecl();
       if(expr_node)
         new_var->SetInit((AST::ExprNode*)expr_node);
       new_var->SetName(pi.data_.cstr_, pi.cstr_len_);
       vardecls->PushBack(new_var);
 
-      parse_stack_.Pop();
-      pi = parse_stack_.Top(); // read variable type
-
       // Read variable type
+      pi = parse_stack_.Top(); // read variable type
       if (pi.type_ == ParseInfo::ASTNode && 
           pi.rule_name_ == RuleName::type) {
         parse_stack_.Pop();
-
         bool is_static = false;
         AST::TypeNode* ty = (AST::TypeNode*)pi.data_.node_;
 
@@ -1168,19 +1281,26 @@ namespace Parser {
           parse_stack_.Pop();
         }
 
-        if (vardecls->GetSize() == 0)
+        if (vardecls->GetSize() == 0) {
+          assert(0 && "No defined variable name.");
           return Error;
+        }
 
         for (int i = 0; i < vardecls->GetSize(); i++) {
+          // In order not to share same typenode pointer, we create every single new typenode.
+          AST::TypeNode* tn = new AST::TypeNode(ty->GetType());
           (*vardecls)[i]->SetStorage(is_static);
-          (*vardecls)[i]->SetType(ty);
+          (*vardecls)[i]->SetType(tn);
         }
+        delete ty;
+
         vardecls->Reverse();
         PushVarDecls(vardecls, RuleName::defvars);
         return True;
       }
     }
 
+    assert(0 && "Error on variable definition.");
     return Error;
   }
 
@@ -1190,22 +1310,28 @@ namespace Parser {
     // Read constant initializer
     pi_expr = parse_stack_.Top();
     if(pi_expr.type_ != ParseInfo::ASTNode || 
-       pi_expr.rule_name_ != RuleName::expr)
+       pi_expr.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid constant initializer.");
       return Error;
+    }
     parse_stack_.Pop();
     
     // Read name 
     pi_name = parse_stack_.Top();
     if(pi_name.type_ != ParseInfo::Identifier || 
-       pi_name.rule_name_ != RuleName::name)
+       pi_name.rule_name_ != RuleName::name) {
+      assert(0 && "Invalid constant name.");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read type 
     pi_type = parse_stack_.Top();
     if(pi_type.type_ != ParseInfo::ASTNode || 
-       pi_type.rule_name_ != RuleName::type)
+       pi_type.rule_name_ != RuleName::type) {
+      assert(0 && "Invalid constant type.");
       return Error;
+    }
     parse_stack_.Pop();
 
     char* const_name = new char[pi_name.cstr_len_+1];
@@ -1253,7 +1379,7 @@ namespace Parser {
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy) ||
         (pi_expr.rule_name_ != RuleName::seq_type_term && 
          pi_expr.rule_name_ != RuleName::unary)) {
-      assert("Error on term casting");
+      assert(0 && "Error on term casting");
       return Error;
     }
 
@@ -1268,7 +1394,7 @@ namespace Parser {
     if (pi_term.type_ != ParseInfo::ASTNode || 
         !pi_term.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy) ||
         pi_term.rule_name_ != RuleName::term) {
-      assert("Error on term casting");
+      assert(0 && "Error on term casting");
       return Error;
     }
     parse_stack_.Pop();
@@ -1278,7 +1404,7 @@ namespace Parser {
     if (pi_type.type_ != ParseInfo::ASTNode || 
         !pi_type.data_.node_->IsKindOf(AST::BaseNode::TypeNodeTy) ||
         pi_type.rule_name_ != RuleName::type) {
-      assert("Error on term TypeNode");
+      assert(0 && "Error on term TypeNode");
       return Error;
     }
     parse_stack_.Pop();
@@ -1295,7 +1421,7 @@ namespace Parser {
   eResult SyntaxAnalyzer::Unary(void) {
     // actually do nothing
     if (parse_stack_.IsEmpty())  {
-      assert("Error on Postfix() : Needed parsing info!");
+      assert(0 && "Error on Postfix() : Needed parsing info!");
       return Error;
     }
 
@@ -1312,7 +1438,7 @@ namespace Parser {
         pi.rule_name_ != RuleName::seq_sizeof_type &&
         pi.rule_name_ != RuleName::seq_sizeof_unary &&
         pi.rule_name_ != RuleName::primary)) {
-      assert("Error on Postfix() : Needed ASTNode in stack!");
+      assert(0 && "Error on Postfix() : Needed ASTNode in stack!");
       return Error;
     }
 
@@ -1326,7 +1452,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary prefix increase");
+      assert(0 && "Error on unary prefix increase");
       return Error;
     }
 
@@ -1343,7 +1469,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary prefix increase");
+      assert(0 && "Error on unary prefix increase");
       return Error;
     }
 
@@ -1360,7 +1486,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
 
@@ -1377,7 +1503,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
 
@@ -1394,7 +1520,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
 
@@ -1410,7 +1536,7 @@ namespace Parser {
     ParseInfo pi_expr = parse_stack_.Top();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         pi_expr.rule_name_ != RuleName::term) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
     parse_stack_.Pop();
@@ -1428,7 +1554,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
 
@@ -1445,7 +1571,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
 
@@ -1462,7 +1588,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
 
@@ -1479,7 +1605,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on unary positive");
+      assert(0 && "Error on unary positive");
       return Error;
     }
 
@@ -1492,13 +1618,13 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Postfix(void) {
     if (parse_stack_.IsEmpty())  {
-      assert("Error on Postfix() : Needed parsing info!");
+      assert(0 && "Error on Postfix() : Needed parsing info!");
       return Error;
     }
 
     ParseInfo pi = parse_stack_.Top();
     if (pi.type_ != ParseInfo::ASTNode) {
-      assert("Error on Postfix() : Needed ASTNode in stack!");
+      assert(0 && "Error on Postfix() : Needed ASTNode in stack!");
       return Error;
     }
 
@@ -1511,7 +1637,7 @@ namespace Parser {
     pi_expr = parse_stack_.Top(); // get stored Expr
     parse_stack_.Pop();
     if (!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on postfix unary increase");
+      assert(0 && "Error on postfix unary increase");
       return Error;
     }
 
@@ -1530,12 +1656,12 @@ namespace Parser {
     parse_stack_.Pop();
     
     if (pi_expr.type_ != ParseInfo::ASTNode) {
-      assert("Error on postfix unary decrease");
+      assert(0 && "Error on postfix unary decrease");
       return Error;
     }
     
     if (!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on postfix unary decrease");
+      assert(0 && "Error on postfix unary decrease");
       return Error;
     }
 
@@ -1552,11 +1678,11 @@ namespace Parser {
     ParseInfo pi_arrsize_expr = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_arrsize_expr.type_ != ParseInfo::ASTNode) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
     if(!pi_arrsize_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
 
@@ -1564,11 +1690,11 @@ namespace Parser {
     ParseInfo pi_array_base = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_array_base.type_ != ParseInfo::ASTNode) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
     if(!pi_array_base.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
 
@@ -1585,7 +1711,7 @@ namespace Parser {
     ParseInfo pi_name = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_name.type_ != ParseInfo::Identifier) {
-      assert("Error on Postfix member reference");
+      assert(0 && "Error on Postfix member reference");
       return Error;
     }
 
@@ -1593,11 +1719,11 @@ namespace Parser {
     ParseInfo pi_expr = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
     if(!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
 
@@ -1614,7 +1740,7 @@ namespace Parser {
     ParseInfo pi_name = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_name.type_ != ParseInfo::Identifier) {
-      assert("Error on Postfix member reference");
+      assert(0 && "Error on Postfix member reference");
       return Error;
     }
 
@@ -1622,11 +1748,11 @@ namespace Parser {
     ParseInfo pi_expr = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_expr.type_ != ParseInfo::ASTNode) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
     if(!pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on postfix array reference");
+      assert(0 && "Error on postfix array reference");
       return Error;
     }
 
@@ -1642,17 +1768,25 @@ namespace Parser {
     // get args
     ParseInfo pi_args = parse_stack_.Top();
     parse_stack_.Pop();
-    if (pi_args.type_ != ParseInfo::ASTNode)
+    if (pi_args.type_ != ParseInfo::ASTNode) {
+      assert(0 && "Invalid function call argument");
       return Error;
-    if (!pi_args.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy))
+    }
+    if (!pi_args.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy)) {
+      assert(0 && "Invalid function call argument");
       return Error;
+    }
     // get function 
     ParseInfo pi_func = parse_stack_.Top();
     parse_stack_.Pop();
-    if (pi_func.type_ != ParseInfo::ASTNode)
+    if (pi_func.type_ != ParseInfo::ASTNode) {
+      assert(0 && "Invalid function function call");
       return Error;
-    if (!pi_func.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy))
+    }
+    if (!pi_func.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert(0 && "Invalid function function call");
       return Error;
+    }
 
     // create new pi
     AST::FuncCallNode* fcall= 
@@ -1664,7 +1798,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Primary(void) {
     if (parse_stack_.IsEmpty())  {
-      assert("Error on Primary() : Need to child data!");
+      assert(0 && "Error on Primary() : Need to child data!");
       return Error;
     }
     
@@ -1706,8 +1840,10 @@ namespace Parser {
         top_pi.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
       SetRuleNameForPI(RuleName::primary);
     }
-    else
+    else {
+      assert(0 && "Unidentified primary");
       return Error;
+    }
 
     return True;
   }
@@ -1746,7 +1882,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_arg_expr.type_ != ParseInfo::ASTNode || 
         !pi_arg_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on Args first expr");
+      assert(0 && "Error on Args first expr");
       return Error;
     }
 
@@ -1764,7 +1900,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_arg_expr.type_ != ParseInfo::ASTNode || 
         !pi_arg_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on Args first expr");
+      assert(0 && "Error on Args first expr");
       return Error;
     }
 
@@ -1773,7 +1909,7 @@ namespace Parser {
     parse_stack_.Pop();
     if (pi_arg_node.type_ != ParseInfo::ASTNode || 
       !pi_arg_node.data_.node_->IsKindOf(AST::BaseNode::ArgsNodeTy)) {
-      assert("Error on Args first expr");
+      assert(0 && "Error on Args first expr");
       return Error;
     }
 
@@ -1788,14 +1924,16 @@ namespace Parser {
     ParseInfo pi_expr = parse_stack_.Top();
     if (pi_expr.type_ != ParseInfo::ASTNode || 
         !pi_expr.data_.node_->IsKindOf(AST::BaseNode::ExprNodeTy)) {
-      assert("Error on term casting");
+      assert(0 && "Error on term casting");
       return Error;
     }
 
-    if (pi_expr.rule_name_ != RuleName::seq_assign_value && 
+    if (pi_expr.rule_name_ != RuleName::seq_assign_value &&
         pi_expr.rule_name_ != RuleName::seq_opassign_value &&
-        pi_expr.rule_name_ != RuleName::expr10)
+        pi_expr.rule_name_ != RuleName::expr10) {
+      assert(0 && "Unidentified assign Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr);
     return True;
@@ -1807,27 +1945,31 @@ namespace Parser {
     
     // Read RHS expr
     pi_expr = parse_stack_.Top();
-    if (pi_expr.type_ == ParseInfo::ASTNode &&
-        pi_expr.rule_name_ == RuleName::expr){
-      rhs = pi_expr.data_.node_;
-      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
-        return Error;
-      parse_stack_.Pop();
-    }
-    else 
+    if (pi_expr.type_ != ParseInfo::ASTNode ||
+        pi_expr.rule_name_ != RuleName::expr){
+      assert(0 && "Invalid RHS Expression");
       return Error;
+    }
+    parse_stack_.Pop();
+    rhs = pi_expr.data_.node_;
+    if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert(0 && "Unidentified assign Expression");
+      return Error;
+    }
 
     // Read LHS term
     pi_term = parse_stack_.Top();
-    if (pi_term.type_ == ParseInfo::ASTNode && 
-        pi_term.rule_name_ == RuleName::term){
-      lhs = pi_term.data_.node_;
-      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
-        return Error;
-      parse_stack_.Pop();
-    }
-    else 
+    if (pi_term.type_ != ParseInfo::ASTNode ||
+        pi_term.rule_name_ != RuleName::term) {
+      assert(0 && "Invalid LHS Expression");
       return Error;
+    }
+    parse_stack_.Pop();
+    lhs = pi_term.data_.node_;
+    if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert(0 && "Unidentified assign Expression");
+      return Error;
+    }
 
     // Create AssignNode
     AST::AssignNode* assign_node = 
@@ -1845,71 +1987,78 @@ namespace Parser {
     
     // Read RHS expr
     pi_expr = parse_stack_.Top();
-    if (pi_expr.type_ == ParseInfo::ASTNode &&
-        pi_expr.rule_name_ == RuleName::expr){
-      rhs = pi_expr.data_.node_;
-      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
-        return Error;
-      parse_stack_.Pop();
-    }
-    else 
+    if (pi_expr.type_ != ParseInfo::ASTNode || 
+        pi_expr.rule_name_ != RuleName::expr){
+      assert(0 && "Invalid RHS Expression");
       return Error;
+    }
+    parse_stack_.Pop();
+    rhs = pi_expr.data_.node_;
+    if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert(0 && "Unidentified assign Expression");
+      return Error;
+    }
 
     // Read opassign
     pi_opassign = parse_stack_.Top();
-    if (pi_opassign.type_ == ParseInfo::TokenType &&
-        pi_opassign.rule_name_ == RuleName::opassign_op){
-      parse_stack_.Pop();
-
-      switch(pi_opassign.data_.tok_type_) {
-        case TokComAdd:
-          op = AST::OpAssignNode::AssignAdd;
-          break;
-        case TokComSub:
-          op = AST::OpAssignNode::AssignSub;
-          break;
-        case TokComMul:
-          op = AST::OpAssignNode::AssignMul;
-          break;
-        case TokComDiv:
-          op = AST::OpAssignNode::AssignDiv;
-          break;
-        case TokComMod:
-          op = AST::OpAssignNode::AssignMod;
-          break;
-        case TokComBitAnd:
-          op = AST::OpAssignNode::AssignBitAnd;
-          break;
-        case TokComBitOr:
-          op = AST::OpAssignNode::AssignBitOr;
-          break;
-        case TokComBitXor:
-          op = AST::OpAssignNode::AssignBitXor;
-          break;
-        case TokComBitShiftL:
-          op = AST::OpAssignNode::AssignBitShiftL;
-          break;
-        case TokComBitShiftR:
-          op = AST::OpAssignNode::AssignBitShiftR;
-          break;
-        default:
-          return Error;
-      }
-    }
-    else 
+    if (pi_opassign.type_ != ParseInfo::TokenType ||
+        pi_opassign.rule_name_ != RuleName::opassign_op){
+      assert(0 && "Unidentified OpAssign");
       return Error;
+    }
+    parse_stack_.Pop();
+
+    switch(pi_opassign.data_.tok_type_) {
+      case TokComAdd:
+        op = AST::OpAssignNode::AssignAdd;
+        break;
+      case TokComSub:
+        op = AST::OpAssignNode::AssignSub;
+        break;
+      case TokComMul:
+        op = AST::OpAssignNode::AssignMul;
+        break;
+      case TokComDiv:
+        op = AST::OpAssignNode::AssignDiv;
+        break;
+      case TokComMod:
+        op = AST::OpAssignNode::AssignMod;
+        break;
+      case TokComBitAnd:
+        op = AST::OpAssignNode::AssignBitAnd;
+        break;
+      case TokComBitOr:
+        op = AST::OpAssignNode::AssignBitOr;
+        break;
+      case TokComBitXor:
+        op = AST::OpAssignNode::AssignBitXor;
+        break;
+      case TokComBitShiftL:
+        op = AST::OpAssignNode::AssignBitShiftL;
+        break;
+      case TokComBitShiftR:
+        op = AST::OpAssignNode::AssignBitShiftR;
+        break;
+      default: 
+        {
+          assert(0 && "Unidentified assign sign");
+          return Error;
+        }
+    }
 
     // Read LHS term
     pi_term = parse_stack_.Top();
-    if (pi_term.type_ == ParseInfo::ASTNode && 
-        pi_term.rule_name_ == RuleName::term){
-      lhs = pi_term.data_.node_;
-      if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy))
-        return Error;
-      parse_stack_.Pop();
-    }
-    else 
+    if (pi_term.type_ != ParseInfo::ASTNode ||
+        pi_term.rule_name_ != RuleName::term) {
+      assert(0 && "Unidentified opassign LHS");
       return Error;
+    }
+    parse_stack_.Pop();
+    lhs = pi_term.data_.node_;
+    if (!rhs->IsKindOf(AST::BaseNode::ExprNodeTy)) {
+      assert(0 && "Unidentified opassign LHS");
+      return Error;
+    }
 
     // Create OpAssign
     AST::OpAssignNode* opassign = 
@@ -1942,6 +2091,7 @@ namespace Parser {
     pi_expr9 = parse_stack_.Top();
     if (pi_expr9.type_ != ParseInfo::ASTNode ||
         pi_expr9.rule_name_ != RuleName::expr9) {
+      assert(0 && "Invalid condition Expression");
       return Error;
     }
 
@@ -1963,15 +2113,19 @@ namespace Parser {
     // Read else expr
     pi_else = parse_stack_.Top();
     if (pi_else.type_ != ParseInfo::ASTNode || 
-        pi_else.rule_name_ != RuleName::expr10)
+        pi_else.rule_name_ != RuleName::expr10) {
+      assert(0 && "Invalid Else Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read then expr
     pi_then = parse_stack_.Top();
     if (pi_then.type_ != ParseInfo::ASTNode || 
-        pi_then.rule_name_ != RuleName::expr)
+        pi_then.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid Then Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
 
@@ -1991,8 +2145,10 @@ namespace Parser {
     pi_expr8 = parse_stack_.Top();
     if (pi_expr8.type_ != ParseInfo::ASTNode ||
         (pi_expr8.rule_name_ != RuleName::expr8 && 
-        pi_expr8.rule_name_ != RuleName::rep_or_expr8))
+        pi_expr8.rule_name_ != RuleName::rep_or_expr8)) {
+      assert(0 && "Invalid Or Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr9);
     return True;
@@ -2004,16 +2160,20 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr8)
+        pi_rhs.rule_name_ != RuleName::expr8) {
+      assert(0 && "Invalid Or RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr8 &&
-         pi_lhs.rule_name_ != RuleName::rep_or_expr8))
+         pi_lhs.rule_name_ != RuleName::rep_or_expr8)) {
+      assert(0 && "Invalid Or LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2032,10 +2192,12 @@ namespace Parser {
     pi_expr7 = parse_stack_.Top();
     if (pi_expr7.type_ != ParseInfo::ASTNode ||
         (pi_expr7.rule_name_ != RuleName::expr7) && 
-        (pi_expr7.rule_name_ != RuleName::rep_and_expr7))
+        (pi_expr7.rule_name_ != RuleName::rep_and_expr7)) {
+      assert(0 && "Invalid And Expression");
       return Error;
+    }
 
-    SetRuleNameForPI(RuleName::expr9);
+    SetRuleNameForPI(RuleName::expr8);
     return True;
   }
 
@@ -2045,16 +2207,20 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr7)
+        pi_rhs.rule_name_ != RuleName::expr7) {
+      assert(0 && "Invalid And RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr7 &&
-         pi_lhs.rule_name_ != RuleName::rep_and_expr7))
+         pi_lhs.rule_name_ != RuleName::rep_and_expr7)) {
+      assert(0 && "Invalid And LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2078,8 +2244,10 @@ namespace Parser {
          pi_expr7.rule_name_ != RuleName::seq_geq_expr6 &&
          pi_expr7.rule_name_ != RuleName::seq_leq_expr6 &&
          pi_expr7.rule_name_ != RuleName::seq_eq_expr6 &&
-         pi_expr7.rule_name_ != RuleName::seq_neq_expr6 ))
+         pi_expr7.rule_name_ != RuleName::seq_neq_expr6 )) {
+      assert(0 && "Invalid Comparison Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr7);
     return True;
@@ -2091,8 +2259,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr6)
+        pi_rhs.rule_name_ != RuleName::expr6) {
+      assert(0 && "Invalid Greater RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2104,8 +2274,10 @@ namespace Parser {
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
-         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 )) {
+      assert(0 && "Invalid Greater LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2124,8 +2296,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr6)
+        pi_rhs.rule_name_ != RuleName::expr6) {
+      assert(0 && "Invalid Less RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2137,8 +2311,10 @@ namespace Parser {
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
-         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 )) {
+      assert(0 && "Invalid Less LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2157,8 +2333,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr6)
+        pi_rhs.rule_name_ != RuleName::expr6) {
+      assert(0 && "Invalid Greater Equal RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2170,8 +2348,10 @@ namespace Parser {
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
-         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 )) {
+      assert(0 && "Invalid Greater Equal LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2190,8 +2370,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr6)
+        pi_rhs.rule_name_ != RuleName::expr6) {
+      assert(0 && "Invalid Less Equal RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2203,8 +2385,10 @@ namespace Parser {
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
-         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 )) {
+      assert(0 && "Invalid Less Equal LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2223,8 +2407,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr6)
+        pi_rhs.rule_name_ != RuleName::expr6) {
+      assert(0 && "Invalid Equal RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2236,8 +2422,10 @@ namespace Parser {
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
-         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 )) {
+      assert(0 && "Invalid Equal LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2256,8 +2444,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr6)
+        pi_rhs.rule_name_ != RuleName::expr6) {
+      assert(0 && "Invalid Not Equal RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2269,8 +2459,10 @@ namespace Parser {
          pi_lhs.rule_name_ != RuleName::seq_geq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_leq_expr6 &&
          pi_lhs.rule_name_ != RuleName::seq_eq_expr6 &&
-         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 ))
+         pi_lhs.rule_name_ != RuleName::seq_neq_expr6 )) {
+      assert(0 && "Invalid Not Equal LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2290,8 +2482,10 @@ namespace Parser {
     pi_expr5 = parse_stack_.Top();
     if (pi_expr5.type_ != ParseInfo::ASTNode ||
         (pi_expr5.rule_name_ != RuleName::expr5 &&
-         pi_expr5.rule_name_ != RuleName::rep_bitor_expr5))
+         pi_expr5.rule_name_ != RuleName::rep_bitor_expr5)) {
+      assert(0 && "Invalid Bit Or Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr6);
     return True;
@@ -2303,16 +2497,20 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr5)
+        pi_rhs.rule_name_ != RuleName::expr5) {
+      assert(0 && "Invalid Bit Or LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr5 &&
-         pi_lhs.rule_name_ != RuleName::rep_bitor_expr5))
+         pi_lhs.rule_name_ != RuleName::rep_bitor_expr5)) {
+      assert(0 && "Invalid Bit Or RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2332,8 +2530,10 @@ namespace Parser {
     pi_expr4 = parse_stack_.Top();
     if (pi_expr4.type_ != ParseInfo::ASTNode ||
         (pi_expr4.rule_name_ != RuleName::expr4 &&
-         pi_expr4.rule_name_ != RuleName::rep_bitxor_expr4))
+         pi_expr4.rule_name_ != RuleName::rep_bitxor_expr4)) {
+      assert(0 && "Invalid Bit Xor Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr5);
     return True;
@@ -2345,16 +2545,20 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr4)
+        pi_rhs.rule_name_ != RuleName::expr4) {
+      assert(0 && "Invalid Bit Xor RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr4 &&
-         pi_lhs.rule_name_ != RuleName::rep_bitxor_expr4))
+         pi_lhs.rule_name_ != RuleName::rep_bitxor_expr4)) {
+      assert(0 && "Invalid Bit Xor LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2374,8 +2578,10 @@ namespace Parser {
     pi_expr3 = parse_stack_.Top();
     if (pi_expr3.type_ != ParseInfo::ASTNode ||
         (pi_expr3.rule_name_ != RuleName::expr3 &&
-         pi_expr3.rule_name_ != RuleName::rep_bitand_expr3))
+         pi_expr3.rule_name_ != RuleName::rep_bitand_expr3)) {
+      assert(0 && "Invalid Bit And Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr4);
     return True;
@@ -2387,16 +2593,20 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr3)
+        pi_rhs.rule_name_ != RuleName::expr3) {
+      assert(0 && "Invalid Bit And RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
     pi_lhs = parse_stack_.Top();
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr3 &&
-         pi_lhs.rule_name_ != RuleName::rep_bitand_expr3))
+         pi_lhs.rule_name_ != RuleName::rep_bitand_expr3)) {
+      assert(0 && "Invalid Bit And LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2417,8 +2627,10 @@ namespace Parser {
     if (pi_expr2.type_ != ParseInfo::ASTNode ||
         (pi_expr2.rule_name_ != RuleName::expr2 &&
          pi_expr2.rule_name_ != RuleName::seq_rshft_expr2&&
-         pi_expr2.rule_name_ != RuleName::seq_lshft_expr2))
+         pi_expr2.rule_name_ != RuleName::seq_lshft_expr2)) {
+      assert(0 && "Invalid Shift Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr3);
     return True;
@@ -2430,8 +2642,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr2)
+        pi_rhs.rule_name_ != RuleName::expr2) {
+      assert(0 && "Invalid Shift RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2439,8 +2653,10 @@ namespace Parser {
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr2 &&
          pi_lhs.rule_name_ != RuleName::seq_rshft_expr2 &&
-         pi_lhs.rule_name_ != RuleName::seq_lshft_expr2))
+         pi_lhs.rule_name_ != RuleName::seq_lshft_expr2)) {
+      assert(0 && "Invalid Shift LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2459,8 +2675,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr2)
+        pi_rhs.rule_name_ != RuleName::expr2) {
+      assert(0 && "Invalid Shift RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2468,8 +2686,10 @@ namespace Parser {
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr2 &&
          pi_lhs.rule_name_ != RuleName::seq_rshft_expr2 &&
-         pi_lhs.rule_name_ != RuleName::seq_lshft_expr2))
+         pi_lhs.rule_name_ != RuleName::seq_lshft_expr2)) {
+      assert(0 && "Invalid Shift LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2490,8 +2710,10 @@ namespace Parser {
     if (pi_expr1.type_ != ParseInfo::ASTNode ||
         (pi_expr1.rule_name_ != RuleName::expr1 &&
          pi_expr1.rule_name_ != RuleName::seq_sum_expr1&&
-         pi_expr1.rule_name_ != RuleName::seq_sub_expr1))
+         pi_expr1.rule_name_ != RuleName::seq_sub_expr1)) {
+      assert(0 && "Invalid Sum Sub Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr2);
     return True;
@@ -2503,8 +2725,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr1)
+        pi_rhs.rule_name_ != RuleName::expr1) {
+      assert(0 && "Invalid Sum Sub RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2512,8 +2736,10 @@ namespace Parser {
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr1 &&
          pi_lhs.rule_name_ != RuleName::seq_sum_expr1 &&
-         pi_lhs.rule_name_ != RuleName::seq_sub_expr1))
+         pi_lhs.rule_name_ != RuleName::seq_sub_expr1)) {
+      assert(0 && "Invalid Sum Sub LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2532,8 +2758,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::expr1)
+        pi_rhs.rule_name_ != RuleName::expr1) {
+      assert(0 && "Invalid Sub RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2541,8 +2769,10 @@ namespace Parser {
     if (pi_lhs.type_ != ParseInfo::ASTNode ||
         (pi_lhs.rule_name_ != RuleName::expr1 &&
          pi_lhs.rule_name_ != RuleName::seq_sum_expr1 &&
-         pi_lhs.rule_name_ != RuleName::seq_sub_expr1))
+         pi_lhs.rule_name_ != RuleName::seq_sub_expr1)) {
+      assert(0 && "Invalid Sub LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2564,8 +2794,10 @@ namespace Parser {
         (pi_term.rule_name_ != RuleName::term &&
          pi_term.rule_name_ != RuleName::seq_mul_term &&
          pi_term.rule_name_ != RuleName::seq_div_term &&
-         pi_term.rule_name_ != RuleName::seq_mod_term))
+         pi_term.rule_name_ != RuleName::seq_mod_term)) {
+      assert(0 && "Invalid Mul Div Mod Expression");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::expr1);
     return True;
@@ -2577,8 +2809,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::term)
+        pi_rhs.rule_name_ != RuleName::term) {
+      assert(0 && "Invalid Mul Div Mod RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2587,8 +2821,10 @@ namespace Parser {
         (pi_lhs.rule_name_ != RuleName::term &&
          pi_lhs.rule_name_ != RuleName::seq_mul_term &&
          pi_lhs.rule_name_ != RuleName::seq_div_term &&
-         pi_lhs.rule_name_ != RuleName::seq_mod_term))
+         pi_lhs.rule_name_ != RuleName::seq_mod_term)) {
+      assert(0 && "Invalid Mul Div Mod LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2607,8 +2843,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::term)
+        pi_rhs.rule_name_ != RuleName::term) {
+      assert(0 && "Invalid Div RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2617,8 +2855,10 @@ namespace Parser {
         (pi_lhs.rule_name_ != RuleName::term &&
          pi_lhs.rule_name_ != RuleName::seq_mul_term &&
          pi_lhs.rule_name_ != RuleName::seq_div_term &&
-         pi_lhs.rule_name_ != RuleName::seq_mod_term))
+         pi_lhs.rule_name_ != RuleName::seq_mod_term)) {
+      assert(0 && "Invalid Div LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2637,8 +2877,10 @@ namespace Parser {
     // Read right side expr
     pi_rhs = parse_stack_.Top();
     if (pi_rhs.type_ != ParseInfo::ASTNode ||
-        pi_rhs.rule_name_ != RuleName::term)
+        pi_rhs.rule_name_ != RuleName::term) {
+      assert(0 && "Invalid Mod RHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read left side expr
@@ -2647,8 +2889,10 @@ namespace Parser {
         (pi_lhs.rule_name_ != RuleName::term &&
          pi_lhs.rule_name_ != RuleName::seq_mul_term &&
          pi_lhs.rule_name_ != RuleName::seq_div_term &&
-         pi_lhs.rule_name_ != RuleName::seq_mod_term))
+         pi_lhs.rule_name_ != RuleName::seq_mod_term)) {
+      assert(0 && "Invalid Mod LHS Expression");
       return Error;
+    }
     parse_stack_.Pop();
 
     //Create node
@@ -2666,8 +2910,10 @@ namespace Parser {
     AST::StmtNodes* sm = new AST::StmtNodes();
 
     while(pi.rule_name_ == RuleName::stmt) {
-      if (pi.type_ != ParseInfo::ASTNode)
+      if (pi.type_ != ParseInfo::ASTNode) {
+        assert(0 && "Invalid AST Node in stmts");
         return Error;
+      }
       parse_stack_.Pop();
 
       sm->PushBack((AST::StmtNode*)pi.data_.node_);
@@ -2693,8 +2939,10 @@ namespace Parser {
          pi.rule_name_ != break_stmt &&
          pi.rule_name_ != continue_stmt &&
          pi.rule_name_ != goto_stmt &&
-         pi.rule_name_ != return_stmt))
+         pi.rule_name_ != return_stmt)) {
+      assert(0 && "Unidentified stmts");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::stmt);
     return True;
@@ -2706,15 +2954,18 @@ namespace Parser {
     // Read stmt
     pi_stmt = parse_stack_.Top();
     if (pi_stmt.type_ != ParseInfo::ASTNode ||
-        pi_stmt.rule_name_ != RuleName::stmt) {
+        pi_stmt.rule_name_ != RuleName::stmt) { 
+      assert(0 && "Invalid label statements");
       return Error;
     }
     parse_stack_.Pop();
 
     // Read label name
     pi_label_name = parse_stack_.Top();
-    if (pi_label_name.type_ != ParseInfo::Identifier)
+    if (pi_label_name.type_ != ParseInfo::Identifier) {
+      assert(0 && "Invalid label name");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Create label stmt 
@@ -2734,8 +2985,10 @@ namespace Parser {
     // Read Expr
     pi = parse_stack_.Top();
     if (pi.type_ != ParseInfo::ASTNode ||
-        pi.rule_name_ != RuleName::expr)
+        pi.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid expr in statement");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::ExprStmtNode* expr_stmt_node = 
@@ -2761,15 +3014,19 @@ namespace Parser {
     // read then body.
     pi_thenbody = parse_stack_.Top();
     if (pi_elsebody.type_ != ParseInfo::ASTNode ||
-        pi_elsebody.rule_name_ != RuleName::stmt)
+        pi_elsebody.rule_name_ != RuleName::stmt) {
+      assert(0 && "Invalid then body in if_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // read Conditional expr
     pi_cond = parse_stack_.Top();
     if (pi_cond.type_ != ParseInfo::ASTNode || 
-        pi_cond.rule_name_ != RuleName::expr) 
+        pi_cond.rule_name_ != RuleName::expr)  {
+      assert(0 && "Invalid conditinal in if_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Create if node
@@ -2786,8 +3043,10 @@ namespace Parser {
 
     // Check if there is stmt.
     if (pi_elsebody.type_ != ParseInfo::ASTNode || 
-        pi_elsebody.rule_name_ != RuleName::stmt) 
+        pi_elsebody.rule_name_ != RuleName::stmt)  {
+      assert(0 && "Invalid else body in if_stmt");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::opt_else_stmt);
     return True;
@@ -2799,15 +3058,19 @@ namespace Parser {
     // Read while body
     pi_body = parse_stack_.Top();
     if (pi_body.type_ != ParseInfo::ASTNode ||
-        pi_body.rule_name_ != RuleName::stmt) 
+        pi_body.rule_name_ != RuleName::stmt)  {
+      assert(0 && "Invalid while body in while_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read conditional expr
     pi_cond = parse_stack_.Top();
     if (pi_cond.type_ != ParseInfo::ASTNode ||
-        pi_cond.rule_name_ != RuleName::expr) 
+        pi_cond.rule_name_ != RuleName::expr)  {
+      assert(0 && "Invalid while conditinal in while_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Create while stmt 
@@ -2824,15 +3087,19 @@ namespace Parser {
     // Read conditional expr
     pi_cond = parse_stack_.Top();
     if (pi_cond.type_ != ParseInfo::ASTNode ||
-        pi_cond.rule_name_ != RuleName::expr) 
+        pi_cond.rule_name_ != RuleName::expr)  {
+      assert(0 && "Invalid do while conditinal in do_while_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read while body
     pi_body = parse_stack_.Top();
     if (pi_body.type_ != ParseInfo::ASTNode ||
-        pi_body.rule_name_ != RuleName::stmt) 
+        pi_body.rule_name_ != RuleName::stmt) {
+      assert(0 && "Invalid do while body in do_while_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Create while stmt 
@@ -2850,29 +3117,37 @@ namespace Parser {
     // Read while body
     pi_body = parse_stack_.Top();
     if (pi_body.type_ != ParseInfo::ASTNode ||
-        pi_body.rule_name_ != RuleName::stmt) 
+        pi_body.rule_name_ != RuleName::stmt)  {
+      assert(0 && "Invalid for body in for_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read increase expr
     pi_inc = parse_stack_.Top();
     if (pi_inc.type_ != ParseInfo::ASTNode ||
-        pi_inc.rule_name_ != RuleName::opt_for_inc_expr) 
+        pi_inc.rule_name_ != RuleName::opt_for_inc_expr)  {
+      assert(0 && "Invalid for inc in for_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read conditional expr
     pi_cond = parse_stack_.Top();
     if (pi_cond.type_ != ParseInfo::ASTNode ||
-        pi_cond.rule_name_ != RuleName::opt_for_cond_expr) 
+        pi_cond.rule_name_ != RuleName::opt_for_cond_expr)  {
+      assert(0 && "Invalid for cond in for_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
-    // Read increase expr
+    // Read init expr
     pi_init= parse_stack_.Top();
     if (pi_init.type_ != ParseInfo::ASTNode ||
-        pi_init.rule_name_ != RuleName::opt_for_init_expr) 
+        pi_init.rule_name_ != RuleName::opt_for_init_expr)  {
+      assert(0 && "Invalid for init in for_stmt");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Create for node
@@ -2891,8 +3166,10 @@ namespace Parser {
 
     // Read expr
     if (pi_init.type_ != ParseInfo::ASTNode ||
-        pi_init.rule_name_ != RuleName::expr)
+        pi_init.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid for init expr in for_stmt");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::opt_for_init_expr);
     return True;
@@ -2903,8 +3180,10 @@ namespace Parser {
 
     // Read expr
     if (pi_cond.type_ != ParseInfo::ASTNode ||
-        pi_cond.rule_name_ != RuleName::expr)
+        pi_cond.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid for cond expr in for_stmt");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::opt_for_cond_expr);
     return True;
@@ -2915,8 +3194,10 @@ namespace Parser {
 
     // Read expr
     if (pi_inc.type_ != ParseInfo::ASTNode ||
-        pi_inc.rule_name_ != RuleName::expr)
+        pi_inc.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid for inc expr in for_stmt");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::opt_for_inc_expr);
     return True;
@@ -2927,14 +3208,19 @@ namespace Parser {
 
     pi_cases = parse_stack_.Top();
     if (pi_cases.type_ != ParseInfo::CaseNodeList ||
-        pi_cases.rule_name_ != RuleName::case_clauses)
+        pi_cases.rule_name_ != RuleName::case_clauses) {
+      assert(0 && "Invalid case clauses");
       return Error;
+    }
     parse_stack_.Pop();
 
+    // case cond
     pi_cond = parse_stack_.Top();
     if (pi_cond.type_ != ParseInfo::ASTNode ||
-        pi_cond.rule_name_ != RuleName::expr)
+        pi_cond.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid case cond");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::SwitchNode* sn = new AST::SwitchNode((AST::ExprNode*)pi_cond.data_.node_,
@@ -2952,8 +3238,10 @@ namespace Parser {
 
     while(pi_case.rule_name_ == RuleName::case_clause || 
         pi_case.rule_name_ == RuleName::default_clause) {
-      if (pi_case.type_ != ParseInfo::ASTNode)
+      if (pi_case.type_ != ParseInfo::ASTNode) {
+        assert(0 && "Invalid case clause ast node");
         return Error;
+      }
       parse_stack_.Pop();
 
       cv->PushBack((AST::CaseNode*)pi_case.data_.node_);
@@ -2971,8 +3259,10 @@ namespace Parser {
     // read case body
     pi_case_body = parse_stack_.Top();
     if (pi_case_body.type_ != ParseInfo::ASTNode ||
-        pi_case_body.rule_name_ != RuleName::case_body) 
+        pi_case_body.rule_name_ != RuleName::case_body)  {
+      assert(0 && "Invalid case body");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::CaseNode* case_node = new AST::CaseNode( nullptr,
@@ -2988,15 +3278,19 @@ namespace Parser {
     // read case body
     pi_case_body = parse_stack_.Top();
     if (pi_case_body.type_ != ParseInfo::ASTNode ||
-        pi_case_body.rule_name_ != RuleName::case_body) 
+        pi_case_body.rule_name_ != RuleName::case_body)  {
+      assert(0 && "Invalid case body");
       return Error;
+    }
     parse_stack_.Pop();
 
     // read case list
     pi_case_list = parse_stack_.Top();
     if (pi_case_list.type_ != ParseInfo::ExprNodeList ||
-        pi_case_list.rule_name_ != RuleName::case_list) 
+        pi_case_list.rule_name_ != RuleName::case_list)  {
+      assert(0 && "Invalid case list");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::CaseNode* case_node = new AST::CaseNode(
@@ -3015,8 +3309,10 @@ namespace Parser {
     // Read case values
     pi_value = parse_stack_.Top();
     if (pi_value.type_ != ParseInfo::ASTNode ||
-        pi_value.rule_name_ != RuleName::primary) 
+        pi_value.rule_name_ != RuleName::primary)  {
+      assert(0 && "Invalid case value");
       return Error;
+    }
     parse_stack_.Pop();
 
     // Read Case list
@@ -3041,8 +3337,10 @@ namespace Parser {
 
     // Read stmt
     if (pi.type_ != ParseInfo::ASTNode ||
-        pi.rule_name_ != RuleName::stmt) 
+        pi.rule_name_ != RuleName::stmt)  {
+      assert(0 && "Invalid case body stmt");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::case_body);
     return True;
@@ -3063,8 +3361,10 @@ namespace Parser {
   eResult SyntaxAnalyzer::GotoStmt(void) {
     ParseInfo pi_target = parse_stack_.Top();
 
-    if(pi_target.type_ != ParseInfo::Identifier)
+    if(pi_target.type_ != ParseInfo::Identifier) {
+      assert(0 && "Invalid goto target");
       return Error;
+    }
     parse_stack_.Pop();
 
     char* target = new char[pi_target.cstr_len_ + 1];
@@ -3080,8 +3380,11 @@ namespace Parser {
   eResult SyntaxAnalyzer::ReturnStmt(void) {
     ParseInfo pi = parse_stack_.Top();
     if(pi.type_ != ParseInfo::ASTNode ||
-        (pi.rule_name_ != seq_return && pi.rule_name_ != seq_return_expr))
+        (pi.rule_name_ != seq_return && 
+         pi.rule_name_ != seq_return_expr)) {
+      assert(0 && "Invalid return expr");
       return Error;
+    }
 
     SetRuleNameForPI(RuleName::return_stmt);
     return True;
@@ -3095,8 +3398,11 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Act_seq_return_expr(void) {
     ParseInfo pi = parse_stack_.Top();
-    if(pi.type_ != ParseInfo::ASTNode || pi.rule_name_ != RuleName::expr)
+    if(pi.type_ != ParseInfo::ASTNode || 
+        pi.rule_name_ != RuleName::expr) {
+      assert(0 && "Invalid return expr");
       return Error;
+    }
     parse_stack_.Pop();
 
     AST::ReturnNode* rn = new AST::ReturnNode((AST::ExprNode*)pi.data_.node_);

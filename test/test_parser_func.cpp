@@ -2,11 +2,17 @@
 #include "parser.h"
 #include "ast_printer.h"
 
+
 char* src =  
 "void test(void) { \
     long hoho = 20; \
     return;\
- }";
+ }\n \
+int test2(int b) { \
+  int a, b = 10; \
+  a = a + b + 2; \
+  return b; \
+}";
 
 int main() {
   Lexer::Tokenizer* tk = new Lexer::Tokenizer(src);

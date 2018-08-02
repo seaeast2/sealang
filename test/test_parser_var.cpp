@@ -3,7 +3,7 @@
 #include "ast_printer.h"
 
 char* src =  
-"int a = 10;\n";
+"int a, b = 10;\n";
 
 /*char* src =  
 "void test(void) { \

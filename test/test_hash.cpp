@@ -26,11 +26,10 @@ int main() {
   hash.Insert("50", e);
 
 
-  AAA* result_ptr = nullptr;
   AAA* result = nullptr;
 
-  result_ptr = hashptr.Find("30");
-  cout << "30 : " << result_ptr->n << endl;
+  result = hashptr.Find("30");
+  cout << "30 : " << result->n << endl;
   
   result = hash.Find("40");
   cout << "40 : " << result->n << endl;
