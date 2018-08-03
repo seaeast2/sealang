@@ -18,7 +18,7 @@ namespace ErrorDiag {
       Diagnosis() {}
       virtual ~Diagnosis() {}
 
-      void Print(ErrorKind ekind, int line, int col, char* errMsg = "");
+      virtual void Print(ErrorKind ekind, int line, int col, char* errMsg = "");
   };
 
   class LexerDiag : public Diagnosis {
@@ -26,7 +26,7 @@ namespace ErrorDiag {
       LexerDiag() {}
       ~LexerDiag() {}
 
-      void Print(ErrorKind ekind, int line, int col, char* errMsg = "");
+      void Print(ErrorKind ekind, int line, int col, char* errMsg = "") override;
   };
 
   class ParserDiag : public Diagnosis {
@@ -34,7 +34,7 @@ namespace ErrorDiag {
       ParserDiag() {}
       ~ParserDiag() {}
 
-      void Print(ErrorKind ekind, int line, int col, char* errMsg = "");
+      void Print(ErrorKind ekind, int line, int col, char* errMsg = "") override;
   };
 };
 

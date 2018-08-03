@@ -16,7 +16,9 @@ namespace AST {
       Scope* cur_scope_;
 
     public:
-      Environment() {}
+      Environment() {
+        cur_scope_ = &top_scope_;
+      }
       ~Environment() {
       }
 
