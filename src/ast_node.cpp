@@ -109,11 +109,6 @@ namespace AST {
     name_ = name;
     initializer_ = init;
   }
-  
-  void VariableDecl::SetName(const char* name, int len) {
-    string str(name, len);
-    name_ = str;
-  }
 
   // ConstantDecl =======================================
   ConstantDecl::ConstantDecl(TypeNode* type, const char* name, ExprNode* init) {
@@ -121,11 +116,6 @@ namespace AST {
     type_ = type;
     name_ = name;
     initializer_ = init;
-  }
-
-  void ConstantDecl::SetName(const char* name, int len) {
-    string str(name, len);
-    name_ = str;
   }
 
   // CompositeTypeDefinition =======================================

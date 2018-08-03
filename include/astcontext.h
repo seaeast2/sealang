@@ -15,8 +15,7 @@ namespace AST {
       Declarations* imported_decls_;
       Declarations* decls_;
 
-      // type table 
-      HashTable<Type*, 64> type_table_;
+      Environment global_env_;
 
     public:
       ASTContext();
@@ -29,9 +28,9 @@ namespace AST {
       Declarations* GetImportedDecl() { return imported_decls_; }
 
       // Type environment control
-      Type* FindType(const char* type_name);
-      bool AddType(const char* key, Type* ty);
-      bool RemoveType(const char* key);
+      bool AddType(Type* ty);
+      bool RemoveType(const char* type_name);
+      Type* GetType(const char* type_name);
 
       void PrintAST();
   };

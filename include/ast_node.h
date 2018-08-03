@@ -19,9 +19,10 @@ namespace AST {
     public:
       enum NodeKind {
         BaseNodeTy,
-          FunctionDeclTy,
-          VariableDeclTy,
-          ConstantDeclTy,
+          NamedDeclTy,
+            FunctionDeclTy,
+            VariableDeclTy,
+            ConstantDeclTy,
           TypeNodeTy,
           ParamNodeTy,
           ImportNodeTy,
@@ -1664,11 +1665,35 @@ namespace AST {
       }
   };
 
-  class FunctionDecl : public BaseNode {
+  class NamedDecl : public BaseNode {
+    protected:
+      std::string name_; // function name
+
+      NamedDecl() {
+        kind_ = NamedDeclTy;
+
+      }
+    public:
+      virtual ~NamedDecl() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == NamedDeclTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetName(const char* fnname) { name_ = fnname; }
+      void SetName(const char* name, int len) {
+        std::string str(name, len);
+        name_ = str;
+      }
+      const char* GetName() { return name_.c_str(); }
+  };
+
+  class FunctionDecl : public NamedDecl {
     protected:
       bool is_static_; // storage
       TypeNode* ret_ty_; // return type
-      std::string name_; // function name
       ParamNodes params_; // parameters
       BlockNode* body_; // body
 
@@ -1679,20 +1704,18 @@ namespace AST {
       virtual ~FunctionDecl();
 
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == FunctionDeclTy || kind == BaseNodeTy)
+        if (kind == FunctionDeclTy || kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
         return false;
       }
 
       void SetStorage(bool st) { is_static_ = st; }
       void SetReturnType(TypeNode* ty) { ret_ty_ = ty; }
-      void SetName(const char* fnname) { name_ = fnname; }
       void SetParams(ParamNodes* params);
       void SetBody(BlockNode* bd) { body_ = bd; }
 
       bool IsStatic() { return is_static_; }
       TypeNode* GetReturnType() { return ret_ty_; }
-      const char* GetName() { return name_.c_str(); }
       int GetParamNum() { return params_.GetSize(); }
       ParamNode* GetParamNode(int index);
       BlockNode* GetBody() { return body_; }
@@ -1704,10 +1727,9 @@ namespace AST {
       }
   };
   
-  class VariableDecl : public BaseNode {
+  class VariableDecl : public NamedDecl {
     bool is_static_;
     TypeNode* type_;
-    std::string name_;
     ExprNode* initializer_;
 
     public:
@@ -1726,21 +1748,18 @@ namespace AST {
           delete initializer_;
       }
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == VariableDeclTy || kind == BaseNodeTy)
+        if (kind == VariableDeclTy || kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
         return false;
       }
 
       void SetStorage(bool st) {is_static_ = st;}
       void SetType(TypeNode* type) { type_ = type; }
-      void SetName(const char* name) { name_ = name; }
-      void SetName(const char* name, int len);
       void SetInit(ExprNode* init) { initializer_ = init; }
 
       bool HasInitializer() { return initializer_ ? true : false; }
       bool IsStatic()  { return is_static_; }
       TypeNode* GetType() { return type_; }
-      const char* GetName() { return name_.c_str(); }
       ExprNode* GetInitializer() { return initializer_; }
 
       virtual bool Accept(VisitorBase* visitor) override {
@@ -1748,9 +1767,8 @@ namespace AST {
       }
   };
 
-  class ConstantDecl : public BaseNode {
+  class ConstantDecl : public NamedDecl {
     TypeNode* type_;
-    std::string name_;
     ExprNode* initializer_;
 
     public:
@@ -1768,18 +1786,15 @@ namespace AST {
       }
 
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == ConstantDeclTy || kind == BaseNodeTy)
+        if (kind == ConstantDeclTy || kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
         return false;
       }
 
       void SetType(TypeNode* type) { type_ = type; }
-      void SetName(const char* name) { name_ = name; }
-      void SetName(const char* name, int len);
       void SetInit(ExprNode* init) { initializer_ = init; }
 
       TypeNode* GetType() { return type_; }
-      const char* GetName() { return name_.c_str(); }
       ExprNode* GetInitializer() { return initializer_; }
 
       virtual bool Accept(VisitorBase* visitor) override {

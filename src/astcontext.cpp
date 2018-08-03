@@ -17,22 +17,17 @@ namespace AST {
       delete decls_;
   }
 
-  Type* ASTContext::FindType(const char* key) {
-    return type_table_.Find(key);
+  // Type environment control
+  bool ASTContext::AddType(Type* ty) {
+    return global_env_.AddType(ty);
   }
 
-  bool ASTContext::AddType(const char* key, Type* type) {
-    if (type_table_.Find(key))
-      return false;
-    type_table_.Insert(key, type);
-    return true;
+  bool ASTContext::RemoveType(const char* type_name) {
+    return global_env_.RemoveType(type_name);
   }
 
-  bool ASTContext::RemoveType(const char* key) {
-    if (!type_table_.Find(key))
-      return false;
-
-    return type_table_.Delete(key);
+  Type* ASTContext::GetType(const char* type_name) {
+    return global_env_.GetType(type_name);
   }
 
   void ASTContext::PrintAST() {
