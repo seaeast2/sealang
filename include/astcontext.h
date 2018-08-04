@@ -12,8 +12,11 @@ namespace AST {
   // AST context manager
   class ASTContext {
     protected:
-      Declarations* imported_decls_;
+      HashTable<Type*, 64> type_table_;
       Declarations* decls_;
+
+      Scope top_scope_;
+      Scope* cur_scope_;
 
       Environment global_env_;
 
@@ -21,17 +24,24 @@ namespace AST {
       ASTContext();
       ~ASTContext();
       
-      void SetLocalDecl(Declarations* decl) { decls_ = decl; }
-      void SetImportedDecl(Declarations* decl) { imported_decls_ = decl; }
-
-      Declarations* GetLocalDecl() { return decls_; }
-      Declarations* GetImportedDecl() { return imported_decls_; }
+      void SetLocalDecl(Declarations* decls);
+      Declarations* GetLocalDecl();
 
       // Type environment control
       bool AddType(Type* ty);
       bool RemoveType(const char* type_name);
       Type* GetType(const char* type_name);
 
+      // Scope control
+      Scope* AddSiblingScope();
+      Scope* AddChildScope();
+      Scope* GetCurScope();
+      void SetCurScope(Scope* scp);
+      void AddNamedDecl(NamedDecl* decl);
+      NamedDecl* GetDecl(const char* variable_name);
+
+      // Variable resolver
+      void ResolveVar();
       void PrintAST();
   };
 

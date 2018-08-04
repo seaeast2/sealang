@@ -359,6 +359,12 @@ namespace Parser {
           RuleName sub13 = TokUnknown, RuleName sub14 = TokUnknown, 
           RuleName sub15 = TokUnknown);
 
+      void SetTokenizer(Lexer::Tokenizer* tk) { 
+        parse_stack_.Clear();
+        tokenizer_ = tk; 
+      }
+      Lexer::Tokenizer* GetTokenizer() { return tokenizer_; }
+
       void InitBasicRule();
       void InitRuleAction();
       eResult TraverseRule(RuleName entry);

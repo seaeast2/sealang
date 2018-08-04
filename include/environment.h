@@ -9,22 +9,8 @@
 namespace AST {
   class Environment {
     private:
-      // type table 
-      HashTable<Type*, 64> type_table_;
-      
-      Scope top_scope_;
-      Scope* cur_scope_;
-
-    public:
-      Environment() {
-        cur_scope_ = &top_scope_;
-      }
-      ~Environment() {
-      }
 
       // Type environment control
-      bool AddType(Type* type);
-      bool RemoveType(const char* type_name);
       Type* GetType(const char* type_name);
 
       // Scope control

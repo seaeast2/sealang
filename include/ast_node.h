@@ -30,48 +30,48 @@ namespace AST {
 
           // Statements
           StmtNodeTy,
-            BlockNodeTy,// visitor
-            LabelNodeTy,// visitor
-            ExprStmtNodeTy,// visitor
-            IfNodeTy,// visitor
-            WhileNodeTy,// visitor
-            DoWhileNodeTy,// visitor
-            ForNodeTy,// visitor
-            CaseNodeTy,// visitor
-            SwitchNodeTy,// visitor
-            BreakNodeTy,// visitor
-            ContinueNodeTy,// visitor
-            GotoNodeTy,// visitor
-            ReturnNodeTy,// visitor
+            BlockNodeTy,
+            LabelNodeTy,
+            ExprStmtNodeTy,
+            IfNodeTy,
+            WhileNodeTy,
+            DoWhileNodeTy,
+            ForNodeTy,
+            CaseNodeTy,
+            SwitchNodeTy,
+            BreakNodeTy,
+            ContinueNodeTy,
+            GotoNodeTy,
+            ReturnNodeTy,
 
           // Expressions
           ExprNodeTy,
             AbstractAssignNodeTy,
-              AssignNodeTy,// visitor
-              OpAssignNodeTy,// visitor
-            AddressNodeTy, // visitor          
-            BinaryOpNodeTy,// visitor
-              LogicalAndNodeTy,// visitor
-              LogicalOrNodeTy,// visitor
-            CastNodeTy,// visitor
-            CondExprNodeTy,// visitor
-            FuncCallNodeTy,// visitor
+              AssignNodeTy,
+              OpAssignNodeTy,
+            AddressNodeTy, 
+            BinaryOpNodeTy,
+              LogicalAndNodeTy,
+              LogicalOrNodeTy,
+            CastNodeTy,
+            CondExprNodeTy,
+            FuncCallNodeTy,
             LHSNodeTy,
-              ArrayRefNodeTy,// visitor
-              DereferenceNodeTy,// visitor
-              MemberRefNodeTy,// visitor
-              PtrMemberRefNodeTy,// visitor
-              VariableNodeTy,// visitor
+              ArrayRefNodeTy,
+              DereferenceNodeTy,
+              MemberRefNodeTy,
+              PtrMemberRefNodeTy,
+              VariableNodeTy,
             LiteralNodeTy,
-              IntegerLiteralNodeTy,// visitor
-              RealLiteralNodeTy, // visitor
-              StringLiteralNodeTy,// visitor
-            SizeofExprNodeTy,// visitor
-            SizeofTypeNodeTy,// visitor
-            UnaryOpNodeTy,// visitor
+              IntegerLiteralNodeTy,
+              RealLiteralNodeTy, 
+              StringLiteralNodeTy,
+            SizeofExprNodeTy,
+            SizeofTypeNodeTy,
+            UnaryOpNodeTy,
               UnaryArithmeticOpNodeTy,
-                PrefixOpNodeTy,// visitor
-                SuffixOpNodeTy,// visitor
+                PrefixOpNodeTy,
+                SuffixOpNodeTy,
 
           // User defined types
           TypeDefinitionTy,
