@@ -572,184 +572,184 @@ namespace Parser {
 
   void SyntaxAnalyzer::InitSuccessAction() {
     for (int i = 0; i < MAX_RULES; i++) {
-      success_actions_[i] = &SyntaxAnalyzer::ReturnTrue;
+      rule_actions_[i] = &SyntaxAnalyzer::ReturnTrue;
     }
 
-    success_actions_[compilation_unit] = &SyntaxAnalyzer::CompilationUnit;
+    rule_actions_[compilation_unit] = &SyntaxAnalyzer::CompilationUnit;
 
-    success_actions_[import_stmts] = &SyntaxAnalyzer::ImportStmts;
-      success_actions_[import_stmt] = &SyntaxAnalyzer::ImportStmt;
-        success_actions_[rep_dot_name] = &SyntaxAnalyzer::Act_rep_dot_name;
+    rule_actions_[import_stmts] = &SyntaxAnalyzer::ImportStmts;
+      rule_actions_[import_stmt] = &SyntaxAnalyzer::ImportStmt;
+        rule_actions_[rep_dot_name] = &SyntaxAnalyzer::Act_rep_dot_name;
 
-    success_actions_[top_defs] = &SyntaxAnalyzer::TopDefs;
+    rule_actions_[top_defs] = &SyntaxAnalyzer::TopDefs;
 
-    success_actions_[deffunc] = &SyntaxAnalyzer::DefFunc;
+    rule_actions_[deffunc] = &SyntaxAnalyzer::DefFunc;
 
-    success_actions_[params] = &SyntaxAnalyzer::Params;
-      success_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
-      success_actions_[seq_param_list] = &SyntaxAnalyzer::Act_seq_param_list;
-        success_actions_[opt_vararg] = &SyntaxAnalyzer::Act_opt_vararg;
+    rule_actions_[params] = &SyntaxAnalyzer::Params;
+      rule_actions_[seq_param_void] = &SyntaxAnalyzer::Act_seq_param_void;
+      rule_actions_[seq_param_list] = &SyntaxAnalyzer::Act_seq_param_list;
+        rule_actions_[opt_vararg] = &SyntaxAnalyzer::Act_opt_vararg;
 
-    success_actions_[fixedparams] = &SyntaxAnalyzer::FixedParams;
-      success_actions_[rep_comma_param] = &SyntaxAnalyzer::Act_rep_comma_param;
+    rule_actions_[fixedparams] = &SyntaxAnalyzer::FixedParams;
+      rule_actions_[rep_comma_param] = &SyntaxAnalyzer::Act_rep_comma_param;
 
-    success_actions_[block] = &SyntaxAnalyzer::Block;
+    rule_actions_[block] = &SyntaxAnalyzer::Block;
 
-    success_actions_[defclass] = &SyntaxAnalyzer::DefClass;
-      success_actions_[seq_class_member_variable] = &SyntaxAnalyzer::Act_seq_class_member_variable;
-      success_actions_[seq_class_member_function] = &SyntaxAnalyzer::Act_seq_class_member_function;
+    rule_actions_[defclass] = &SyntaxAnalyzer::DefClass;
+      rule_actions_[seq_class_member_variable] = &SyntaxAnalyzer::Act_seq_class_member_variable;
+      rule_actions_[seq_class_member_function] = &SyntaxAnalyzer::Act_seq_class_member_function;
 
-    success_actions_[param] = &SyntaxAnalyzer::Param;
+    rule_actions_[param] = &SyntaxAnalyzer::Param;
 
-    success_actions_[defvars] = &SyntaxAnalyzer::DefVars;
+    rule_actions_[defvars] = &SyntaxAnalyzer::DefVars;
 
-    success_actions_[defvar_list] = &SyntaxAnalyzer::DefVarList;
+    rule_actions_[defvar_list] = &SyntaxAnalyzer::DefVarList;
 
-    success_actions_[defconst] = &SyntaxAnalyzer::DefConst;
+    rule_actions_[defconst] = &SyntaxAnalyzer::DefConst;
 
-    success_actions_[storage] = &SyntaxAnalyzer::Storage;
+    rule_actions_[storage] = &SyntaxAnalyzer::Storage;
 
-    success_actions_[type] = &SyntaxAnalyzer::Type;
+    rule_actions_[type] = &SyntaxAnalyzer::Type;
 
-    success_actions_[typedef_] = &SyntaxAnalyzer::TypeDef;
+    rule_actions_[typedef_] = &SyntaxAnalyzer::TypeDef;
 
-    success_actions_[typeref] = &SyntaxAnalyzer::TypeRef;
-      success_actions_[seq_unassigned_array] = &SyntaxAnalyzer::Act_seq_unassigned_array; 
-      success_actions_[seq_assigned_array] = &SyntaxAnalyzer::Act_seq_assigned_array; 
-      success_actions_[seq_ptr] = &SyntaxAnalyzer::Act_seq_ptr; 
-      success_actions_[seq_func] = &SyntaxAnalyzer::Act_seq_func; 
+    rule_actions_[typeref] = &SyntaxAnalyzer::TypeRef;
+      rule_actions_[seq_unassigned_array] = &SyntaxAnalyzer::Act_seq_unassigned_array; 
+      rule_actions_[seq_assigned_array] = &SyntaxAnalyzer::Act_seq_assigned_array; 
+      rule_actions_[seq_ptr] = &SyntaxAnalyzer::Act_seq_ptr; 
+      rule_actions_[seq_func] = &SyntaxAnalyzer::Act_seq_func; 
 
       // parameter list
-    success_actions_[param_typerefs] = &SyntaxAnalyzer::ParamTypeRefs;
-      success_actions_[seq_param_type_void] = &SyntaxAnalyzer::Act_seq_param_type_void;
-      success_actions_[seq_param_type_list] = &SyntaxAnalyzer::Act_seq_param_type_list;
-        success_actions_[rep_param_comma_type] = &SyntaxAnalyzer::Act_rep_param_comma_type;
-        success_actions_[opt_vararg_type] = &SyntaxAnalyzer::Act_opt_vararg_type;
+    rule_actions_[param_typerefs] = &SyntaxAnalyzer::ParamTypeRefs;
+      rule_actions_[seq_param_type_void] = &SyntaxAnalyzer::Act_seq_param_type_void;
+      rule_actions_[seq_param_type_list] = &SyntaxAnalyzer::Act_seq_param_type_list;
+        rule_actions_[rep_param_comma_type] = &SyntaxAnalyzer::Act_rep_param_comma_type;
+        rule_actions_[opt_vararg_type] = &SyntaxAnalyzer::Act_opt_vararg_type;
     
-    success_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;
-      success_actions_[seq_void] = &SyntaxAnalyzer::Act_seq_void; 
-      success_actions_[seq_char] = &SyntaxAnalyzer::Act_seq_char;
-      success_actions_[seq_short] = &SyntaxAnalyzer::Act_seq_short;
-      success_actions_[seq_int] = &SyntaxAnalyzer::Act_seq_int;
-      success_actions_[seq_long] = &SyntaxAnalyzer::Act_seq_long;
-      success_actions_[seq_unsigned_char] = &SyntaxAnalyzer::Act_seq_unsigned_char;
-      success_actions_[seq_unsigned_short] = &SyntaxAnalyzer::Act_seq_unsigned_short;
-      success_actions_[seq_unsigned_int] = &SyntaxAnalyzer::Act_seq_unsigned_int;
-      success_actions_[seq_unsigned_long] = &SyntaxAnalyzer::Act_seq_unsigned_long;
-      success_actions_[seq_float] = &SyntaxAnalyzer::Act_seq_float;
-      success_actions_[seq_double] = &SyntaxAnalyzer::Act_seq_double;
-      success_actions_[seq_class_identifier] = &SyntaxAnalyzer::Act_seq_class_identifier;
+    rule_actions_[typeref_base] = &SyntaxAnalyzer::TypeRefBase;
+      rule_actions_[seq_void] = &SyntaxAnalyzer::Act_seq_void; 
+      rule_actions_[seq_char] = &SyntaxAnalyzer::Act_seq_char;
+      rule_actions_[seq_short] = &SyntaxAnalyzer::Act_seq_short;
+      rule_actions_[seq_int] = &SyntaxAnalyzer::Act_seq_int;
+      rule_actions_[seq_long] = &SyntaxAnalyzer::Act_seq_long;
+      rule_actions_[seq_unsigned_char] = &SyntaxAnalyzer::Act_seq_unsigned_char;
+      rule_actions_[seq_unsigned_short] = &SyntaxAnalyzer::Act_seq_unsigned_short;
+      rule_actions_[seq_unsigned_int] = &SyntaxAnalyzer::Act_seq_unsigned_int;
+      rule_actions_[seq_unsigned_long] = &SyntaxAnalyzer::Act_seq_unsigned_long;
+      rule_actions_[seq_float] = &SyntaxAnalyzer::Act_seq_float;
+      rule_actions_[seq_double] = &SyntaxAnalyzer::Act_seq_double;
+      rule_actions_[seq_class_identifier] = &SyntaxAnalyzer::Act_seq_class_identifier;
 
 
-    success_actions_[name] = &SyntaxAnalyzer::Name;
-    success_actions_[term] = &SyntaxAnalyzer::Term;
-      success_actions_[seq_type_term] = &SyntaxAnalyzer::Act_seq_type_term;
+    rule_actions_[name] = &SyntaxAnalyzer::Name;
+    rule_actions_[term] = &SyntaxAnalyzer::Term;
+      rule_actions_[seq_type_term] = &SyntaxAnalyzer::Act_seq_type_term;
 
-    success_actions_[unary] = &SyntaxAnalyzer::Unary;
-      success_actions_[seq_preinc_unary] = &SyntaxAnalyzer::Act_seq_preinc_unary;
-      success_actions_[seq_predec_unary] = &SyntaxAnalyzer::Act_seq_predec_unary;
-      success_actions_[seq_pos_term] = &SyntaxAnalyzer::Act_seq_pos_term;
-      success_actions_[seq_neg_term] = &SyntaxAnalyzer::Act_seq_neg_term;
-      success_actions_[seq_not_term] = &SyntaxAnalyzer::Act_seq_not_term;
-      success_actions_[seq_bitnot_term] = &SyntaxAnalyzer::Act_seq_bitnot_term;
-      success_actions_[seq_ptr_term] = &SyntaxAnalyzer::Act_seq_ptr_term;
-      success_actions_[seq_adr_term] = &SyntaxAnalyzer::Act_seq_adr_term;
-      success_actions_[seq_sizeof_type] = &SyntaxAnalyzer::Act_seq_sizeof_type;
-      success_actions_[seq_sizeof_unary] = &SyntaxAnalyzer::Act_seq_sizeof_unary;
+    rule_actions_[unary] = &SyntaxAnalyzer::Unary;
+      rule_actions_[seq_preinc_unary] = &SyntaxAnalyzer::Act_seq_preinc_unary;
+      rule_actions_[seq_predec_unary] = &SyntaxAnalyzer::Act_seq_predec_unary;
+      rule_actions_[seq_pos_term] = &SyntaxAnalyzer::Act_seq_pos_term;
+      rule_actions_[seq_neg_term] = &SyntaxAnalyzer::Act_seq_neg_term;
+      rule_actions_[seq_not_term] = &SyntaxAnalyzer::Act_seq_not_term;
+      rule_actions_[seq_bitnot_term] = &SyntaxAnalyzer::Act_seq_bitnot_term;
+      rule_actions_[seq_ptr_term] = &SyntaxAnalyzer::Act_seq_ptr_term;
+      rule_actions_[seq_adr_term] = &SyntaxAnalyzer::Act_seq_adr_term;
+      rule_actions_[seq_sizeof_type] = &SyntaxAnalyzer::Act_seq_sizeof_type;
+      rule_actions_[seq_sizeof_unary] = &SyntaxAnalyzer::Act_seq_sizeof_unary;
 
-    success_actions_[postfix] = &SyntaxAnalyzer::Postfix;
-      success_actions_[seq_post_inc] = &SyntaxAnalyzer::Act_seq_post_inc;
-      success_actions_[seq_post_dec] = &SyntaxAnalyzer::Act_seq_post_dec;
-      success_actions_[seq_array_reference] = &SyntaxAnalyzer::Act_seq_array_reference;
-      success_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
-      success_actions_[seq_arrow_name] = &SyntaxAnalyzer::Act_seq_arrow_name;
-      success_actions_[seq_fncall] = &SyntaxAnalyzer::Act_seq_fncall;
+    rule_actions_[postfix] = &SyntaxAnalyzer::Postfix;
+      rule_actions_[seq_post_inc] = &SyntaxAnalyzer::Act_seq_post_inc;
+      rule_actions_[seq_post_dec] = &SyntaxAnalyzer::Act_seq_post_dec;
+      rule_actions_[seq_array_reference] = &SyntaxAnalyzer::Act_seq_array_reference;
+      rule_actions_[seq_dot_name] = &SyntaxAnalyzer::Act_seq_dot_name;
+      rule_actions_[seq_arrow_name] = &SyntaxAnalyzer::Act_seq_arrow_name;
+      rule_actions_[seq_fncall] = &SyntaxAnalyzer::Act_seq_fncall;
 
-    success_actions_[args] = &SyntaxAnalyzer::Args;
-      success_actions_[seq_args_expr] = &SyntaxAnalyzer::Act_seq_args_expr;
-      success_actions_[rep_args_expr] = &SyntaxAnalyzer::Act_rep_args_expr;
+    rule_actions_[args] = &SyntaxAnalyzer::Args;
+      rule_actions_[seq_args_expr] = &SyntaxAnalyzer::Act_seq_args_expr;
+      rule_actions_[rep_args_expr] = &SyntaxAnalyzer::Act_rep_args_expr;
 
-    success_actions_[primary] = &SyntaxAnalyzer::Primary;
-      success_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
+    rule_actions_[primary] = &SyntaxAnalyzer::Primary;
+      rule_actions_[seq_po_expr_pc] = &SyntaxAnalyzer::Act_seq_po_expr_pc;
 
-    success_actions_[expr] = &SyntaxAnalyzer::Expr;
-      success_actions_[seq_assign_value] = &SyntaxAnalyzer::Act_seq_assign_value;
-      success_actions_[seq_opassign_value] = &SyntaxAnalyzer::Act_seq_opassign_value;
+    rule_actions_[expr] = &SyntaxAnalyzer::Expr;
+      rule_actions_[seq_assign_value] = &SyntaxAnalyzer::Act_seq_assign_value;
+      rule_actions_[seq_opassign_value] = &SyntaxAnalyzer::Act_seq_opassign_value;
 
-    success_actions_[opassign_op] = &SyntaxAnalyzer::OpAssignOp;
+    rule_actions_[opassign_op] = &SyntaxAnalyzer::OpAssignOp;
 
-    success_actions_[expr10] = &SyntaxAnalyzer::Expr10;
-      success_actions_[opt_ternaryop] = &SyntaxAnalyzer::Act_opt_ternaryop;
+    rule_actions_[expr10] = &SyntaxAnalyzer::Expr10;
+      rule_actions_[opt_ternaryop] = &SyntaxAnalyzer::Act_opt_ternaryop;
 
-    success_actions_[expr9] = &SyntaxAnalyzer::Expr9;
-      success_actions_[rep_or_expr8] = &SyntaxAnalyzer::Act_rep_or_expr8;
+    rule_actions_[expr9] = &SyntaxAnalyzer::Expr9;
+      rule_actions_[rep_or_expr8] = &SyntaxAnalyzer::Act_rep_or_expr8;
 
-    success_actions_[expr8] = &SyntaxAnalyzer::Expr8;
-      success_actions_[rep_and_expr7] = &SyntaxAnalyzer::Act_rep_and_expr7;
+    rule_actions_[expr8] = &SyntaxAnalyzer::Expr8;
+      rule_actions_[rep_and_expr7] = &SyntaxAnalyzer::Act_rep_and_expr7;
 
-    success_actions_[expr7] = &SyntaxAnalyzer::Expr7;
-      success_actions_[seq_gr_expr6] = &SyntaxAnalyzer::Act_seq_gr_expr6;
-      success_actions_[seq_ls_expr6] = &SyntaxAnalyzer::Act_seq_ls_expr6;
-      success_actions_[seq_geq_expr6] = &SyntaxAnalyzer::Act_seq_geq_expr6;
-      success_actions_[seq_leq_expr6] = &SyntaxAnalyzer::Act_seq_leq_expr6;
-      success_actions_[seq_eq_expr6] = &SyntaxAnalyzer::Act_seq_eq_expr6;
-      success_actions_[seq_neq_expr6] = &SyntaxAnalyzer::Act_seq_neq_expr6;
+    rule_actions_[expr7] = &SyntaxAnalyzer::Expr7;
+      rule_actions_[seq_gr_expr6] = &SyntaxAnalyzer::Act_seq_gr_expr6;
+      rule_actions_[seq_ls_expr6] = &SyntaxAnalyzer::Act_seq_ls_expr6;
+      rule_actions_[seq_geq_expr6] = &SyntaxAnalyzer::Act_seq_geq_expr6;
+      rule_actions_[seq_leq_expr6] = &SyntaxAnalyzer::Act_seq_leq_expr6;
+      rule_actions_[seq_eq_expr6] = &SyntaxAnalyzer::Act_seq_eq_expr6;
+      rule_actions_[seq_neq_expr6] = &SyntaxAnalyzer::Act_seq_neq_expr6;
 
-    success_actions_[expr6] = &SyntaxAnalyzer::Expr6;
-      success_actions_[rep_bitor_expr5] = &SyntaxAnalyzer::Act_rep_bitor_expr5;
+    rule_actions_[expr6] = &SyntaxAnalyzer::Expr6;
+      rule_actions_[rep_bitor_expr5] = &SyntaxAnalyzer::Act_rep_bitor_expr5;
 
-    success_actions_[expr5] = &SyntaxAnalyzer::Expr5;
-      success_actions_[rep_bitxor_expr4] = &SyntaxAnalyzer::Act_rep_bitxor_expr4;
+    rule_actions_[expr5] = &SyntaxAnalyzer::Expr5;
+      rule_actions_[rep_bitxor_expr4] = &SyntaxAnalyzer::Act_rep_bitxor_expr4;
 
-    success_actions_[expr4] = &SyntaxAnalyzer::Expr4;
-      success_actions_[rep_bitand_expr3] = &SyntaxAnalyzer::Act_rep_bitand_expr3;
+    rule_actions_[expr4] = &SyntaxAnalyzer::Expr4;
+      rule_actions_[rep_bitand_expr3] = &SyntaxAnalyzer::Act_rep_bitand_expr3;
 
-    success_actions_[expr3] = &SyntaxAnalyzer::Expr3;
-      success_actions_[seq_rshft_expr2] = &SyntaxAnalyzer::Act_seq_rshft_expr2;
-      success_actions_[seq_lshft_expr2] = &SyntaxAnalyzer::Act_seq_lshft_expr2;
+    rule_actions_[expr3] = &SyntaxAnalyzer::Expr3;
+      rule_actions_[seq_rshft_expr2] = &SyntaxAnalyzer::Act_seq_rshft_expr2;
+      rule_actions_[seq_lshft_expr2] = &SyntaxAnalyzer::Act_seq_lshft_expr2;
 
-    success_actions_[expr2] = &SyntaxAnalyzer::Expr2;
-      success_actions_[seq_sum_expr1] = &SyntaxAnalyzer::Act_seq_sum_expr1;
-      success_actions_[seq_sub_expr1] = &SyntaxAnalyzer::Act_seq_sub_expr1;
+    rule_actions_[expr2] = &SyntaxAnalyzer::Expr2;
+      rule_actions_[seq_sum_expr1] = &SyntaxAnalyzer::Act_seq_sum_expr1;
+      rule_actions_[seq_sub_expr1] = &SyntaxAnalyzer::Act_seq_sub_expr1;
 
-    success_actions_[expr1] = &SyntaxAnalyzer::Expr1;
-      success_actions_[seq_mul_term] = &SyntaxAnalyzer::Act_seq_mul_term;
-      success_actions_[seq_div_term] = &SyntaxAnalyzer::Act_seq_div_term;
-      success_actions_[seq_mod_term] = &SyntaxAnalyzer::Act_seq_mod_term;
+    rule_actions_[expr1] = &SyntaxAnalyzer::Expr1;
+      rule_actions_[seq_mul_term] = &SyntaxAnalyzer::Act_seq_mul_term;
+      rule_actions_[seq_div_term] = &SyntaxAnalyzer::Act_seq_div_term;
+      rule_actions_[seq_mod_term] = &SyntaxAnalyzer::Act_seq_mod_term;
 
-    success_actions_[stmts] = &SyntaxAnalyzer::Stmts;
+    rule_actions_[stmts] = &SyntaxAnalyzer::Stmts;
 
-    success_actions_[stmt] = &SyntaxAnalyzer::Stmt;
-      success_actions_[labeled_stmt] = &SyntaxAnalyzer::LabeledStmt;
-      success_actions_[expr_stmt] = &SyntaxAnalyzer::ExprStmt;
-      success_actions_[if_stmt] = &SyntaxAnalyzer::IfStmt;
-        success_actions_[opt_else_stmt] = &SyntaxAnalyzer::Act_opt_else_stmt;
-      success_actions_[while_stmt] = &SyntaxAnalyzer::WhileStmt;
-      success_actions_[dowhile_stmt] = &SyntaxAnalyzer::DoWhileStmt;
-      success_actions_[for_stmt] = &SyntaxAnalyzer::ForStmt;
-        success_actions_[opt_for_init_expr] = &SyntaxAnalyzer::Act_opt_for_init_expr;
-        success_actions_[opt_for_cond_expr] = &SyntaxAnalyzer::Act_opt_for_cond_expr;
-        success_actions_[opt_for_inc_expr] = &SyntaxAnalyzer::Act_opt_for_inc_expr;
-      success_actions_[switch_stmt] = &SyntaxAnalyzer::SwitchStmt;
-        success_actions_[case_clauses] = &SyntaxAnalyzer::CaseClauses;
-          success_actions_[default_clause] = &SyntaxAnalyzer::DefaultClause;
-          success_actions_[case_clause] = &SyntaxAnalyzer::CaseClause;
-            success_actions_[case_list] = &SyntaxAnalyzer::CaseList;
-            success_actions_[case_body] = &SyntaxAnalyzer::CaseBody;
+    rule_actions_[stmt] = &SyntaxAnalyzer::Stmt;
+      rule_actions_[labeled_stmt] = &SyntaxAnalyzer::LabeledStmt;
+      rule_actions_[expr_stmt] = &SyntaxAnalyzer::ExprStmt;
+      rule_actions_[if_stmt] = &SyntaxAnalyzer::IfStmt;
+        rule_actions_[opt_else_stmt] = &SyntaxAnalyzer::Act_opt_else_stmt;
+      rule_actions_[while_stmt] = &SyntaxAnalyzer::WhileStmt;
+      rule_actions_[dowhile_stmt] = &SyntaxAnalyzer::DoWhileStmt;
+      rule_actions_[for_stmt] = &SyntaxAnalyzer::ForStmt;
+        rule_actions_[opt_for_init_expr] = &SyntaxAnalyzer::Act_opt_for_init_expr;
+        rule_actions_[opt_for_cond_expr] = &SyntaxAnalyzer::Act_opt_for_cond_expr;
+        rule_actions_[opt_for_inc_expr] = &SyntaxAnalyzer::Act_opt_for_inc_expr;
+      rule_actions_[switch_stmt] = &SyntaxAnalyzer::SwitchStmt;
+        rule_actions_[case_clauses] = &SyntaxAnalyzer::CaseClauses;
+          rule_actions_[default_clause] = &SyntaxAnalyzer::DefaultClause;
+          rule_actions_[case_clause] = &SyntaxAnalyzer::CaseClause;
+            rule_actions_[case_list] = &SyntaxAnalyzer::CaseList;
+            rule_actions_[case_body] = &SyntaxAnalyzer::CaseBody;
 
-      success_actions_[break_stmt] = &SyntaxAnalyzer::BreakStmt;
+      rule_actions_[break_stmt] = &SyntaxAnalyzer::BreakStmt;
 
-      success_actions_[continue_stmt] = &SyntaxAnalyzer::ContinueStmt;
+      rule_actions_[continue_stmt] = &SyntaxAnalyzer::ContinueStmt;
 
-      success_actions_[goto_stmt] = &SyntaxAnalyzer::GotoStmt;
+      rule_actions_[goto_stmt] = &SyntaxAnalyzer::GotoStmt;
 
-      success_actions_[return_stmt] = &SyntaxAnalyzer::ReturnStmt;
-        success_actions_[seq_return] = &SyntaxAnalyzer::Act_seq_return;
-        success_actions_[seq_return_expr] = &SyntaxAnalyzer::Act_seq_return_expr;
+      rule_actions_[return_stmt] = &SyntaxAnalyzer::ReturnStmt;
+        rule_actions_[seq_return] = &SyntaxAnalyzer::Act_seq_return;
+        rule_actions_[seq_return_expr] = &SyntaxAnalyzer::Act_seq_return_expr;
 
-    success_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
-    success_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
-    success_actions_[TokStringLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
-    success_actions_[TokIdentifier] = &SyntaxAnalyzer::ActTokIdentifier;
+    rule_actions_[TokIntegerLiteral] = &SyntaxAnalyzer::ActTokIntegerLiteral;
+    rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
+    rule_actions_[TokStringLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
+    rule_actions_[TokIdentifier] = &SyntaxAnalyzer::ActTokIdentifier;
   }
 }

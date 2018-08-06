@@ -26,8 +26,8 @@
 
 char* src =  
 "void test(void) { \
-    long hoho = 20; \
     hoho = hoho + 100;\
+    long hoho = 20; \
     }";
 
 int main() {

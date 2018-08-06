@@ -56,7 +56,7 @@ namespace Parser {
 
             if (matching_count == i) {
               // when every rules are matched, run action.
-              if ((this->*success_actions_[entry])() == Error) {
+              if ((this->*rule_actions_[entry])() == Error) {
                 assert(0 && "Error on RepeatStar");
                 return Error;
               }
@@ -103,7 +103,7 @@ namespace Parser {
 
             if (matching_count == i) {
               // if every rules are matching, run action.
-              if ((this->*success_actions_[entry])() == Error)
+              if ((this->*rule_actions_[entry])() == Error)
                 return Error;
               success = true;
             }
@@ -119,7 +119,7 @@ namespace Parser {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) {
               // Run action
-              if ((this->*success_actions_[entry])() == Error)
+              if ((this->*rule_actions_[entry])() == Error)
                 return Error;
               return True; // found matching
             }
@@ -166,7 +166,7 @@ namespace Parser {
           }
 
           if (matching_count == i) {
-            if ((this->*success_actions_[entry])() == Error)
+            if ((this->*rule_actions_[entry])() == Error)
               return Error;
             return True; // matched
           }
@@ -207,7 +207,7 @@ namespace Parser {
           }
 
           if (matching_count == i) { // matched
-            if ((this->*success_actions_[entry])() == Error)
+            if ((this->*rule_actions_[entry])() == Error)
               return Error;
             return True;
           }
@@ -218,11 +218,16 @@ namespace Parser {
         {
           if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
             // Run action
-            if ((this->*success_actions_[rule.sub_rules_[0]])() == Error)
+            if ((this->*rule_actions_[rule.sub_rules_[0]])() == Error)
               return Error;
             tokenizer_->ConsumeToken(1);
             return True;
           }
+
+          // This check unidentified grammar at block end.
+          if (Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokBraceClose)
+            return Error;
+
           return False;
         }
         break;

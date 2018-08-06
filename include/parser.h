@@ -343,8 +343,7 @@ namespace Parser {
     SimpleArrayStack<ParseInfo> parse_stack_;
 
     typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
-    fnRuleAction success_actions_[MAX_RULES];
-    fnRuleAction fail_actions_[MAX_RULES];
+    fnRuleAction rule_actions_[MAX_RULES];
     
     public:
       SyntaxAnalyzer(AST::ASTContext* ac, Lexer::Tokenizer* tk, ErrorDiag::Diagnosis* ed);
