@@ -4,7 +4,7 @@
 #include "ast_printer.h"
 
 
-char* src =  
+/*char* src =  
 "void test(void) { \
     long hoho = 20; \
     int hoho; \
@@ -21,7 +21,14 @@ char* src =
     }\
     \
     return;\
- }\n";
+ }\n";*/
+
+
+char* src =  
+"void test(void) { \
+    long hoho = 20; \
+    hoho = hoho + 100;\
+    }";
 
 int main() {
   Lexer::Tokenizer* tk = new Lexer::Tokenizer(src);
@@ -32,9 +39,9 @@ int main() {
   Parser::SyntaxAnalyzer* s = new Parser::SyntaxAnalyzer(ac, tk, parser_err);
 
   s->StartParser();
-  ac->ResolveVar();
+  ac->CheckLocalVar();
 
-  //ac->PrintAST();
+  ac->PrintAST();
 
   delete s;
   delete parser_err;

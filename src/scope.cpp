@@ -28,14 +28,6 @@ namespace AST {
     decls_.PushBack(node);
   }
 
-  Scope* Scope::AddSibling() {
-    if (parent_) {
-      Scope* sibling = new Scope();
-      parent_->children_.PushBack(sibling);
-      return sibling;
-    }
-    return nullptr;
-  }
 
   Scope* Scope::AddChild() {
     Scope* child = new Scope();
@@ -55,6 +47,14 @@ namespace AST {
     }
 
     return nullptr;
+  }
+
+  bool Scope::IsDuplicatedNameInCurScope(const char* variable_name) {
+    for (int i = 0; i < decls_.GetSize(); i++) {
+      if (!strcmp(decls_[i]->GetName(), variable_name))
+        return true; 
+    }
+    return false;
   }
 };
 

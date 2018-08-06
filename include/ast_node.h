@@ -23,8 +23,8 @@ namespace AST {
             FunctionDeclTy,
             VariableDeclTy,
             ConstantDeclTy,
+            ParamNodeTy,
           TypeNodeTy,
-          ParamNodeTy,
           ImportNodeTy,
           ArgsNodeTy, // function call arguments
 
@@ -122,45 +122,6 @@ namespace AST {
       }
   };
 
-  class ParamNode : public BaseNode {
-    protected:
-      bool var_arg_; // variable args
-      TypeNode* type_;
-      std::string name_;
-    public:
-      ParamNode() {
-        kind_ = ParamNodeTy;
-        var_arg_ = false;
-        type_ = nullptr;
-      }
-      ParamNode(TypeNode* ty, const char* name, bool var_arg) {
-        kind_ = ParamNodeTy;
-        var_arg_ = var_arg;
-        type_ = ty;
-        name_ = name;
-      }
-      virtual ~ParamNode() {
-        if (type_)
-          delete type_;
-      }
-      virtual bool IsKindOf(NodeKind kind) {
-        if (kind == ParamNodeTy || kind == BaseNodeTy)
-          return true;
-        return false;
-      }
-
-      void SetVarArgs(bool var_arg) { var_arg_ = var_arg; }
-      void SetType(TypeNode* ty) { type_ = ty;  }
-      void SetName(const char* name) { name_ = name; }
-
-      bool GetVarArgs() { return var_arg_; }
-      TypeNode* GetType() { return type_; }
-      const char* GetName() { return name_.c_str(); }
-
-      virtual bool Accept(VisitorBase* visitor) override {
-        return visitor->Visit(this);
-      }
-  };
 
   class ImportNode : public BaseNode {
     protected:
@@ -1279,12 +1240,15 @@ namespace AST {
   };
 
   class VariableNode : public LHSNode {
+    NamedDecl* defined_decl_;
     std::string variable_name_;
     public:
       VariableNode() {
+        defined_decl_ = nullptr;
         kind_ = VariableNodeTy;
       }
       VariableNode(const char* name) {
+        defined_decl_ = nullptr;
         kind_ = VariableNodeTy;
         variable_name_ = name;
       }
@@ -1298,7 +1262,10 @@ namespace AST {
         return false;
       }
 
+      void SetNamedDecl(NamedDecl* nd) { defined_decl_ = nd; }
+
       const char* GetVarName() { return variable_name_.c_str(); }
+      NamedDecl* GetNamedDecl() { return defined_decl_; }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
@@ -1796,6 +1763,43 @@ namespace AST {
 
       TypeNode* GetType() { return type_; }
       ExprNode* GetInitializer() { return initializer_; }
+
+      virtual bool Accept(VisitorBase* visitor) override {
+        return visitor->Visit(this);
+      }
+  };
+
+  class ParamNode : public NamedDecl {
+    protected:
+      bool var_arg_; // variable args
+      TypeNode* type_;
+    public:
+      ParamNode() {
+        kind_ = ParamNodeTy;
+        var_arg_ = false;
+        type_ = nullptr;
+      }
+      ParamNode(TypeNode* ty, const char* name, bool var_arg) {
+        kind_ = ParamNodeTy;
+        var_arg_ = var_arg;
+        type_ = ty;
+        name_ = name;
+      }
+      virtual ~ParamNode() {
+        if (type_)
+          delete type_;
+      }
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == ParamNodeTy || kind == NamedDeclTy || kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void SetVarArgs(bool var_arg) { var_arg_ = var_arg; }
+      void SetType(TypeNode* ty) { type_ = ty;  }
+
+      bool GetVarArgs() { return var_arg_; }
+      TypeNode* GetType() { return type_; }
 
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);

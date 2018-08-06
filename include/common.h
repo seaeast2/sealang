@@ -15,6 +15,7 @@ struct Pair {
 
 namespace AST {
   class BaseNode;
+  class NamedDecl;
   class StmtNode;
   class ExprNode;
   class BlockNode;

@@ -343,7 +343,8 @@ namespace Parser {
     SimpleArrayStack<ParseInfo> parse_stack_;
 
     typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
-    fnRuleAction rule_actions_[MAX_RULES];
+    fnRuleAction success_actions_[MAX_RULES];
+    fnRuleAction fail_actions_[MAX_RULES];
     
     public:
       SyntaxAnalyzer(AST::ASTContext* ac, Lexer::Tokenizer* tk, ErrorDiag::Diagnosis* ed);
@@ -366,14 +367,17 @@ namespace Parser {
       Lexer::Tokenizer* GetTokenizer() { return tokenizer_; }
 
       void InitBasicRule();
-      void InitRuleAction();
+      void InitSuccessAction();
+
       eResult TraverseRule(RuleName entry);
       eResult TestRule(RuleName entry); // Do not run action. just run test
 
       // Entry point of parsing process
       eResult StartParser();
 
-      eResult DoNothing(void) { return True; } // Dummy function for function pointer array
+      eResult ReturnTrue(void) { return True; } // Dummy function for function pointer array
+      eResult ReturnFalse(void) { return False; } // Dummy function for function pointer array
+      eResult ReturnError(void) { return Error; } // Dummy function for function pointer array
       eResult CompilationUnit(void); // compilation_unit
       
       eResult ImportStmts(void); // import_stmts

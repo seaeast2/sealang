@@ -1,13 +1,13 @@
 #include "astcontext.h"
 #include <iostream>
 #include "ast_printer.h"
+#include "local_var_checker.h"
 
 using namespace std;
 
 namespace AST {
   ASTContext::ASTContext() {
     decls_ = nullptr;
-    cur_scope_ = &top_scope_;
   }
 
   ASTContext::~ASTContext() {
@@ -24,9 +24,9 @@ namespace AST {
   }
 
   bool ASTContext::AddType(Type* ty) {
-    if (type_table_.Find(type->GetTypeName()))
+    if (type_table_.Find(ty->GetTypeName()))
       return false;
-    type_table_.Insert(type->GetTypeName(), type);
+    type_table_.Insert(ty->GetTypeName(), ty);
     return true;
   }
 
@@ -40,37 +40,13 @@ namespace AST {
     return type_table_.Find(type_name);
   }
 
-  // Scope control
-  Scope* ASTContext::AddSiblingScope() {
-    return cur_scope_->AddSibling();
-  }
-
-  Scope* ASTContext::AddChildScope() {
-    return cur_scope_->AddChild();
-  }
-  
-  Scope* ASTContext::GetCurScope() {
-    return cur_scope_;
-  }
-
-  void ASTContext::SetCurScope(Scope* scp) {
-    cur_scope_ = scp;
-  }
-
-  void ASTContext::AddNamedDecl(NamedDecl* decl) {
-    cur_scope_->AddNamedDecl(decl);
-  }
-
-  NamedDecl* ASTContext::GetDecl(const char* variable_name) {
-    return cur_scope_->GetDecl(variable_name);
-  }
-  void ASTContext::ResolveVar() {
-
+  void ASTContext::CheckLocalVar() {
+    LocalVarChecker lvc;
+    lvc.Check(decls_, &top_scope_);
   }
 
   void ASTContext::PrintAST() {
     ASTPrinter ast_printer;
-
     ast_printer.Print(GetLocalDecl());
   }
 

@@ -16,14 +16,15 @@ namespace AST {
       Scope();
       ~Scope();
       // Scope control
-      Scope* AddSibling();
       Scope* AddChild();
       Scope* GetParent();
       Scope* GetChild(int index);
+      int GetChildNum() { return children_.GetSize(); }
 
       // Decl control
       void AddNamedDecl(NamedDecl* node);
       NamedDecl* GetDecl(const char* variable_name);
+      bool IsDuplicatedNameInCurScope(const char* variable_name);
   };
 };
 

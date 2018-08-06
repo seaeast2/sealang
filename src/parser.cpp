@@ -10,7 +10,7 @@ namespace Parser {
     err_diag_ = ed;
 
     InitBasicRule();
-    InitRuleAction();
+    InitSuccessAction();
   }
 
   SyntaxAnalyzer::~SyntaxAnalyzer() {
@@ -56,7 +56,10 @@ namespace Parser {
 
             if (matching_count == i) {
               // when every rules are matched, run action.
-              (this->*rule_actions_[entry])();
+              if ((this->*success_actions_[entry])() == Error) {
+                assert(0 && "Error on RepeatStar");
+                return Error;
+              }
             }
           };
         }
@@ -89,6 +92,7 @@ namespace Parser {
                 tokenizer_->SetTokPos(tok_pos);
                 if (success)
                   return True;
+
                 return False;
               }
               else {
@@ -99,7 +103,8 @@ namespace Parser {
 
             if (matching_count == i) {
               // if every rules are matching, run action.
-              (this->*rule_actions_[entry])();
+              if ((this->*success_actions_[entry])() == Error)
+                return Error;
               success = true;
             }
           };
@@ -114,7 +119,8 @@ namespace Parser {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) {
               // Run action
-              (this->*rule_actions_[entry])();
+              if ((this->*success_actions_[entry])() == Error)
+                return Error;
               return True; // found matching
             }
             else if (res == False)
@@ -124,7 +130,7 @@ namespace Parser {
               return Error;
             }
           }
-          return False; // unmatched
+          return False;
         }
         break;
 
@@ -151,7 +157,7 @@ namespace Parser {
               matching_count++;
             else if (res == False) { // unmatched
               tokenizer_->SetTokPos(tok_pos); // restore token position.
-              return False; // unmatched 
+              return False;
             }
             else {
               assert(0 && "Error on Sequence");
@@ -160,11 +166,12 @@ namespace Parser {
           }
 
           if (matching_count == i) {
-            (this->*rule_actions_[entry])(); // run action
+            if ((this->*success_actions_[entry])() == Error)
+              return Error;
             return True; // matched
           }
           tokenizer_->SetTokPos(tok_pos);
-          return False; // unmatched
+          return False;
         }
         break;
 
@@ -200,7 +207,8 @@ namespace Parser {
           }
 
           if (matching_count == i) { // matched
-            (this->*rule_actions_[entry])(); // run action
+            if ((this->*success_actions_[entry])() == Error)
+              return Error;
             return True;
           }
         }
@@ -210,7 +218,8 @@ namespace Parser {
         {
           if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
             // Run action
-            (this->*rule_actions_[rule.sub_rules_[0]])();
+            if ((this->*success_actions_[rule.sub_rules_[0]])() == Error)
+              return Error;
             tokenizer_->ConsumeToken(1);
             return True;
           }
