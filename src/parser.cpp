@@ -998,6 +998,7 @@ namespace Parser {
   eResult SyntaxAnalyzer::Block(void) {
     ParseInfo pi;
     AST::BlockNode* blk = new AST::BlockNode();
+    AST::StmtNodes* all_stmts = new AST::StmtNodes();
 
     /// Read stmts
     pi = parse_stack_.Top();
@@ -1013,7 +1014,7 @@ namespace Parser {
       }
       else if (pi.type_ == ParseInfo::StmtNodeList) {
         for (int i = 0; i < pi.data_.stmt_nodes_->GetSize(); i++) {
-          blk->AddStmt((*pi.data_.stmt_nodes_)[i]);
+          all_stmts->PushBack((*pi.data_.stmt_nodes_)[i]);
         }
         delete pi.data_.stmt_nodes_;
       }
@@ -1033,7 +1034,12 @@ namespace Parser {
     }
     parse_stack_.Pop();
 
-    blk->ReverseStmts();
+    all_stmts->Reverse();
+    for (int i = 0; i < all_stmts->GetSize(); i++) {
+      blk->AddStmt((*all_stmts)[i]);
+    }
+    delete all_stmts;
+
     PushNode((AST::BaseNode*)blk, RuleName::block);
     return True;
   }

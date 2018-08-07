@@ -210,8 +210,6 @@ namespace AST {
       void AddVariable(VariableDecl* var) { vars_.PushBack(var); }
       void SetStmts(StmtNodes* stmts) { if (stmts) stmts_ = *stmts; }
       void AddStmt(StmtNode* stmt) { stmts_.PushBack(stmt); }
-      void ReverseStmts() { stmts_.Reverse(); }
-      void ReverseVars() { vars_.Reverse(); }
 
       VariableDecl* GetVariable(int index);
       StmtNode* GetStmt(int index);
