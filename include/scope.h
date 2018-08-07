@@ -15,6 +15,9 @@ namespace AST {
     public:
       Scope();
       ~Scope();
+
+      void SetParent(Scope* parent);
+
       // Scope control
       Scope* AddChild();
       Scope* GetParent();
@@ -23,8 +26,11 @@ namespace AST {
 
       // Decl control
       void AddNamedDecl(NamedDecl* node);
-      NamedDecl* GetDecl(const char* variable_name);
+      NamedDecl* FindDecl(const char* variable_name);
       bool IsDuplicatedNameInCurScope(const char* variable_name);
+
+      int GetDeclNum() { return decls_.GetSize(); }
+      NamedDecl* GetDecl(int index) { return decls_[index]; }
   };
 };
 

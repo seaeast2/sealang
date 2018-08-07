@@ -751,5 +751,6 @@ namespace Parser {
     rule_actions_[TokCharactorLiteral] = &SyntaxAnalyzer::ActTokCharacterLiteral;
     rule_actions_[TokStringLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
     rule_actions_[TokIdentifier] = &SyntaxAnalyzer::ActTokIdentifier;
+    rule_actions_[TokBraceOpen] = &SyntaxAnalyzer::ActTokBraceOpen;
   }
 }

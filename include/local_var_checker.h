@@ -12,6 +12,8 @@ namespace AST {
   class LocalVarChecker : public ASTVisitor {
     Declarations* decls_;
     Scope* scope_;
+
+    bool is_function_body_;
     
     public:
       LocalVarChecker();

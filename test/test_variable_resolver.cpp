@@ -4,15 +4,14 @@
 #include "ast_printer.h"
 
 
-/*char* src =  
+char* src =  
 "void test(void) { \
     long hoho = 20; \
-    int hoho; \
     { \
       char hoho = 30; \
       { \
-        hoho = hoho + 100; \
         short hoho = 40; \
+        hoho = hoho + 100; \
       } \
 \
       { \
@@ -21,14 +20,8 @@
     }\
     \
     return;\
- }\n";*/
+ }\n";
 
-
-char* src =  
-"void test(void) { \
-    hoho = hoho + 100;\
-    long hoho = 20; \
-    }";
 
 int main() {
   Lexer::Tokenizer* tk = new Lexer::Tokenizer(src);

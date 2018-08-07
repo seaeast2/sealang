@@ -6,6 +6,9 @@ using namespace AST;
 
 
 LocalVarChecker::LocalVarChecker() {
+  decls_ = nullptr;
+  scope_ = nullptr;
+  is_function_body_ = false;
 }
 
 LocalVarChecker::~LocalVarChecker() {
@@ -68,7 +71,11 @@ bool LocalVarChecker::Check(Declarations* decls, Scope* scp) {
 }
 
 bool LocalVarChecker::Visit(BlockNode* node) {
-  PushScope();
+  bool is_function_body = is_function_body_;
+  if (!is_function_body)
+    PushScope();
+  is_function_body_ = false;
+
   NamedDecl* name_decl = nullptr;
   for (int i = 0; i < node->GetVarNum(); i++) {
     name_decl = node->GetVariable(i);
@@ -79,12 +86,13 @@ bool LocalVarChecker::Visit(BlockNode* node) {
   }
 
   bool res = ASTVisitor::Visit(node);
-  PopScope();
+  if(!is_function_body)
+    PopScope();
   return res;
 }
 
 bool LocalVarChecker::Visit(VariableNode* node) {
-  NamedDecl* nd = scope_->GetDecl(node->GetVarName());
+  NamedDecl* nd = scope_->FindDecl(node->GetVarName());
   if (nd)
     node->SetNamedDecl(nd);
   else {
@@ -95,6 +103,7 @@ bool LocalVarChecker::Visit(VariableNode* node) {
 
 bool LocalVarChecker::Visit(FunctionDecl* node) {
   PushScope();
+  is_function_body_ = true;
   NamedDecl* name_decl = nullptr;
   for (int i = 0; i < node->GetParamNum(); i++) {
     name_decl = node->GetParamNode(i);

@@ -531,6 +531,7 @@ namespace Parser {
       eResult ActTokCharacterLiteral(void);
       eResult ActTokStringLiteral(void);
       eResult ActTokIdentifier(void);
+      eResult ActTokBraceOpen(void);
 
       // Utils
       void PushType(AST::Type* type, RuleName rname = RuleName::nil);

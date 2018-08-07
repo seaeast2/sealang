@@ -224,8 +224,10 @@ namespace Parser {
             return True;
           }
 
-          // This check unidentified grammar at block end.
-          if (Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokBraceClose)
+          // This check unidentified grammar at the end of block.
+          // This means brace match fail.
+          if (Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokBraceClose ||
+              Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokParenClose)
             return Error;
 
           return False;
@@ -496,7 +498,7 @@ namespace Parser {
       import_node = new AST::ImportNode();
       
       char* first_import_path = new char[pi_import.cstr_len_ + 1];
-      memset(first_import_path, 0, pi_import.cstr_len_ + 1);
+      memset(first_import_path, 0, pi_import.cstr_len_);
       strncpy(first_import_path, pi_import.data_.cstr_,pi_import.cstr_len_);
       import_node->AddImportPath(first_import_path);
       delete[] first_import_path;
@@ -786,7 +788,7 @@ namespace Parser {
 
     char* iden = new char[pi_iden.cstr_len_ + 1];
     memset(iden, 0, pi_iden.cstr_len_ + 1);
-    strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_+1);
+    strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
     AST::ClassType* cty = AST::ClassType::Get(ac_, iden);
     delete[] iden;
     if (!cty) {
@@ -1004,11 +1006,15 @@ namespace Parser {
       parse_stack_.Pop();
 
       if (pi.type_ == ParseInfo::VarDeclList) {
-        blk->SetVariables(pi.data_.vardecls_);
+        for (int i = 0; i < pi.data_.vardecls_->GetSize(); i++) {
+          blk->AddVariable((*pi.data_.vardecls_)[i]);
+        }
         delete pi.data_.vardecls_;
       }
       else if (pi.type_ == ParseInfo::StmtNodeList) {
-        blk->SetStmts(pi.data_.stmt_nodes_);
+        for (int i = 0; i < pi.data_.stmt_nodes_->GetSize(); i++) {
+          blk->AddStmt((*pi.data_.stmt_nodes_)[i]);
+        }
         delete pi.data_.stmt_nodes_;
       }
       else  {
@@ -1019,6 +1025,15 @@ namespace Parser {
       pi = parse_stack_.Top();
     }
 
+    // Check brace open
+    if (pi.type_ != ParseInfo::TokenType || 
+        pi.rule_name_ != RuleName::TokBraceOpen) {
+      assert(0 && "Unmatched brace.");
+      return Error;
+    }
+    parse_stack_.Pop();
+
+    blk->ReverseStmts();
     PushNode((AST::BaseNode*)blk, RuleName::block);
     return True;
   }
@@ -1387,28 +1402,34 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::DefVarList(void) {
     // Read first vars
-    AST::VariableDecls* all_vars, *temp_vars;
+    AST::VariableDecls *all_vars = nullptr, *new_vars = nullptr;
 
+    // read variables
     ParseInfo pi_vars = parse_stack_.Top();
-    all_vars = new AST::VariableDecls();
-    while(pi_vars.rule_name_ == RuleName::defvars) {
-      if (pi_vars.type_ == ParseInfo::VarDeclList) {
-        parse_stack_.Pop();
-
-        AST::VariableDecl* var_temp = nullptr;
-        temp_vars = pi_vars.data_.vardecls_;
-
-        for(int i = temp_vars->GetSize()-1; i >= 0 ; i--) {
-          var_temp = (*temp_vars)[i];
-          all_vars->PushBack(var_temp);
-        }
-        delete temp_vars; // removes simplevector
-      }
-
-      pi_vars = parse_stack_.Top();
+    if (pi_vars.type_ != ParseInfo::VarDeclList ||
+        pi_vars.rule_name_ != RuleName::defvars) {
+      assert( 0 && "Invalid variable definitions.");
+      return Error;
     }
-    all_vars->Reverse(); // reverse
-    PushVarDecls(all_vars, RuleName::defvar_list);
+    parse_stack_.Pop();
+    new_vars = pi_vars.data_.vardecls_;
+    
+    pi_vars = parse_stack_.Top();
+    if (pi_vars.type_ != ParseInfo::VarDeclList ||
+        pi_vars.rule_name_ != RuleName::defvar_list) {
+      // In case, first variable list.
+      PushVarDecls(new_vars, RuleName::defvar_list);
+    }
+    else {
+      // second variable list.
+      parse_stack_.Pop();
+      all_vars = pi_vars.data_.vardecls_;
+      for(int i = 0; i < new_vars->GetSize() ; i++) {
+        all_vars->PushBack((*new_vars)[i]);
+      }
+      delete new_vars; // removes simplevector
+      PushVarDecls(all_vars, RuleName::defvar_list);
+    }
     return True;
   }
 
@@ -1870,7 +1891,7 @@ namespace Parser {
 
       char* tmp = new char[top_pi.cstr_len_+1];
       memset(tmp, 0, top_pi.cstr_len_+1);
-      strncpy(tmp, top_pi.data_.cstr_, top_pi.cstr_len_+1);
+      strncpy(tmp, top_pi.data_.cstr_, top_pi.cstr_len_);
       AST::VariableNode* node = new AST::VariableNode(tmp);
       PushNode(node, RuleName::primary);
       delete[] tmp;
@@ -3498,6 +3519,11 @@ namespace Parser {
     pi.token_idx_ = tokenizer_->GetTokPos();
 
     parse_stack_.Push(pi);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::ActTokBraceOpen(void) {
+    PushToken(0, RuleName::TokBraceOpen);
     return True;
   }
 

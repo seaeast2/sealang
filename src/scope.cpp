@@ -14,6 +14,10 @@ namespace AST {
     }
   }
 
+  void Scope::SetParent(Scope* parent) {
+    parent_ = parent;
+  }
+
   Scope* Scope::GetParent() { 
     return parent_; 
   }
@@ -31,16 +35,17 @@ namespace AST {
 
   Scope* Scope::AddChild() {
     Scope* child = new Scope();
+    child->SetParent(this);
     children_.PushBack(child);
     return child;
   }
 
-  NamedDecl* Scope::GetDecl(const char* variable_name) {
+  NamedDecl* Scope::FindDecl(const char* variable_name) {
     Scope* cur = this;
     while(cur) {
-      for (int i = 0; i < decls_.GetSize(); i++) {
-        if (!strcmp(decls_[i]->GetName(), variable_name)) {
-          return decls_[i];
+      for (int i = 0; i < cur->GetDeclNum(); i++) {
+        if (!strcmp(cur->GetDecl(i)->GetName(), variable_name)) {
+          return cur->GetDecl(i); 
         }
       }
       cur = cur->GetParent();
