@@ -28,6 +28,7 @@ int main() {
 
   s->StartParser();
   ac->CheckLocalVar();
+  ac->CheckIncompleteType();
 
   ac->PrintAST();
 

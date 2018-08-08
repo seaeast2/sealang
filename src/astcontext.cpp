@@ -2,6 +2,7 @@
 #include <iostream>
 #include "ast_printer.h"
 #include "local_var_checker.h"
+#include "type_resolver.h"
 
 using namespace std;
 
@@ -43,6 +44,10 @@ namespace AST {
   void ASTContext::CheckLocalVar() {
     LocalVarChecker lvc;
     lvc.Check(decls_, &top_scope_);
+  }
+
+  void ASTContext::CheckIncompleteType() {
+    TypeResolver tc;
   }
 
   void ASTContext::PrintAST() {

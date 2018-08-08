@@ -9,9 +9,10 @@
 
 namespace AST {
   // AST context manager
+  
   class ASTContext {
     protected:
-      HashTable<Type*, 64> type_table_;
+      TypeTable type_table_;
       Declarations* decls_;
 
       Scope top_scope_;
@@ -29,6 +30,7 @@ namespace AST {
       Type* GetType(const char* type_name);
 
       void CheckLocalVar();
+      void CheckIncompleteType();
       void PrintAST();
   };
 

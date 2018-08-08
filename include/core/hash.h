@@ -18,12 +18,18 @@ class HashTable {
   };
 
   Element* table_[MAX_TABLE];
+  int count_;
+
+  // hash iterator
+  int table_iter_;
+  Element* itr_;
   
   public:
     HashTable() {
       for (int i = 0; i < MAX_TABLE; i++) {
         table_[i] = nullptr;
       }
+      count_ = 0;
     }
     ~HashTable() {
       for (int i = 0; i < MAX_TABLE; i++) {
@@ -31,6 +37,7 @@ class HashTable {
           ClearTable(table_[i]);
         table_[i] = nullptr;
       }
+      count_ = 0;
     }
 
     V* Insert(const char* key, const V& value) {
@@ -55,6 +62,8 @@ class HashTable {
         table_[hash_code]->prev_ = new_item;
         new_item->next_ = table_[hash_code];
         table_[hash_code] = new_item;
+        
+        count_++;
         return &new_item->value_;
       }
       return &res->value_;
@@ -91,8 +100,63 @@ class HashTable {
       delete[] res->key_;
       //delete res->value_;
       delete res;
+      count_--;
 
       return true;
+    }
+
+    int GetSize() { return count_; }
+
+    // value order is not guaranteed.
+    V* GetValue(int index) { 
+      if (index >= count_)
+        return nullptr;
+
+      int found_count_ = 0;
+      // table iteration
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) {
+          Element* e = table_[i];
+          while(e) {
+            found_count_++;
+            if (found_count_-1 == index)
+              return &e->value_;
+            e = e->next_;
+          }
+        }
+      }
+
+      return nullptr;
+    }
+
+    void ItrReset() { 
+      // find first element
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) {
+          table_iter_ = i;
+          itr_ = table_[i];
+          break;
+        }
+      }
+    }
+    
+    V* ItrNext() {
+      if (table_iter_ == MAX_TABLE)
+        return nullptr;
+
+      if (!itr_) {
+        for(int i = table_iter_+1; i < MAX_TABLE; i++) {
+          if (table_[i]) {
+            table_iter_ = i;
+            itr_ = table_[i];
+            break;
+          }
+        }
+      }
+
+      Element* cur = itr_;
+      itr_ = itr_->next_;
+      return &cur->value_;
     }
 
   private:
@@ -147,12 +211,18 @@ class HashTable<V*, MAX_TABLE> {
   };
 
   Element* table_[MAX_TABLE];
+  int count_;
+
+  // hash iterator
+  int table_iter_;
+  Element* itr_;
   
   public:
     HashTable() {
       for (int i = 0; i < MAX_TABLE; i++) {
         table_[i] = nullptr;
       }
+      count_ = 0;
     }
     ~HashTable() {
       for (int i = 0; i < MAX_TABLE; i++) {
@@ -160,6 +230,7 @@ class HashTable<V*, MAX_TABLE> {
           ClearTable(table_[i]);
         table_[i] = nullptr;
       }
+      count_ = 0;
     }
 
     V* Insert(const char* key, V* const& value) {
@@ -184,6 +255,7 @@ class HashTable<V*, MAX_TABLE> {
         table_[hash_code]->prev_ = new_item;
         new_item->next_ = table_[hash_code];
         table_[hash_code] = new_item;
+        count_++;
         return new_item->value_;
       }
       return res->value_;
@@ -220,8 +292,63 @@ class HashTable<V*, MAX_TABLE> {
       delete[] res->key_;
       delete res->value_;
       delete res;
+      count_--;
 
       return true;
+    }
+
+    int GetSize() { return count_; }
+
+    // value order is not guaranteed.
+    V* GetValue(int index) { 
+      if (index >= count_)
+        return nullptr;
+
+      int found_count_ = 0;
+      // table iteration
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) {
+          Element* e = table_[i];
+          while(e) {
+            found_count_++;
+            if (found_count_-1 == index)
+              return e->value_;
+            e = e->next_;
+          }
+        }
+      }
+
+      return nullptr;
+    }
+
+    void ItrReset() { 
+      // find first element
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) {
+          table_iter_ = i;
+          itr_ = table_[i];
+          break;
+        }
+      }
+    }
+    
+    V* ItrNext() {
+      if (table_iter_ == MAX_TABLE)
+        return nullptr;
+
+      if (!itr_) {
+        for(int i = table_iter_+1; i < MAX_TABLE; i++) {
+          if (table_[i]) {
+            table_iter_ = i;
+            itr_ = table_[i];
+            break;
+          }
+        }
+      }
+
+      Element* cur = itr_;
+      itr_ = itr_->next_;
+      return cur->value_;
     }
 
   private:

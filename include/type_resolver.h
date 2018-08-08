@@ -1,21 +1,23 @@
-#ifndef _type_checker_h_
-#define _type_checker_h_
+#ifndef _type_resolver_h_
+#define _type_resolver_h_
 
+#include "common.h"
 #include "ast_node.h"
 #include "ast_visitor.h"
-#include "scope.h"
+
 
 namespace AST {
 
-  // 
-  class TypeChecker : public ASTVisitor {
+  // Traverse AST and adjust incomplete types
+  class TypeResolver : public ASTVisitor {
     Declarations* decls_;
+    TypeTable* type_table_;
 
     public:
-      TypeChecker();
-      virtual ~TypeChecker();
+      TypeResolver();
+      virtual ~TypeResolver();
 
-      bool Check(Declarations* decl, Scope* scp);
+      bool Check(Declarations* decl, TypeTable* tt);
 
       // Statements
       /*virtual bool Visit(BlockNode* node) override;
@@ -59,14 +61,13 @@ namespace AST {
       // Etc
       /*virtual bool Visit(FunctionDecl* node) override;
       virtual bool Visit(VariableDecl* node) override;
-      virtual bool Visit(ConstantDecl* node) override;
-      virtual bool Visit(TypeNode* node) override; 
-      virtual bool Visit(ParamNode* node) override;
+      virtual bool Visit(ConstantDecl* node) override;*/
+      //virtual bool Visit(TypeNode* node) override; 
+      /*virtual bool Visit(ParamNode* node) override;
       virtual bool Visit(ImportNode* node) override;
-      virtual bool Visit(ArgsNode* node) override;
+      virtual bool Visit(ArgsNode* node) override;        
       virtual bool Visit(ClassNode* node) override;   
-      virtual bool Visit(TypedefNode* node) override;*/
-
+      virtual bool Visit(TypedefNode* node) override;  */
   };
 };
 

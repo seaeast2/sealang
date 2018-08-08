@@ -60,7 +60,7 @@ namespace AST {
   }
 
   FunctionDecl::FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
-      ParamNodes* params, BlockNode* body) {
+      ParamNodes* params, BlockNode* body, ClassNode* this_class) {
     kind_ = FunctionDeclTy;
     is_static_ = storage;
     ret_ty_ = retty;
@@ -71,6 +71,7 @@ namespace AST {
     }
 
     body_ = body;
+    this_class_ = this_class;
   }
 
   FunctionDecl::~FunctionDecl() {

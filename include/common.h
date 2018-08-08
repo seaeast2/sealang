@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include "core/simple_vector.h"
+#include "core/hash.h"
+#include "ast_type.h"
 
 typedef std::vector<std::string> VecStr;
 
@@ -75,5 +77,7 @@ namespace AST {
   typedef SimpleVector<ClassNode*>    ClassNodes;
   typedef SimpleVector<TypedefNode*>  TypedefNodes;
   typedef SimpleVector<ImportNode*>   ImportNodes;
+
+  typedef HashTable<Type*, 64> TypeTable;
 }
 #endif

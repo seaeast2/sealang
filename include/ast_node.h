@@ -1659,6 +1659,8 @@ namespace AST {
 
   class FunctionDecl : public NamedDecl {
     protected:
+      ClassNode* this_class_;
+
       bool is_static_; // storage
       TypeNode* ret_ty_; // return type
       ParamNodes params_; // parameters
@@ -1667,7 +1669,7 @@ namespace AST {
     public:
       FunctionDecl();
       FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
-          ParamNodes* params, BlockNode* body); 
+          ParamNodes* params, BlockNode* body, ClassNode* cls = nullptr); 
       virtual ~FunctionDecl();
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1680,12 +1682,14 @@ namespace AST {
       void SetReturnType(TypeNode* ty) { ret_ty_ = ty; }
       void SetParams(ParamNodes* params);
       void SetBody(BlockNode* bd) { body_ = bd; }
+      void SetThisClass(ClassNode* this_class) { this_class_ = this_class; }
 
       bool IsStatic() { return is_static_; }
       TypeNode* GetReturnType() { return ret_ty_; }
       int GetParamNum() { return params_.GetSize(); }
       ParamNode* GetParamNode(int index);
       BlockNode* GetBody() { return body_; }
+      ClassNode* GetThisClass() { return this_class_; }
 
       //FunctionType* GetType(); // TODO: need to get funciton type
       
