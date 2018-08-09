@@ -3,6 +3,7 @@
 
 #include <string>
 #include "core/simple_vector.h"
+#include "core/list.h"
 
 namespace AST {
   // These types are all AST Types.
@@ -288,6 +289,8 @@ namespace AST {
 
   class CompositeType : public NamedType {
     protected:
+      SimpleList<Type*> member_types_;
+    
       CompositeType() {
         kind_ = CompositeTy;
         is_incomplete_ = false;
@@ -300,9 +303,67 @@ namespace AST {
           return true;
         return false;
       }
+
+      void AddMemberType(Type* mem_type) {
+        member_types_.PushBack(mem_type);
+      }
+
+      bool RemoveMemberType(Type* mem_type) {
+        return member_types_.Delete(mem_type);
+      }
+
+      Type* FindMemberType(Type* mem_type) { return member_types_.Find(mem_type); }
+
+      int GetMemberNum() { return member_types_.GetSize(); }
+      Type* GetMemberType(int index) { return member_types_.GetAt(index); }
+  };
+
+  class FunctionType : public Type {
+    private:
+      Type* return_type_;
+      Types param_types_;
+      
+    protected:
+      FunctionType() {
+        kind_ = FunctionTy;
+        is_incomplete_ = false;
+      }
+
+      FunctionType(Type* retty, Types const & param_types) {
+        kind_ = FunctionTy;
+        is_incomplete_ = false;
+
+        return_type_ = retty;
+        param_types_ = param_types;
+        
+        // funciton type typename
+        // retty(paramty1,paramty2,paramty3,...) 
+        std::string fn_type_name = retty->GetTypeName();
+        fn_type_name += "(";
+        for (int i = 0; i < param_types.GetSize(); i++) {
+          fn_type_name += param_types[i]->GetTypeName();
+          if (i+1 < param_types.GetSize())
+            fn_type_name += ",";
+        }
+        fn_type_name += ")";
+        type_name_ = fn_type_name;
+      }
+    public:
+      virtual ~FunctionType() {}
+
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == FunctionTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+
+      static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types);
   };
 
   class ClassType : public CompositeType {
+    private:
+      SimpleList<FunctionType*> member_func_types_;
+    
     protected:
       ClassType() {
         kind_ = ClassTy;
@@ -325,6 +386,20 @@ namespace AST {
           return true;
         return false;
       }
+
+      void AddMemberFuncType(FunctionType* mem_type) {
+        member_func_types_.PushBack(mem_type);
+      }
+
+      bool RemoveMemberFuncType(FunctionType* mem_type) {
+        return member_func_types_.Delete(mem_type);
+      }
+
+      Type* FindMemberFuncType(FunctionType* mem_type) { 
+        return member_func_types_.Find(mem_type); }
+
+      int GetMemberFuncNum() { return member_func_types_.GetSize(); }
+      Type* GetMemberFuncType(int index) { return member_func_types_.GetAt(index); }
 
       static ClassType* Get(ASTContext* ac, const char* type_name); // create incomplete type
   };
@@ -412,46 +487,6 @@ namespace AST {
       static PointerType* Get(ASTContext* ac, Type* basety);
   };
   
-  class FunctionType : public Type {
-    private:
-      Type* return_type_;
-      Types param_types_;
-    protected:
-      FunctionType() {
-        kind_ = FunctionTy;
-        is_incomplete_ = false;
-      }
-
-      FunctionType(Type* retty, Types const & param_types) {
-        kind_ = FunctionTy;
-        is_incomplete_ = false;
-
-        return_type_ = retty;
-        param_types_ = param_types;
-        
-        // funciton type typename
-        // retty(paramty1,paramty2,paramty3,...) 
-        std::string fn_type_name = retty->GetTypeName();
-        fn_type_name += "(";
-        for (int i = 0; i < param_types.GetSize(); i++) {
-          fn_type_name += param_types[i]->GetTypeName();
-          if (i+1 < param_types.GetSize())
-            fn_type_name += ",";
-        }
-        fn_type_name += ")";
-        type_name_ = fn_type_name;
-      }
-    public:
-      virtual ~FunctionType() {}
-
-      virtual bool IsKindOf(TypeKind kind) {
-        if (kind == FunctionTy || kind == BaseTy)
-          return true;
-        return false;
-      }
-
-      static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types);
-  };
 
   class VarArgType: public Type {
     protected:

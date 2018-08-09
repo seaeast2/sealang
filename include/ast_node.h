@@ -1691,7 +1691,7 @@ namespace AST {
       BlockNode* GetBody() { return body_; }
       ClassNode* GetThisClass() { return this_class_; }
 
-      //FunctionType* GetType(); // TODO: need to get funciton type
+      FunctionType* GetType(); // Create Function Type or refer type table
       
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);

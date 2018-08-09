@@ -103,6 +103,12 @@ namespace AST {
     return params_[index];
   }
 
+  FunctionType* FunctionDecl::GetType() {
+    // TODO : working here
+
+    return nullptr;
+  }
+
   // VariableDecl ====================================
   VariableDecl::VariableDecl(TypeNode* type, const char* name, ExprNode* init) {
     kind_ = VariableDeclTy;
