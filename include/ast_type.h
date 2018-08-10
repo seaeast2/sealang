@@ -322,24 +322,34 @@ namespace AST {
     private:
       Type* return_type_;
       Types param_types_;
-      
+      Type* this_class_;
+
     protected:
       FunctionType() {
         kind_ = FunctionTy;
         is_incomplete_ = false;
+        this_class_ = nullptr;
       }
 
-      FunctionType(Type* retty, Types const & param_types) {
+      FunctionType(Type* retty, Types const & param_types, Type* this_class = nullptr) {
         kind_ = FunctionTy;
         is_incomplete_ = false;
 
         return_type_ = retty;
         param_types_ = param_types;
+        this_class_ = this_class;
         
         // funciton type typename
-        // retty(paramty1,paramty2,paramty3,...) 
+        // standard type : 
+        //        retty(paramty1,paramty2,paramty3,...) 
+        // class member function type : 
+        //        retty(self class_name,paramty1,paramty2,paramty3,...) 
         std::string fn_type_name = retty->GetTypeName();
         fn_type_name += "(";
+        if (this_class_) {
+          fn_type_name += "self ";
+          fn_type_name += this_class_->GetTypeName();
+        }
         for (int i = 0; i < param_types.GetSize(); i++) {
           fn_type_name += param_types[i]->GetTypeName();
           if (i+1 < param_types.GetSize())
@@ -357,7 +367,16 @@ namespace AST {
         return false;
       }
 
-      static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types);
+      Type* GetReturnType() { return return_type_; }
+      int GetParamTypeNum() { return param_types_.GetSize(); }
+      Type* GetParamType(int index) { 
+        if (index < param_types_.GetSize())
+          return param_types_[index]; 
+        return nullptr;
+      }
+      Type* GetThisClassType() { return this_class_; }
+
+      static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types, Type* this_class = nullptr);
   };
 
   class ClassType : public CompositeType {

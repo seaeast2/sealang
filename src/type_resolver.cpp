@@ -4,26 +4,36 @@
 using namespace AST;
 
 TypeResolver::TypeResolver() {
-  decls_ = nullptr;
-  type_table_ = nullptr;
 }
 
 TypeResolver::~TypeResolver() {
 }
 
-bool TypeResolver::Check(Declarations* decl, TypeTable* tt) {
-  decls_ = decl;
-  type_table_ = tt;
+bool TypeResolver::Check(ASTContext* ac) {
+  ac_ = ac;
+
+  /*FunctionDecl* fd = nullptr;
+  ClassNode* cn = nullptr;
 
   for (int i = 0; i < decls_->GetFunctionNum(); i++) {
-    if ((decls_->GetFunction(i)))
-      return false;
+    fd = decls_->GetFunction(i);
   }
 
   for (int i = 0; i < decls_->GetClassNum(); i++) {
-    if ((decls_->GetClass(i)))
-      return false;
-  }
+    cn = decls_->GetClass(i)
+  }*/
 
   return true;
 }
+
+/*  FunctionType* FunctionDecl::GetType(ASTContext* ac) {
+    // return type
+    Type* retty = ret_ty_->GetType();
+    Types param_tys;
+    for (int i = 0; i < params_.GetSize(); i++) {
+      param_tys.PushBack(params_[i]->GetType()->GetType());
+    }
+    Type* this_classty = this_class_->GetType()->GetType();
+
+    return FunctionType::Get(ac, retty, param_tys, this_classty);
+  }*/

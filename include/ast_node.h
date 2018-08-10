@@ -1691,8 +1691,6 @@ namespace AST {
       BlockNode* GetBody() { return body_; }
       ClassNode* GetThisClass() { return this_class_; }
 
-      FunctionType* GetType(); // Create Function Type or refer type table
-      
       virtual bool Accept(VisitorBase* visitor) override {
         return visitor->Visit(this);
       }
@@ -1828,7 +1826,10 @@ namespace AST {
       }
 
       void AddMemVariable(VariableDecl* var) { member_variables_.PushBack(var); }
-      void AddMemFunction(FunctionDecl* fun) { member_functions_.PushBack(fun); }
+      void AddMemFunction(FunctionDecl* fun) { 
+        fun->SetThisClass(this);
+        member_functions_.PushBack(fun); 
+      }
 
       VariableDecl* GetMemVariable(int index);
       FunctionDecl* GetMemFunction(int index);

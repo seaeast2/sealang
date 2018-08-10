@@ -48,6 +48,7 @@ namespace AST {
 
   void ASTContext::CheckIncompleteType() {
     TypeResolver tc;
+    tc.Check(this);
   }
 
   void ASTContext::PrintAST() {

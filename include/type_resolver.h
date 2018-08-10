@@ -3,20 +3,20 @@
 
 #include "common.h"
 #include "ast_node.h"
+#include "astcontext.h"
 
 
 namespace AST {
 
   // Traverse AST and adjust incomplete types
   class TypeResolver {
-    Declarations* decls_;
-    TypeTable* type_table_;
+    ASTContext* ac_;
 
     public:
       TypeResolver();
       virtual ~TypeResolver();
 
-      bool Check(Declarations* decl, TypeTable* tt);
+      bool Check(ASTContext* ac);
   };
 };
 

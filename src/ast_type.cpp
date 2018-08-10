@@ -146,11 +146,19 @@ namespace AST {
     return (PointerType*) ty;
   }
 
-  FunctionType* FunctionType::Get(ASTContext* ac, Type* retty, SimpleVector<Type*> param_types) {
+  FunctionType* FunctionType::Get(ASTContext* ac, Type* retty, 
+      SimpleVector<Type*> param_types, Type* this_class) {
     // funciton type typename
-    // retty(paramty1,paramty2,paramty3,...) 
-    string fn_type_name = retty->GetTypeName();
+    // standard type : 
+    //        retty(paramty1,paramty2,paramty3,...) 
+    // class member function type : 
+    //        retty(self class_name,paramty1,paramty2,paramty3,...) 
+    std::string fn_type_name = retty->GetTypeName();
     fn_type_name += "(";
+    if (this_class) {
+      fn_type_name += "self ";
+      fn_type_name += this_class->GetTypeName();
+    }
     for (int i = 0; i < param_types.GetSize(); i++) {
       fn_type_name += param_types[i]->GetTypeName();
       if (i+1 < param_types.GetSize())
