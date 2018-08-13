@@ -12,16 +12,17 @@ TypeResolver::~TypeResolver() {
 bool TypeResolver::Check(ASTContext* ac) {
   ac_ = ac;
 
-  /*FunctionDecl* fd = nullptr;
-  ClassNode* cn = nullptr;
-
+  // 1.convert function decl to function type.
+  FunctionDecl* fd = nullptr;
   for (int i = 0; i < decls_->GetFunctionNum(); i++) {
     fd = decls_->GetFunction(i);
   }
 
+  // 2. convert classdecl to classtype.
+  ClassNode* cn = nullptr;
   for (int i = 0; i < decls_->GetClassNum(); i++) {
     cn = decls_->GetClass(i)
-  }*/
+  }
 
   return true;
 }
