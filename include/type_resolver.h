@@ -17,6 +17,7 @@ namespace AST {
       virtual ~TypeResolver();
 
       bool Check(ASTContext* ac);
+      bool CreateFunctionType(FunctionDecl* fd);
   };
 };
 

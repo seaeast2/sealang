@@ -27,6 +27,24 @@ bool TypeResolver::Check(ASTContext* ac) {
   return true;
 }
 
+bool TypeResolver::CreateFunctionType(FunctionDecl* fd) {
+  Type* retty = fd->GetReturnType()->GetType();
+  Types param_tys;
+  for (int i = 0; i < fd->GetParamNum(); i++) {
+    param_tys.PushBack(fd->GetParamNode(i)->GetType()->GetType());
+  }
+  Type* this_class_ty = fd->GetThisClass()->GetType()->GetType();
+
+  FunctionType* ft = FunctionType::Get(ac, retty, param_tys, this_class_ty);
+  if (!ft) {
+    assert(0 && "Can't create FunctionType");
+    return false;
+  }
+  ft->Incomplete(false); // mark as complete
+
+  return true;
+}
+
 /*  FunctionType* FunctionDecl::GetType(ASTContext* ac) {
     // return type
     Type* retty = ret_ty_->GetType();
