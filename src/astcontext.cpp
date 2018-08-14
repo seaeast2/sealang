@@ -1,5 +1,6 @@
 #include "astcontext.h"
 #include <iostream>
+#include <assert.h>
 #include "ast_printer.h"
 #include "local_var_checker.h"
 #include "type_resolver.h"
@@ -39,6 +40,23 @@ namespace AST {
 
   Type* ASTContext::GetType(const char* type_name) {
     return type_table_.Find(type_name);
+  }
+
+  FunctionType* ASTContext::GetFunctionTypeFromDecl(FunctionDecl* fd) {
+    Type* retty = fd->GetReturnType()->GetType();
+    Types param_tys;
+    for (int i = 0; i < fd->GetParamNum(); i++) {
+      param_tys.PushBack(fd->GetParamNode(i)->GetType()->GetType());
+    }
+    Type* this_class_ty = fd->GetThisClass()->GetType()->GetType();
+
+    FunctionType* ft = FunctionType::Get(this, retty, param_tys, this_class_ty);
+    if (!ft) {
+      assert(0 && "Can't create FunctionType");
+      return nullptr;
+    }
+
+    return ft;
   }
 
   void ASTContext::CheckLocalVar() {

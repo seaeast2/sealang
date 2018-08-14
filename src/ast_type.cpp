@@ -170,6 +170,7 @@ namespace AST {
       return (FunctionType*) ty;
 
     ty = new FunctionType(retty, param_types);
+    ty->Incomplete(true);
     ac->AddType(ty);
     return (FunctionType*) ty;
   }

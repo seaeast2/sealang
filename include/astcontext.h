@@ -28,6 +28,7 @@ namespace AST {
       bool AddType(Type* ty);
       bool RemoveType(const char* type_name);
       Type* GetType(const char* type_name);
+      FunctionType* GetFunctionTypeFromDecl(FunctionDecl* fd);
 
       void CheckLocalVar();
       void CheckIncompleteType();
