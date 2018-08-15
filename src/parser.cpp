@@ -92,7 +92,6 @@ namespace Parser {
                 tokenizer_->SetTokPos(tok_pos);
                 if (success)
                   return True;
-
                 return False;
               }
               else {
@@ -114,7 +113,6 @@ namespace Parser {
       case Select: // select one of list
         {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
-
           for (int i = 0; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) {
@@ -224,8 +222,8 @@ namespace Parser {
             return True;
           }
 
-          // This check unidentified grammar at the end of block.
-          // This means brace match fail.
+          // In case current token is not matched, 
+          // try to check brace, parenthis matching fail.
           if (Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokBraceClose ||
               Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokParenClose)
             return Error;
@@ -257,9 +255,8 @@ namespace Parser {
             tok_pos = tokenizer_->GetTokPos(); // backup token position
             for (; rule.sub_rules_[i] > TokUnknown; i++) {
               res = TestRule(rule.sub_rules_[i]);
-              if (res == True) { // matched
+              if (res == True) // matched
                 matching_count++;
-              }
               else if (res == False) { // not matching
                 tokenizer_->SetTokPos(tok_pos); // restore token position.
                 return True; // reached unmatching point.
@@ -282,9 +279,8 @@ namespace Parser {
             tok_pos = tokenizer_->GetTokPos(); // backup token position
             for (; rule.sub_rules_[i] > TokUnknown; i++) {
               res = TestRule(rule.sub_rules_[i]);
-              if (res == True) { // matched
+              if (res == True) // matched
                 matching_count++;
-              }
               else if (res == False) {// Rereached unmached point 
                 tokenizer_->SetTokPos(tok_pos);
                 if (success)
@@ -312,9 +308,8 @@ namespace Parser {
             if (res == True) {
               return True; // found matching
             }
-            else if (res == False) {
+            else if (res == False)
               tokenizer_->SetTokPos(tok_pos); // restore token position.
-            }
             else {
               assert(0 && "Error on Lookahead Select.");
               return Error;
@@ -331,9 +326,8 @@ namespace Parser {
           tok_pos = tokenizer_->GetTokPos();
           for (; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TestRule(rule.sub_rules_[i]);
-            if (res == True) { // matched
+            if (res == True) // matched
               matching_count++;
-            }
             else if (res == False) {
               tokenizer_->SetTokPos(tok_pos);
               return False; // unmatched
@@ -648,7 +642,7 @@ namespace Parser {
 
     // read base type
     pi_basety = parse_stack_.Top();
-    if (pi_basety.type_ == ParseInfo::ASTType ||
+    if (pi_basety.type_ != ParseInfo::ASTType ||
        (pi_basety.rule_name_ != RuleName::typeref_base && 
         pi_basety.rule_name_ != RuleName::seq_unassigned_array &&
         pi_basety.rule_name_ != RuleName::seq_assigned_array &&
@@ -1045,7 +1039,7 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::DefClass(void) {
-    ParseInfo pi_class_member, pi_class_name;
+    ParseInfo pi_class_member, pi_brace_open, pi_class_name;
     AST::ClassNode* class_node = new AST::ClassNode();
 
     pi_class_member = parse_stack_.Top();
@@ -1080,6 +1074,15 @@ namespace Parser {
       pi_class_member = parse_stack_.Top();
     }
 
+    // Check brace matching
+    pi_brace_open = parse_stack_.Top();
+    if (pi_brace_open .type_ != ParseInfo::TokenType || 
+        pi_brace_open .rule_name_ != RuleName::TokBraceOpen) {
+      assert(0 && "Unmatched brace.");
+      return Error;
+    }
+    parse_stack_.Pop();
+
     // Read Class type name
     pi_class_name = parse_stack_.Top();
     if (pi_class_name.type_ != ParseInfo::Identifier ||
@@ -1087,6 +1090,7 @@ namespace Parser {
       assert(0 && "Invalid class name.");
       return Error;
     }
+    parse_stack_.Pop();
 
     // Set class name
     char* classname = new char[pi_class_name.cstr_len_ + 1];

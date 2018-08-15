@@ -159,8 +159,8 @@ namespace Parser {
       // class_member_list //  
       //   : "{" (class_member ";")* "}" 
       rules_[class_member_list] = RuleSetter(Sequence, 0, TokBraceOpen, rep_class_member, TokBraceClose);
-        // (class_member ";")*
-        rules_[rep_class_member] = RuleSetter(RepeatStar, 0, class_member, TokSemiColon);
+        // (class_member)*
+        rules_[rep_class_member] = RuleSetter(RepeatStar, 0, class_member);
           // class_member // class member definition 
           //   : defvars 
           //   | deffunc

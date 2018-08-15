@@ -5,6 +5,15 @@
 
 char* src =  
  " \
+ class test { \
+   long b; \
+   char c; \
+ }; \
+ class test d; \
+ ";
+
+/*char* src =  
+ " \
  int a = 10; \
  int* b = &a; \
  long[10] c; \
@@ -15,7 +24,7 @@ char* src =
 \
 test d; \
 test[] e; \
- ";
+ ";*/
 
 
 int main() {
