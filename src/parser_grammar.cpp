@@ -759,8 +759,14 @@ namespace Parser {
   }
 
   void SyntaxAnalyzer::InitFailAction() {
-    /*for (int i = 0; i < MAX_RULES; i++) {
-      rule_actions_[i] = nullptr;
-    }*/
+    for (int i = 0; i < MAX_RULES; i++) {
+      rule_fail_actions_[i] = nullptr;
+    }
+
+    // In case current token is not matched, 
+    // try to check brace, parenthis matching fail.
+    rule_fail_actions_[TokBraceClose] = &SyntaxAnalyzer::ReturnError;
+    rule_fail_actions_[TokParenClose] = &SyntaxAnalyzer::ReturnError;
+    rule_fail_actions_[top_defs] = &SyntaxAnalyzer::FailTopDefs;
   }
 }

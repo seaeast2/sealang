@@ -344,6 +344,7 @@ namespace Parser {
 
     typedef eResult (SyntaxAnalyzer::*fnRuleAction) (void);
     fnRuleAction rule_actions_[MAX_RULES];
+    fnRuleAction rule_fail_actions_[MAX_RULES];
     
     public:
       SyntaxAnalyzer(AST::ASTContext* ac, Lexer::Tokenizer* tk, ErrorDiag::Diagnosis* ed);
@@ -371,6 +372,9 @@ namespace Parser {
 
       eResult TraverseRule(RuleName entry);
       eResult TestRule(RuleName entry); // Do not run action. just run test
+      eResult ReturnError(void) { return Error; } // Dummy 
+      eResult ReturnTrue(void) { return True; } // Dummy 
+      eResult ReturnFalse(void) { return False; } // Dummy 
 
       // Entry point of parsing process
       eResult StartParser();
@@ -530,6 +534,9 @@ namespace Parser {
       eResult ActTokStringLiteral(void);
       eResult ActTokIdentifier(void);
       eResult ActTokBraceOpen(void);
+
+      // Fail Actions
+      eResult FailTopDefs(void);
 
       // Utils
       void PushType(AST::Type* type, RuleName rname = RuleName::nil);

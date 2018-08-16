@@ -46,6 +46,11 @@ namespace Parser {
               if (res == True) // matched
                 matching_count++;
               else if (res == False) { // unmatched
+                // Special actions for grammer fail situation.
+                if (rule_fail_actions_[entry]) {
+                  if ((this->*rule_fail_actions_[entry])() == Error)
+                    return Error;
+                }
                 tokenizer_->SetTokPos(tok_pos);
                 return True;
               }
@@ -96,6 +101,10 @@ namespace Parser {
               if (res == True) // matched
                 matching_count++;
               else if (res == False) { // Rereached unmached point 
+                if (rule_fail_actions_[entry]) { // Special actions for grammer fail situation.
+                  if ((this->*rule_fail_actions_[entry])() == Error)
+                    return Error;
+                }
                 tokenizer_->SetTokPos(tok_pos);
                 if (success)
                   return True;
@@ -112,8 +121,8 @@ namespace Parser {
               if (rule_actions_[entry]) {
                 if ((this->*rule_actions_[entry])() == Error)
                   return Error;
-                success = true;
               }
+              success = true;
             }
           };
         }
@@ -131,8 +140,14 @@ namespace Parser {
               }
               return True; // found matching
             }
-            else if (res == False)
+            else if (res == False) {
+              if (rule_fail_actions_[entry]) { // Special actions for grammer fail situation.
+                if ((this->*rule_fail_actions_[entry])() == Error)
+                  return Error;
+              }
+
               tokenizer_->SetTokPos(tok_pos); // restore token position.
+            }
             else {
               assert(0 && "Error on Select");
               return Error;
@@ -164,6 +179,10 @@ namespace Parser {
             if (res == True) // matched
               matching_count++;
             else if (res == False) { // unmatched
+              if (rule_fail_actions_[entry]) { // Special actions for grammer fail situation.
+                if ((this->*rule_fail_actions_[entry])() == Error)
+                  return Error;
+              }
               tokenizer_->SetTokPos(tok_pos); // restore token position.
               return False;
             }
@@ -207,6 +226,10 @@ namespace Parser {
             if (res == True)
               matching_count++;
             else if (res == False)  {
+              if (rule_fail_actions_[entry]) { // Special actions for grammer fail situation.
+                if ((this->*rule_fail_actions_[entry])() == Error)
+                  return Error;
+              }
               tokenizer_->SetTokPos(tok_pos);
               return True; // unmatched but return true
             }
@@ -238,11 +261,10 @@ namespace Parser {
             return True;
           }
 
-          // In case current token is not matched, 
-          // try to check brace, parenthis matching fail.
-          if (Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokBraceClose ||
-              Lexer::TokenType(rule.sub_rules_[0]) == Lexer::TokParenClose)
-            return Error;
+          if (rule_fail_actions_[entry]) { // Special actions for grammer fail situation.
+            if ((this->*rule_fail_actions_[entry])() == Error)
+              return Error;
+          }
 
           return False;
         }
@@ -3551,6 +3573,17 @@ namespace Parser {
   eResult SyntaxAnalyzer::ActTokBraceOpen(void) {
     PushToken(0, RuleName::TokBraceOpen);
     return True;
+  }
+
+  eResult SyntaxAnalyzer::FailTopDefs(void) {
+    // In case top_defs meet eof, it is okay.
+    // But top_defs encounter unrecognized grammer, it is error.
+    Lexer::Token tok = tokenizer_->GetCurToken();
+    if (tok.type == Lexer::TokEof)
+      return False;
+
+    // TODO : Unrecognizable error here
+    return Error;
   }
 
   void SyntaxAnalyzer::PushType(AST::Type* type, RuleName rname) {
