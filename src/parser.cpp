@@ -11,6 +11,7 @@ namespace Parser {
 
     InitBasicRule();
     InitSuccessAction();
+    InitFailAction();
   }
 
   SyntaxAnalyzer::~SyntaxAnalyzer() {
@@ -56,9 +57,15 @@ namespace Parser {
 
             if (matching_count == i) {
               // when every rules are matched, run action.
-              if ((this->*rule_actions_[entry])() == Error) {
-                assert(0 && "Error on RepeatStar");
-                return Error;
+              if (rule_actions_[entry]) {
+                if ((this->*rule_actions_[entry])() == Error) {
+                  assert(0 && "Error on RepeatStar");
+                  return Error;
+                }
+                /*if ((this->*rule_actions_[entry])() == Error) {
+                  assert(0 && "Error on RepeatStar");
+                  return Error;
+                }*/
               }
             }
           };
@@ -102,9 +109,11 @@ namespace Parser {
 
             if (matching_count == i) {
               // if every rules are matching, run action.
-              if ((this->*rule_actions_[entry])() == Error)
-                return Error;
-              success = true;
+              if (rule_actions_[entry]) {
+                if ((this->*rule_actions_[entry])() == Error)
+                  return Error;
+                success = true;
+              }
             }
           };
         }
@@ -116,9 +125,10 @@ namespace Parser {
           for (int i = 0; rule.sub_rules_[i] > TokUnknown; i++) {
             res = TraverseRule(rule.sub_rules_[i]);
             if (res == True) {
-              // Run action
-              if ((this->*rule_actions_[entry])() == Error)
-                return Error;
+              if (rule_actions_[entry]) {
+                if ((this->*rule_actions_[entry])() == Error)
+                  return Error;
+              }
               return True; // found matching
             }
             else if (res == False)
@@ -164,8 +174,10 @@ namespace Parser {
           }
 
           if (matching_count == i) {
-            if ((this->*rule_actions_[entry])() == Error)
-              return Error;
+            if (rule_actions_[entry]) {
+              if ((this->*rule_actions_[entry])() == Error)
+                return Error;
+            }
             return True; // matched
           }
           tokenizer_->SetTokPos(tok_pos);
@@ -205,8 +217,10 @@ namespace Parser {
           }
 
           if (matching_count == i) { // matched
-            if ((this->*rule_actions_[entry])() == Error)
-              return Error;
+            if (rule_actions_[entry]) {
+              if ((this->*rule_actions_[entry])() == Error)
+                return Error;
+            }
             return True;
           }
         }
@@ -216,8 +230,10 @@ namespace Parser {
         {
           if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
             // Run action
-            if ((this->*rule_actions_[rule.sub_rules_[0]])() == Error)
-              return Error;
+            if (rule_actions_[rule.sub_rules_[0]]) {
+              if ((this->*rule_actions_[rule.sub_rules_[0]])() == Error)
+                return Error;
+            }
             tokenizer_->ConsumeToken(1);
             return True;
           }

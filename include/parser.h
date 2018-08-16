@@ -366,7 +366,8 @@ namespace Parser {
       Lexer::Tokenizer* GetTokenizer() { return tokenizer_; }
 
       void InitBasicRule();
-      void InitSuccessAction();
+      void InitSuccessAction(); // Actions for suceeeded grammer 
+      void InitFailAction(); // Actions for failed grammer
 
       eResult TraverseRule(RuleName entry);
       eResult TestRule(RuleName entry); // Do not run action. just run test
@@ -374,9 +375,6 @@ namespace Parser {
       // Entry point of parsing process
       eResult StartParser();
 
-      eResult ReturnTrue(void) { return True; } // Dummy function for function pointer array
-      eResult ReturnFalse(void) { return False; } // Dummy function for function pointer array
-      eResult ReturnError(void) { return Error; } // Dummy function for function pointer array
       eResult CompilationUnit(void); // compilation_unit
       
       eResult ImportStmts(void); // import_stmts

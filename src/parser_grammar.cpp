@@ -571,9 +571,13 @@ namespace Parser {
   }
 
   void SyntaxAnalyzer::InitSuccessAction() {
-    for (int i = 0; i < MAX_RULES; i++) {
+    /*for (int i = 0; i < MAX_RULES; i++) {
       rule_actions_[i] = &SyntaxAnalyzer::ReturnTrue;
+    }*/
+    for (int i = 0; i < MAX_RULES; i++) {
+      rule_actions_[i] = nullptr;
     }
+
 
     rule_actions_[compilation_unit] = &SyntaxAnalyzer::CompilationUnit;
 
@@ -752,5 +756,11 @@ namespace Parser {
     rule_actions_[TokStringLiteral] = &SyntaxAnalyzer::ActTokStringLiteral;
     rule_actions_[TokIdentifier] = &SyntaxAnalyzer::ActTokIdentifier;
     rule_actions_[TokBraceOpen] = &SyntaxAnalyzer::ActTokBraceOpen;
+  }
+
+  void SyntaxAnalyzer::InitFailAction() {
+    /*for (int i = 0; i < MAX_RULES; i++) {
+      rule_actions_[i] = nullptr;
+    }*/
   }
 }
