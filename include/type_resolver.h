@@ -16,9 +16,15 @@ namespace AST {
       TypeResolver();
       virtual ~TypeResolver();
 
-      bool Check(ASTContext* ac);
-      bool ResolveFunctionType(FunctionDecl* fd);
-      bool ResolveClassType(ClassNode* cn);
+      bool CheckIncompleteType(ASTContext* ac);
+      bool CheckVoidArray(ASTContext* ac);
+
+    private:
+      // Make incomplete type to complete type
+      bool CompleteFunctionType(FunctionDecl* fd);
+      bool CompleteClassType(ClassNode* cn);
+      // Check Void Array
+      bool CheckVoidArray();
   };
 };
 

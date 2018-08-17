@@ -577,7 +577,7 @@ bool ASTPrinter::Visit(ClassNode* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "ClassNode" << endl;
+  cout << "ClassNode : " << node->GetTypeName() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;

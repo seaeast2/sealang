@@ -129,7 +129,7 @@ class HashTable {
       return nullptr;
     }
 
-    void ItrReset() { 
+    void ResetItr() { 
       // find first element
       for (int i = 0; i < MAX_TABLE; i++) {
         if (table_[i]) {
@@ -140,7 +140,7 @@ class HashTable {
       }
     }
     
-    V* ItrNext() {
+    V* Next() {
       if (table_iter_ == MAX_TABLE)
         return nullptr;
 
@@ -321,7 +321,7 @@ class HashTable<V*, MAX_TABLE> {
       return nullptr;
     }
 
-    void ItrReset() { 
+    void ResetItr() { 
       // find first element
       for (int i = 0; i < MAX_TABLE; i++) {
         if (table_[i]) {
@@ -332,7 +332,7 @@ class HashTable<V*, MAX_TABLE> {
       }
     }
     
-    V* ItrNext() {
+    V* Next() {
       if (table_iter_ == MAX_TABLE)
         return nullptr;
 

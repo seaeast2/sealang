@@ -29,9 +29,12 @@ namespace AST {
       bool RemoveType(const char* type_name);
       Type* GetType(const char* type_name);
       FunctionType* GetFunctionTypeFromDecl(FunctionDecl* fd);
+      void ResetTypeItr(); // reset type iteration
+      Type* GetTypeAndNext(); // type iteration
 
       void CheckLocalVar();
       void CheckIncompleteType();
+      void CheckVoidArray();
       void PrintAST();
   };
 

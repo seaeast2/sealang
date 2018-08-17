@@ -473,6 +473,8 @@ namespace AST {
           return true;
         return false;
       }
+      Type* GetBaseType() { return base_type_; }
+
       static ArrayType* Get(ASTContext* ac, Type* basety); // unassigned array
       static ArrayType* Get(ASTContext* ac, Type* basety, unsigned int size); // assigned array
   };

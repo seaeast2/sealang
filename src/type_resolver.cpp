@@ -9,7 +9,7 @@ TypeResolver::TypeResolver() {
 TypeResolver::~TypeResolver() {
 }
 
-bool TypeResolver::Check(ASTContext* ac) {
+bool TypeResolver::CheckIncompleteType(ASTContext* ac) {
   ac_ = ac;
 
   Declarations* decls = ac_->GetLocalDecl();
@@ -18,7 +18,7 @@ bool TypeResolver::Check(ASTContext* ac) {
   FunctionDecl* fd = nullptr;
   for (int i = 0; i < decls->GetFunctionNum(); i++) {
     fd = decls->GetFunction(i);
-    if (!ResolveFunctionType(fd))
+    if (!CompleteFunctionType(fd))
       return false;
   }
 
@@ -26,14 +26,20 @@ bool TypeResolver::Check(ASTContext* ac) {
   ClassNode* cn = nullptr;
   for (int i = 0; i < decls->GetClassNum(); i++) {
     cn = decls->GetClass(i);
-    if (!ResolveClassType(cn))
+    if (!CompleteClassType(cn))
       return false;
   }
 
   return true;
 }
 
-bool TypeResolver::ResolveFunctionType(FunctionDecl* fd) {
+
+bool TypeResolver::CheckVoidArray(ASTContext* ac) {
+  ac_ = ac;
+  return CheckVoidArray();
+}
+
+bool TypeResolver::CompleteFunctionType(FunctionDecl* fd) {
   FunctionType* ft = ac_->GetFunctionTypeFromDecl(fd);
   if (!ft->IsIncomplete()) {
     assert(0 && "Already defined FunctionType");
@@ -45,7 +51,7 @@ bool TypeResolver::ResolveFunctionType(FunctionDecl* fd) {
 }
 
 
-bool TypeResolver::ResolveClassType(ClassNode* cn) {
+bool TypeResolver::CompleteClassType(ClassNode* cn) {
   // Get class type by class name
   ClassType* ct = ClassType::Get(ac_, cn->GetTypeName());
 
@@ -74,6 +80,22 @@ bool TypeResolver::ResolveClassType(ClassNode* cn) {
       return false;
     }
     ct->AddMemberFuncType(ac_->GetFunctionTypeFromDecl(fd));
+  }
+  return true;
+}
+
+bool TypeResolver::CheckVoidArray() {
+  Type* ty = nullptr; 
+
+  ac_->ResetTypeItr();
+  while(ty = ac_->GetTypeAndNext()) {
+    if(ty->IsKindOf(Type::ArrayTy)) {
+      Type* basety = ((ArrayType*)ty)->GetBaseType();
+      if (basety && basety->IsKindOf(Type::VoidTy)) {
+        assert(0 && "Error : void type can't be a base type of array.");
+        return false;
+      }
+    }
   }
 
   return true;

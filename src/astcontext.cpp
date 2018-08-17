@@ -59,6 +59,14 @@ namespace AST {
     return ft;
   }
 
+  void ASTContext::ResetTypeItr() {
+    type_table_.ResetItr();
+  }
+
+  Type* ASTContext::GetTypeAndNext() {
+    return type_table_.Next();
+  }
+
   void ASTContext::CheckLocalVar() {
     LocalVarChecker lvc;
     lvc.Check(decls_, &top_scope_);
@@ -66,7 +74,12 @@ namespace AST {
 
   void ASTContext::CheckIncompleteType() {
     TypeResolver tc;
-    tc.Check(this);
+    tc.CheckIncompleteType(this);
+  }
+
+  void ASTContext::CheckVoidArray() {
+    TypeResolver tc;
+    tc.CheckVoidArray(this);
   }
 
   void ASTContext::PrintAST() {
