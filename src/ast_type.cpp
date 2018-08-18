@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <assert.h>
 #include "ast_type.h"
 #include "astcontext.h"
 
@@ -108,6 +109,21 @@ namespace AST {
     ty->Incomplete(true); // set with incomplete type.
     ac->AddType(ty);
     return (ClassType*)ty;
+  }
+
+  UserType* UserType::Get(ASTContext* ac, Type* original_type, const char* alias) {
+    Type* ty = ac->GetType(alias);
+    if (ty) {
+      if (!ty->IsKindOf(Type::UserTy)) {
+        assert(0 && "already defined type name.");
+        return nullptr;
+      }
+      return (UserType*) ty;
+    }
+
+    ty = new UserType(original_type, alias);
+    ac->AddType(ty);
+    return (UserType*)ty;
   }
 
   ArrayType* ArrayType::Get(ASTContext* ac, Type* basety) {

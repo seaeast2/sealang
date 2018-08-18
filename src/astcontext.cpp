@@ -72,9 +72,9 @@ namespace AST {
     lvc.Check(decls_, &top_scope_);
   }
 
-  void ASTContext::CheckIncompleteType() {
+  void ASTContext::MakeCompleteType() {
     TypeResolver tc;
-    tc.CheckIncompleteType(this);
+    tc.MakeCompleteType(this);
   }
 
   void ASTContext::CheckVoidArray() {

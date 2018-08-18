@@ -10,21 +10,21 @@ namespace AST {
 
   // Traverse AST and adjust incomplete types
   class TypeResolver {
-    ASTContext* ac_;
 
     public:
       TypeResolver();
       virtual ~TypeResolver();
 
-      bool CheckIncompleteType(ASTContext* ac);
+      bool MakeCompleteType(ASTContext* ac);
+      // Check Void Array
       bool CheckVoidArray(ASTContext* ac);
+      // Check Recursive type definition.
+      bool CheckRecursiveTypeDef(ASTContext* ac);
 
     private:
       // Make incomplete type to complete type
-      bool CompleteFunctionType(FunctionDecl* fd);
-      bool CompleteClassType(ClassNode* cn);
-      // Check Void Array
-      bool CheckVoidArray();
+      bool CompleteFunctionType(ASTContext* ac, FunctionDecl* fd);
+      bool CompleteClassType(ASTContext* ac, ClassNode* cn);
   };
 };
 

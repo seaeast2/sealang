@@ -33,7 +33,7 @@ namespace AST {
       Type* GetTypeAndNext(); // type iteration
 
       void CheckLocalVar();
-      void CheckIncompleteType();
+      void MakeCompleteType();
       void CheckVoidArray();
       void PrintAST();
   };

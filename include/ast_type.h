@@ -424,10 +424,23 @@ namespace AST {
   };
 
   class UserType : public NamedType {
+    private:
+      Type* original_type_;
+
     protected:
       UserType() {
         kind_ = UserTy;
         is_incomplete_ = false;
+
+        original_type_ = nullptr;
+      }
+
+      UserType(Type* ori_ty, const char* new_ty_name) {
+        kind_ = UserTy;
+        is_incomplete_ = false;
+
+        original_type_ = ori_ty;
+        type_name_ = new_ty_name;
       }
     public:
       virtual ~UserType() {}
@@ -437,6 +450,11 @@ namespace AST {
           return true;
         return false;
       }
+
+      void SetOritinalType(Type* ori_ty) { original_type_ = ori_ty; }
+      Type* GetOriginalType() { return original_type_; }
+
+      static UserType* Get(ASTContext* ac, Type* original_type, const char* alias); // unassigned array
   };
 
   class ArrayType : public Type {
