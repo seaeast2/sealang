@@ -20,6 +20,7 @@ namespace AST {
       bool CheckVoidArray(ASTContext* ac);
       // Check Recursive type definition.
       bool CheckRecursiveTypeDef(ASTContext* ac);
+      bool VisitClassType(ClassType* ct);
 
     private:
       // Make incomplete type to complete type

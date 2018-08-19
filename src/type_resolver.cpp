@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "core/hash_int.h"
 #include "type_resolver.h"
 
 using namespace AST;
@@ -51,6 +52,16 @@ bool TypeResolver::CheckVoidArray(ASTContext* ac) {
 }
 
 bool TypeResolver::CheckRecursiveTypeDef(ASTContext* ac) {
+  // TODO : working here
+  HashInt<unsigned long, Type*, 64> RecursiveTypeDefChecker;
+
+  ClassNode* cn = nullptr;
+  ClassType* ct = nullptr;
+  for (int i = 0; i < decls->GetClassNum(); i++) {
+    cn = decls->GetClass(i);
+    ct = cn->GetType();
+  }
+
   return true;
 }
 
@@ -62,6 +73,10 @@ bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* fd) {
   }
 
   ft->Incomplete(false); // mark as complete
+  return true;
+}
+
+bool TypeResolver::VisitClassType(ClassType* ct) {
   return true;
 }
 
