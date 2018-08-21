@@ -128,6 +128,7 @@ namespace Parser {
       seq_float,        // <FLOAT>
       seq_double,       // <DOUBLE>
       seq_class_identifier, // <CLASS> <IDENTIFIER>
+      seq_user_type, // <IDENTIFIER>
     defvars, // storage type name ["=" expr] [("," name ["=" expr])*] ";" 
       opt_var_initialize, // ["=" expr]
       opt_rep_var_initialize, // [("," name ["=" expr])*]
@@ -273,7 +274,9 @@ namespace Parser {
 
   struct Rule {
     RuleName action_; // repeat, select, sequence, terminal
-    int lookahead_; // 0: no look ahead 1~15: look ahead number
+    // 0: no look ahead 1~15: look ahead number
+    // 16 : check if UserType
+    unsigned int lookahead_;
     RuleName sub_rules_[15];
   };
 
@@ -371,7 +374,7 @@ namespace Parser {
       void InitFailAction(); // Actions for failed grammer
 
       eResult TraverseRule(RuleName entry);
-      eResult TestRule(RuleName entry); // Do not run action. just run test
+      eResult TestRule(RuleName entry, bool check_user_type); // just run test
       eResult ReturnError(void) { return Error; } // Dummy 
       eResult ReturnTrue(void) { return True; } // Dummy 
       eResult ReturnFalse(void) { return False; } // Dummy 
@@ -417,6 +420,7 @@ namespace Parser {
         eResult Act_seq_float(void); // seq_float
         eResult Act_seq_double(void); // seq_double
         eResult Act_seq_class_identifier(void); // seq_class_identifier
+        eResult Act_seq_user_type(void); // seq_user_type
       
       eResult ParamTypeRefs(void); // param_typerefs
         eResult Act_seq_param_type_void(void); // seq_param_type_void

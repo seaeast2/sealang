@@ -154,6 +154,15 @@ class HashInt {
       return &cur->value_;
     }
 
+    void Clear() {
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) 
+          ClearTable(table_[i]);
+        table_[i] = nullptr;
+      }
+      count_ = 0;
+    }
+
   private:
     // 64bit hash function
     unsigned long Hash(K key) {
@@ -187,6 +196,15 @@ class HashInt {
     }
 
     void ClearTable(Element* e) {
+      Element* cur = e, *next;
+      while(cur) {
+        next = cur->next_;
+        delete cur;
+        cur = next;
+      }
+    }
+
+    void DestroyTable(Element* e) {
       Element* cur = e, *next;
       while(cur) {
         next = cur->next_;
@@ -344,6 +362,15 @@ class HashInt<K, V*, MAX_TABLE> {
       Element* cur = itr_;
       itr_ = itr_->next_;
       return cur->value_;
+    }
+
+    void Clear() {
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) 
+          ClearTable(table_[i]);
+        table_[i] = nullptr;
+      }
+      count_ = 0;
     }
 
   private:

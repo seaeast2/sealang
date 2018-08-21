@@ -35,6 +35,7 @@ namespace AST {
       void CheckLocalVar();
       void MakeCompleteType();
       void CheckVoidArray();
+      void CheckRecursiveTypeDef();
       void PrintAST();
   };
 

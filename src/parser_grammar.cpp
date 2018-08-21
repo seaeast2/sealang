@@ -44,13 +44,14 @@ namespace Parser {
     //      | <SHORT> 
     //      | <INT> 
     //      | <LONG> 
-    //      | <UNSIGNED> <CHAR> 
-    //      | <UNSIGNED> <SHORT> 
-    //      | <UNSIGNED> <INT> 
-    //      | <UNSIGNED> <LONG> 
+    //      | LOOKAHEAD(<UNSIGNED> <CHAR>)
+    //      | LOOKAHEAD(<UNSIGNED> <SHORT>)
+    //      | LOOKAHEAD(<UNSIGNED> <INT>)
+    //      | LOOKAHEAD(<UNSIGNED> <LONG>)
     //      | <FLOAT> 
     //      | <DOUBLE>
     //      | <CLASS> <IDENTIFIER> 
+    //      | LOOKAHEAD(CHECK_USERTYPE(<IDENTIFIER>))
     rules_[typeref_base] = RuleSetter(Select, 0, 
               seq_void, 
               seq_char,
@@ -63,19 +64,21 @@ namespace Parser {
               seq_unsigned_long,
               seq_float,
               seq_double,
-              seq_class_identifier);
+              seq_class_identifier,
+              seq_user_type);
       rules_[seq_void] = RuleSetter(Sequence, 0, TokVoid);
       rules_[seq_char] = RuleSetter(Sequence, 0, TokChar);
       rules_[seq_short] = RuleSetter(Sequence, 0, TokShort);
       rules_[seq_int] = RuleSetter(Sequence, 0, TokInt);
       rules_[seq_long] = RuleSetter(Sequence, 0, TokLong);
-      rules_[seq_unsigned_char] = RuleSetter(Sequence, 0, TokUnsigned, TokChar);
-      rules_[seq_unsigned_short] = RuleSetter(Sequence, 0, TokUnsigned, TokShort);
-      rules_[seq_unsigned_int] = RuleSetter(Sequence, 0, TokUnsigned, TokInt);
-      rules_[seq_unsigned_long] = RuleSetter(Sequence, 0, TokUnsigned, TokLong);
+      rules_[seq_unsigned_char] = RuleSetter(Sequence, 2, TokUnsigned, TokChar);
+      rules_[seq_unsigned_short] = RuleSetter(Sequence, 2, TokUnsigned, TokShort);
+      rules_[seq_unsigned_int] = RuleSetter(Sequence, 2, TokUnsigned, TokInt);
+      rules_[seq_unsigned_long] = RuleSetter(Sequence, 2, TokUnsigned, TokLong);
       rules_[seq_float] = RuleSetter(Sequence, 0, TokFloat);
       rules_[seq_double] = RuleSetter(Sequence, 0, TokDouble);
       rules_[seq_class_identifier] = RuleSetter(Sequence, 0, TokClass, TokIdentifier);
+      rules_[seq_user_type] = RuleSetter(Sequence, 16, TokIdentifier); // Check UserType
     
     // import_stmts  
     //   : (import_stmt)* 
@@ -643,6 +646,7 @@ namespace Parser {
       rule_actions_[seq_float] = &SyntaxAnalyzer::Act_seq_float;
       rule_actions_[seq_double] = &SyntaxAnalyzer::Act_seq_double;
       rule_actions_[seq_class_identifier] = &SyntaxAnalyzer::Act_seq_class_identifier;
+      rule_actions_[seq_user_type] = &SyntaxAnalyzer::Act_seq_user_type;
 
 
     rule_actions_[name] = &SyntaxAnalyzer::Name;

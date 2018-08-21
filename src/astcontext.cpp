@@ -73,13 +73,18 @@ namespace AST {
   }
 
   void ASTContext::MakeCompleteType() {
-    TypeResolver tc;
-    tc.MakeCompleteType(this);
+    TypeResolver tr;
+    tr.MakeCompleteType(this);
   }
 
   void ASTContext::CheckVoidArray() {
-    TypeResolver tc;
-    tc.CheckVoidArray(this);
+    TypeResolver tr;
+    tr.CheckVoidArray(this);
+  }
+
+  void ASTContext::CheckRecursiveTypeDef() {
+    TypeResolver tr;
+    tr.CheckRecursiveTypeDef(this);
   }
 
   void ASTContext::PrintAST() {

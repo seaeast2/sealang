@@ -21,6 +21,14 @@ namespace Parser {
     Rule rule = rules_[entry];
     eResult res;
     int tok_pos;
+    int lookahead = rule.lookahead_; 
+    bool check_user_type = false;
+
+    // turn on check user type
+    if (rule.lookahead_ == 16) {
+      lookahead = 1;
+      check_user_type = true;
+    }
 
     switch(rule.action_) {
       case RepeatStar: // Repeat more than zero
@@ -31,12 +39,10 @@ namespace Parser {
             tok_pos = tokenizer_->GetTokPos(); // backup token position
             
             // check look ahead
-            if (rule.lookahead_ > 0) {
-              for (int j = 0; j < rule.lookahead_; j++) {
-                if (TestRule(rule.sub_rules_[j]) == False) {
-                  tokenizer_->SetTokPos(tok_pos); // restore token position.
-                  return True; // anyway return true in repeat star
-                }
+            for (int j = 0; j < lookahead; j++) {
+              if (TestRule(rule.sub_rules_[j], check_user_type) == False) {
+                tokenizer_->SetTokPos(tok_pos); // restore token position.
+                return True; // anyway return true in repeat star
               }
             }
 
@@ -86,12 +92,10 @@ namespace Parser {
             tok_pos = tokenizer_->GetTokPos(); // backup token position
 
             // check look ahead
-            if (rule.lookahead_ > 0) {
-              for (int j = 0; j < rule.lookahead_; j++) {
-                if (TestRule(rule.sub_rules_[j]) == False) {
-                  tokenizer_->SetTokPos(tok_pos); // restore token position.
-                  return True; // anyway return true in repeat star
-                }
+            for (int j = 0; j < lookahead; j++) {
+              if (TestRule(rule.sub_rules_[j], check_user_type) == False) {
+                tokenizer_->SetTokPos(tok_pos); // restore token position.
+                return True; // anyway return true in repeat star
               }
             }
 
@@ -164,12 +168,10 @@ namespace Parser {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
 
           // check look ahead
-          if (rule.lookahead_ > 0) {
-            for (int j = 0; j < rule.lookahead_; j++) {
-              if (TestRule(rule.sub_rules_[j]) == False) {
-                tokenizer_->SetTokPos(tok_pos); // restore token position.
-                return False;
-              }
+          for (int j = 0; j < lookahead; j++) {
+            if (TestRule(rule.sub_rules_[j], check_user_type) == False) {
+              tokenizer_->SetTokPos(tok_pos); // restore token position.
+              return False;
             }
           }
 
@@ -211,12 +213,10 @@ namespace Parser {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
 
           // check look ahead
-          if (rule.lookahead_ > 0) {
-            for (int j = 0; j < rule.lookahead_; j++) {
-              if (TestRule(rule.sub_rules_[j]) == False) {
-                tokenizer_->SetTokPos(tok_pos); // restore token position.
-                return True;
-              }
+          for (int j = 0; j < lookahead; j++) {
+            if (TestRule(rule.sub_rules_[j], check_user_type) == False) {
+              tokenizer_->SetTokPos(tok_pos); // restore token position.
+              return True;
             }
           }
 
@@ -279,7 +279,7 @@ namespace Parser {
     return Error;
   }
 
-  eResult SyntaxAnalyzer::TestRule(RuleName entry) {
+  eResult SyntaxAnalyzer::TestRule(RuleName entry, bool check_user_type) {
     Rule rule = rules_[entry];
     eResult res;
     int tok_pos;
@@ -292,7 +292,7 @@ namespace Parser {
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
             for (; rule.sub_rules_[i] > TokUnknown; i++) {
-              res = TestRule(rule.sub_rules_[i]);
+              res = TestRule(rule.sub_rules_[i], check_user_type);
               if (res == True) // matched
                 matching_count++;
               else if (res == False) { // not matching
@@ -316,7 +316,7 @@ namespace Parser {
             int i = 0;
             tok_pos = tokenizer_->GetTokPos(); // backup token position
             for (; rule.sub_rules_[i] > TokUnknown; i++) {
-              res = TestRule(rule.sub_rules_[i]);
+              res = TestRule(rule.sub_rules_[i], check_user_type);
               if (res == True) // matched
                 matching_count++;
               else if (res == False) {// Rereached unmached point 
@@ -342,7 +342,7 @@ namespace Parser {
         {
           tok_pos = tokenizer_->GetTokPos(); // backup token position
           for (int i = 0; rule.sub_rules_[i] > TokUnknown; i++) {
-            res = TestRule(rule.sub_rules_[i]);
+            res = TestRule(rule.sub_rules_[i], check_user_type);
             if (res == True) {
               return True; // found matching
             }
@@ -363,7 +363,7 @@ namespace Parser {
           int i = 0;
           tok_pos = tokenizer_->GetTokPos();
           for (; rule.sub_rules_[i] > TokUnknown; i++) {
-            res = TestRule(rule.sub_rules_[i]);
+            res = TestRule(rule.sub_rules_[i], check_user_type);
             if (res == True) // matched
               matching_count++;
             else if (res == False) {
@@ -390,7 +390,7 @@ namespace Parser {
           int i = 0;
           tok_pos = tokenizer_->GetTokPos(); // backup token position
           for (; rule.sub_rules_[i] > TokUnknown; i++) {
-            res = TestRule(rule.sub_rules_[i]);
+            res = TestRule(rule.sub_rules_[i], check_user_type);
             if (res == True)
               matching_count++;
             else if (res == False)  {
@@ -410,10 +410,27 @@ namespace Parser {
 
       case Terminal:
         {
-          if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
-            tokenizer_->ConsumeToken(1);
-            return True;
+          if (!check_user_type) { // normal situation
+            if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
+              tokenizer_->ConsumeToken(1);
+              return True;
+            }
           }
+          else { // need to check user type
+            if(tokenizer_->isToken(0, Lexer::TokenType(rule.sub_rules_[0]))) {
+              Lexer::Token tok = tokenizer_->GetCurToken(0);
+              char* usertype_name = new char[tok.len + 1];
+              memset(usertype_name, 0, tok.len + 1);
+              strncpy(usertype_name, tok.c, tok.len);
+              if (ac_->GetType(usertype_name)) {
+                delete[] usertype_name;
+                tokenizer_->ConsumeToken(1);
+                return True;
+              }
+              delete[] usertype_name;
+            }
+          }
+
           return False;
         }
         break;
@@ -828,6 +845,10 @@ namespace Parser {
       return Error;
     }
     PushType(cty, RuleName::seq_class_identifier);
+    return True;
+  }
+
+  eResult SyntaxAnalyzer::Act_seq_user_type(void) {
     return True;
   }
 

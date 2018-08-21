@@ -159,6 +159,15 @@ class HashTable {
       return &cur->value_;
     }
 
+    void Clear() {
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) 
+          ClearTable(table_[i]);
+        table_[i] = nullptr;
+      }
+      count_ = 0;
+    }
+
   private:
     // ELF hash function
     // http://www.drdobbs.com/database/hashing-rehashed/184409859
@@ -349,6 +358,15 @@ class HashTable<V*, MAX_TABLE> {
       Element* cur = itr_;
       itr_ = itr_->next_;
       return cur->value_;
+    }
+
+    void Clear() {
+      for (int i = 0; i < MAX_TABLE; i++) {
+        if (table_[i]) 
+          ClearTable(table_[i]);
+        table_[i] = nullptr;
+      }
+      count_ = 0;
     }
 
   private:

@@ -52,16 +52,53 @@ bool TypeResolver::CheckVoidArray(ASTContext* ac) {
 }
 
 bool TypeResolver::CheckRecursiveTypeDef(ASTContext* ac) {
-  // TODO : working here
-  HashInt<unsigned long, Type*, 64> RecursiveTypeDefChecker;
-
   ClassNode* cn = nullptr;
   ClassType* ct = nullptr;
+
+  Declarations* decls = ac->GetLocalDecl();
+
   for (int i = 0; i < decls->GetClassNum(); i++) {
     cn = decls->GetClass(i);
-    ct = cn->GetType();
+    ct = (ClassType*)cn->GetType()->GetType();
+    if (recursive_type_checker_.Find((unsigned long)ct)) {
+      assert(0 && "Error duplicated ClassType.");
+      return false;
+    }
+
+    recursive_type_checker_.Insert((unsigned long)ct, ct);
+    if (!VisitClassType(ct)) {
+      assert(0 && "Error Recursive Type definition detected.");
+      recursive_type_checker_.Clear();
+      return false;
+    }
+    recursive_type_checker_.Clear();
   }
 
+  return true;
+}
+
+bool TypeResolver::VisitClassType(ClassType* ct) {
+  Type* cur_ty = nullptr;
+  for (int i = 0; i < ct->GetMemberNum(); i++) {
+    cur_ty = ct->GetMemberType(i);
+    if(cur_ty->IsKindOf(Type::UserTy)) {
+      Type* org_ty = ((UserType*)cur_ty)->GetOriginalType();
+      if (org_ty->IsKindOf(Type::ClassTy)) {
+        cur_ty = org_ty;
+      }
+    }
+
+    if (cur_ty->IsKindOf(Type::ClassTy)) {
+      if (recursive_type_checker_.Find((unsigned long)cur_ty)) {
+        assert(0 && "Error duplicated ClassType.");
+        return false;
+      }
+
+      recursive_type_checker_.Insert((unsigned long)cur_ty, cur_ty);
+      if (!VisitClassType((ClassType*)cur_ty))
+        return false;
+    }
+  }
   return true;
 }
 
@@ -76,9 +113,6 @@ bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* fd) {
   return true;
 }
 
-bool TypeResolver::VisitClassType(ClassType* ct) {
-  return true;
-}
 
 
 bool TypeResolver::CompleteClassType(ASTContext* ac, ClassNode* cn) {
