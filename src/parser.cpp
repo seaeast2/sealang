@@ -754,7 +754,20 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::TypeRefBase(void) {
     ParseInfo pi = parse_stack_.Top();
-    if (pi.type_ != ParseInfo::ASTType) {
+    if (pi.type_ != ParseInfo::ASTType ||
+        (pi.rule_name_ != RuleName::seq_void && 
+         pi.rule_name_ != RuleName::seq_char &&
+         pi.rule_name_ != RuleName::seq_short && 
+         pi.rule_name_ != RuleName::seq_int &&
+         pi.rule_name_ != RuleName::seq_long &&
+         pi.rule_name_ != RuleName::seq_unsigned_char &&
+         pi.rule_name_ != RuleName::seq_unsigned_short &&
+         pi.rule_name_ != RuleName::seq_unsigned_int &&
+         pi.rule_name_ != RuleName::seq_unsigned_long &&
+         pi.rule_name_ != RuleName::seq_float &&
+         pi.rule_name_ != RuleName::seq_double &&
+         pi.rule_name_ != RuleName::seq_class_identifier &&
+         pi.rule_name_ != RuleName::seq_user_type)) {
       assert(0 && "Unidentified typeref base type.");
       return Error;
     }
@@ -829,11 +842,11 @@ namespace Parser {
   eResult SyntaxAnalyzer::Act_seq_class_identifier(void){
     // forward class declaration.
     ParseInfo pi_iden = parse_stack_.Top();
-    parse_stack_.Pop();
     if (pi_iden.type_ != ParseInfo::Identifier) {
       assert(0 && "Unidentified Identifier");
       return Error;
     }
+    parse_stack_.Pop();
 
     char* iden = new char[pi_iden.cstr_len_ + 1];
     memset(iden, 0, pi_iden.cstr_len_ + 1);
@@ -849,6 +862,24 @@ namespace Parser {
   }
 
   eResult SyntaxAnalyzer::Act_seq_user_type(void) {
+    // Read user type
+    ParseInfo pi_iden = parse_stack_.Top();
+    if (pi_iden.type_ != ParseInfo::Identifier) {
+      assert(0 && "Unidentified Identifier");
+      return Error;
+    }
+    parse_stack_.Pop();
+
+    char* iden = new char[pi_iden.cstr_len_ + 1];
+    memset(iden, 0, pi_iden.cstr_len_ + 1);
+    strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
+    AST::Type* ty = ac_->GetType(iden);
+    delete[] iden;
+    if (!ty || !ty->IsKindOf(AST::Type::UserTy)) {
+      assert(0 && "Can't find UserType.");
+      return Error;
+    }
+    PushType(ty, RuleName::seq_user_type);
     return True;
   }
 

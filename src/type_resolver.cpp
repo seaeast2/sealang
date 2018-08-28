@@ -81,16 +81,18 @@ bool TypeResolver::VisitClassType(ClassType* ct) {
   Type* cur_ty = nullptr;
   for (int i = 0; i < ct->GetMemberNum(); i++) {
     cur_ty = ct->GetMemberType(i);
+    // In case UserType
     if(cur_ty->IsKindOf(Type::UserTy)) {
       Type* org_ty = ((UserType*)cur_ty)->GetOriginalType();
       if (org_ty->IsKindOf(Type::ClassTy)) {
         cur_ty = org_ty;
       }
     }
+    // TODO : need to check array type with user type or class type
 
     if (cur_ty->IsKindOf(Type::ClassTy)) {
       if (recursive_type_checker_.Find((unsigned long)cur_ty)) {
-        assert(0 && "Error duplicated ClassType.");
+        assert(0 && "Error Recursive Type definition detected.");
         return false;
       }
 

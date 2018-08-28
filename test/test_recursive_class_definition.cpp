@@ -12,7 +12,7 @@ char* src =
  typedef class aaa bbb; \
  class ccc { \
    bbb d; \
- }\0";
+ };\0";
 
 
 
