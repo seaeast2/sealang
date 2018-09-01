@@ -22,6 +22,7 @@ namespace AST {
       DereferenceChecker();
       virtual ~DereferenceChecker();
 
+      /*
       // Statements
       virtual bool Visit(BlockNode* node) override;
       virtual bool Visit(LabelNode* node) override;
@@ -71,7 +72,7 @@ namespace AST {
       virtual bool Visit(ArgsNode* node) override;        
       virtual bool Visit(ClassNode* node) override;   
       virtual bool Visit(TypedefNode* node) override;  
-  };
+      */
   };
 };
 
