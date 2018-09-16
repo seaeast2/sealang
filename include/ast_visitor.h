@@ -5,7 +5,7 @@
 
 namespace AST {
   // Iterate AST
-  class ASTVisitor : VisitorBase {
+  class ASTVisitor : public VisitorBase {
     public:
       ASTVisitor() {}
       virtual ~ASTVisitor() {}

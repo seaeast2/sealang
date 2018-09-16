@@ -4,7 +4,6 @@
 #include "common.h"
 
 namespace AST {
-
   class VisitorBase {
     public:
       VisitorBase() {}
@@ -62,8 +61,6 @@ namespace AST {
       virtual bool Visit(ClassNode* node)        {return true;}
       virtual bool Visit(TypedefNode* node)      {return true;}
   };
-
 }
-
 
 #endif

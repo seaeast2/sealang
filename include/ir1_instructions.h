@@ -3,92 +3,104 @@
 
 #include "core/simple_vector.h"
 
-
+// Intermediate representation 1
+// IR1 doesn't support SSA form.
 namespace IR1 {
-  class Value {
-    protected:
-      SimpleVector<Value*> use_list_;
-
+  class IR1Base {
     public:
-      Value();
-      ~Value();
+      IR1Base() {}
+      virtual ~IR1Base() {}
   };
 
-  class Instruction {
+  // Integer
+  class Int : public IR1Base {
     public:
-      Instruction() {}
-      virtual ~Instruction() {}
+      Int() {}
+      virtual ~Int() {}
   };
 
-  class AssignInst : public Instruction {
+  // String
+  class Str: public IR1Base {
+    public:
+      Str() {}
+      virtual ~Str() {}
+  };
+
+  // Variable
+  class Var : public IR1Base {
+    public:
+      Var() {}
+      virtual ~Var() {}
+  };
+
+  class Assign: public IR1Base {
     private:
-      Instruction* lhs;
-      Instruction* rhs;
+      IR1Base* lhs;
+      IR1Base* rhs;
 
     public:
-      AssignInst() {}
-      virtual ~AssignInst() {}
+      Assign() {}
+      virtual ~Assign() {}
   };
 
-  class BranchInst : public Instruction {
-    Value* cond;
+  class Branch: public IR1Base {
     public:
-      BranchInst() {}
-      virtual ~BranchInst() {}
+      Branch() {}
+      virtual ~Branch() {}
   };
 
-  class SwitchInst : public Instruction {
+  class Switch: public IR1Base {
     public:
-      SwitchInst() {}
-      virtual ~SwitchInst() {}
+      Switch() {}
+      virtual ~Switch() {}
   };
 
-  class LabelInst : public Instruction {
+  class LabelStmt : public IR1Base {
     public:
-      LabelInst() {}
-      virtual ~LabelInst() {}
+      LabelStmt() {}
+      virtual ~LabelStmt() {}
   };
 
-  class ReturnInst : public Instruction {
+  class ExprStmt : public IR1Base {
     public:
-      ReturnInst() {}
-      virtual ~ReturnInst() {}
+      ExprStmt() {}
+      virtual ~ExprStmt() {}
   };
 
-  class UnaryInst : public Instruction {
+  class Return: public IR1Base {
     public:
-      UnaryInst() {}
-      virtual ~UnaryInst() {}
+      Return() {}
+      virtual ~Return() {}
+  };
+
+  class UnaryOp: public IR1Base {
+    public:
+      UnaryOp() {}
+      virtual ~UnaryOp() {}
   };
   
-  class BinaryInst : public Instruction {
+  class BinOp: public IR1Base {
     public:
-      BinaryInst() {}
-      virtual ~BinaryInst() {}
+      BinOp() {}
+      virtual ~BinOp() {}
   };
   
-  class CallInst : public Instruction {
+  class Call: public IR1Base {
     public:
-      CallInst() {}
-      virtual ~CallInst() {}
+      Call() {}
+      virtual ~Call() {}
   };
 
-  class AddrInst : public Instruction {
+  class Addr: public IR1Base {
     public:
-      AddrInst() {}
-      virtual ~AddrInst() {}
+      Addr() {}
+      virtual ~Addr() {}
   };
 
-  class MemInst : public Instruction {
+  class Mem: public IR1Base {
     public:
-      MemInst() {}
-      virtual ~MemInst() {}
-  };
-
-  class AllocaInst : public Instruction {
-    public:
-      AllocaInst() {}
-      virtual ~AllocaInst() {}
+      Mem() {}
+      virtual ~Mem() {}
   };
 
 };
