@@ -3,20 +3,24 @@
 
 #include "common.h"
 #include "ast_visitor.h"
-#include "ir1_instructions.h"
 #include "core/simple_vector.h"
+#include "ir1_instructions.h"
+
+using namespace AST;
 
 namespace IR1 {
   class CodeGen : public AST::ASTVisitor { 
     protected:
-      bool VisitStmt(StmtNode* nodes);
-      bool VisitExpr(ExprNode* node);
+      SimpleVector<IR1Base*> irs;
 
     public:
       CodeGen() {}
       virtual ~CodeGen() {}
 
       bool GenerateIR(Declarations* decl);
+
+      bool VisitStmt(StmtNode* nodes);
+      bool VisitExpr(ExprNode* node);
 
       // Statements
 //      virtual bool Visit(BlockNode* node) override;

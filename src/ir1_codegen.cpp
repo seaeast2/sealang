@@ -1,7 +1,8 @@
 #include "ir1_codegen.h"
 
-using namespace IR1;
+using namespace AST;
 
+namespace IR1 {
 bool CodeGen::GenerateIR(Declarations* decl) {
 
   return true;
@@ -15,6 +16,7 @@ bool CodeGen::VisitExpr(ExprNode* node) {
   return true;
 }
 
-bool Codegen::Visit(IfNode* node) {
+bool CodeGen::Visit(IfNode* node) {
   return true;
+}
 }
