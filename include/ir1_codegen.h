@@ -3,15 +3,16 @@
 
 #include "common.h"
 #include "ast_visitor.h"
-#include "core/simple_vector.h"
+#include "core/list.h"
+#include "ir_base.h"
 #include "ir1_instructions.h"
 
 using namespace AST;
 
 namespace IR1 {
-  class CodeGen : public AST::ASTVisitor { 
+  class CodeGen : public ASTVisitor { 
     protected:
-      SimpleVector<IR1Base*> irs;
+      SimpleList<IR::IRBase*> irs;
 
     public:
       CodeGen() {}
@@ -62,8 +63,8 @@ namespace IR1 {
 //      virtual bool Visit(SuffixOpNode* node) override;
 //
 //      // Etc
-//      virtual bool Visit(FunctionDecl* node) override;
-//      virtual bool Visit(VariableDecl* node) override;
+      virtual bool Visit(FunctionDecl* node) override;
+      virtual bool Visit(VariableDecl* node) override;
 //      virtual bool Visit(ConstantDecl* node) override;
 //      virtual bool Visit(TypeNode* node) override;
 //      virtual bool Visit(ParamNode* node) override;

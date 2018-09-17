@@ -3,6 +3,8 @@
 
 #include "ir_base.h"
 
+using namespace IR;
+
 // Intermediate representation 1
 // IR1 doesn't support SSA form.
 namespace IR1 {
