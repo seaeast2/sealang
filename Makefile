@@ -49,7 +49,7 @@ sources  			:=
 objects 			= $(call source_to_object, $(sources))
 dependencies 	= $(subst .o,.d,$(objects))
 
-include_dirs 	:= $(CURDIR)/include
+include_dirs 	:= $(CURDIR)/include 
 CPPFLAGS			+= $(addprefix -I ,$(include_dirs))
 vpath	%.h $(include_dirs)
 
