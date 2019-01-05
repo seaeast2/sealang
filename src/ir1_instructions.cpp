@@ -1,6 +1,6 @@
 #include "ir1_instructions.h"
 
-using namespace IR1;
+using namespace IR;
 
 
 

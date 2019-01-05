@@ -1,40 +1,31 @@
+#include "ast_node.h"
 #include "ir1_codegen.h"
+#include "ir1_instructions.h"
 
-using namespace AST;
+using namespace IR;
 
-namespace IR1 {
-bool CodeGen::GenerateIR(Declarations* decl) {
+bool CodeGen::GenerateIR(AST::Declarations* decl) {
   for (int i = 0; i < decl->GetVariableNum(); i++) {
-    VariableDecl* vd = decl->GetVariable(i);
+    AST::VariableDecl* vd = decl->GetVariable(i);
     Visit(vd);
   }
 
-  for (int i = 0; i < decl->GetVariableNum(); i++) {
-    FunctionDecl* fd = decl->GetFunction(i);
+  for (int i = 0; i < decl->GetFunctionNum(); i++) {
+    AST::FunctionDecl* fd = decl->GetFunction(i);
     Visit(fd);
   }
 
   return true;
 }
 
-bool CodeGen::VisitStmt(StmtNode* nodes) {
+bool CodeGen::Visit(AST::IfNode* node) {
   return true;
 }
 
-bool CodeGen::VisitExpr(ExprNode* node) {
+bool CodeGen::Visit(AST::FunctionDecl* node) {
   return true;
 }
 
-bool CodeGen::Visit(IfNode* node) {
+bool CodeGen::Visit(AST::VariableDecl* node) {
   return true;
-}
-
-bool CodeGen::Visit(FunctionDecl* node) {
-  return true;
-}
-
-bool CodeGen::Visit(VariableDecl* node) {
-  return true;
-}
-
 }

@@ -2,11 +2,11 @@
 #define _ir_base_h_
 
 namespace IR {
-  class IRBase {
+  class IR {
     public:
-      IRBase() {}
-      virtual ~IRBase() {}
+      IR() {}
+      virtual ~IR() {}
   };
-}
+};
 
 #endif

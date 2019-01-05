@@ -3,103 +3,101 @@
 
 #include "ir_base.h"
 
-using namespace IR;
-
 // Intermediate representation 1
 // IR1 doesn't support SSA form.
-namespace IR1 {
+namespace IR {
   // Integer
-  class Int : public IRBase {
+  class Int : public IR {
     public:
       Int() {}
       virtual ~Int() {}
   };
 
   // String
-  class Str : public IRBase {
+  class Str : public IR {
     public:
       Str() {}
       virtual ~Str() {}
   };
 
   // Variable
-  class Var : public IRBase {
+  class Var : public IR {
     public:
       Var() {}
       virtual ~Var() {}
   };
 
-  class Assign : public IRBase {
+  class Assign : public IR {
     private:
-      IRBase* lhs;
-      IRBase* rhs;
+      IR* lhs;
+      IR* rhs;
 
     public:
       Assign() {}
       virtual ~Assign() {}
   };
 
-  class CondBranch: public IRBase {
+  class CondBranch: public IR {
     public:
       CondBranch() {}
       virtual ~CondBranch() {}
   };
 
-  class Branch: public IRBase {
+  class Branch: public IR {
     public:
       Branch() {}
       virtual ~Branch() {}
   };
 
-  class Switch: public IRBase {
+  class Switch: public IR {
     public:
       Switch() {}
       virtual ~Switch() {}
   };
 
-  class LabelStmt : public IRBase {
+  class LabelStmt : public IR {
     public:
       LabelStmt() {}
       virtual ~LabelStmt() {}
   };
 
-  class ExprStmt : public IRBase {
+  class ExprStmt : public IR {
     public:
       ExprStmt() {}
       virtual ~ExprStmt() {}
   };
 
-  class Return: public IRBase {
+  class Return: public IR {
     public:
       Return() {}
       virtual ~Return() {}
   };
 
-  class UnaryOp: public IRBase {
+  class UnaryOp: public IR {
     public:
       UnaryOp() {}
       virtual ~UnaryOp() {}
   };
   
-  class BinOp: public IRBase {
+  class BinOp: public IR {
     public:
       BinOp() {}
       virtual ~BinOp() {}
   };
   
-  class Call: public IRBase {
+  class Call: public IR {
     public:
       Call() {}
       virtual ~Call() {}
   };
 
-  class Addr: public IRBase {
+  class Addr: public IR {
     public:
       Addr() {}
       virtual ~Addr() {}
   };
 
-  class Mem: public IRBase {
+  class Mem: public IR {
     public:
       Mem() {}
       virtual ~Mem() {}

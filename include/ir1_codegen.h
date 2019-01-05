@@ -4,30 +4,28 @@
 #include "common.h"
 #include "ast_visitor.h"
 #include "core/list.h"
+
 #include "ir_base.h"
-#include "ir1_instructions.h"
 
-using namespace AST;
-
-namespace IR1 {
-  class CodeGen : public ASTVisitor { 
+namespace IR {
+  class CodeGen : public AST::ASTVisitor { 
     protected:
-      SimpleList<IR::IRBase*> irs;
+      SimpleList<IR*> irs;
 
     public:
       CodeGen() {}
       virtual ~CodeGen() {}
 
-      bool GenerateIR(Declarations* decl);
+      bool GenerateIR(AST::Declarations* decl);
 
-      bool VisitStmt(StmtNode* nodes);
-      bool VisitExpr(ExprNode* node);
+      bool VisitStmt(AST::StmtNode* nodes);
+      bool VisitExpr(AST::ExprNode* node);
 
       // Statements
 //      virtual bool Visit(BlockNode* node) override;
 //      virtual bool Visit(LabelNode* node) override;
 //      virtual bool Visit(ExprStmtNode* node) override;
-      virtual bool Visit(IfNode* node) override;
+      virtual bool Visit(AST::IfNode* node) override;
 //      virtual bool Visit(WhileNode* node) override;
 //      virtual bool Visit(DoWhileNode* node)override;
 //      virtual bool Visit(ForNode* node) override;
@@ -63,8 +61,8 @@ namespace IR1 {
 //      virtual bool Visit(SuffixOpNode* node) override;
 //
 //      // Etc
-      virtual bool Visit(FunctionDecl* node) override;
-      virtual bool Visit(VariableDecl* node) override;
+      virtual bool Visit(AST::FunctionDecl* node) override;
+      virtual bool Visit(AST::VariableDecl* node) override;
 //      virtual bool Visit(ConstantDecl* node) override;
 //      virtual bool Visit(TypeNode* node) override;
 //      virtual bool Visit(ParamNode* node) override;

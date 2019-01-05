@@ -2,13 +2,13 @@
 #define _ircontext_h_
 
 namespace IR {
-  class IRContext {
-    private:
+class IRContext {
+  private:
 
-    public:
-      IRContext() {}
-      ~IRContext() {}
-  };
-}
+  public:
+    IRContext() {}
+    ~IRContext() {}
+};
+};
 
 #endif
