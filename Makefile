@@ -37,22 +37,22 @@ generated_source = 	$(subst .y,.c,$(filter %.y,$1)) \
 										$(subst .l,.c,$(filter %.l,$1))
 
 
-# Local Variables ==========================================================
+# Global Variables ==========================================================
 # Collect information from each module in these four variables.
 # Initialize them here as simple variables.
-modules				:= src test
+src_dirs			:= src
+include_dirs 	:= include
+test_dirs 		:= test
+
+modules				:= $(src_dirs) $(test_dirs) 
 programs 			:= $(BINARY_OUT)/main
 test_programs :=
 libraries			:=
 sources  			:=
 
 objects 			= $(call source_to_object, $(sources))
-dependencies 	= $(subst .o,.d,$(objects))
-
-include_dirs 	:= $(CURDIR)/include 
 CPPFLAGS			+= $(addprefix -I ,$(include_dirs))
-vpath	%.h $(include_dirs)
-
+vpath	%.h $(include_dirs) $(src_dirs) 
 compile_log		:= log.txt
 
 # Compile Options ==========================================================
@@ -103,17 +103,37 @@ libraries: $(libraries)
 .PHONY: clean
 clean:
 	$(RM) -r $(BINARY_OUT)
+	$(RM) -r $(src_dirs)/*.d 
+	$(RM) -r $(test_dirs)/*.d 
 
 .PHONY: test
 test: $(programs) $(test_programs)
 	@echo run test
 
+
+# Create Dependencies Begin =========
+
+ifneq "$(MAKECMDGOALS)" "clean"
+
+include $(subst .c,.d,$(filter %.c,$(sources))) $(subst .cpp,.d,$(filter %.cpp,$(sources)))
+
+%.d: %.c 
+	$(CC) -M $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+%.d: %.cpp
+	$(CXX) -M $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+endif
+
+# Create Dependencies End ==========
+
+
 $(TEST_OUT)/% : $(TEST_OUT)/%.o $(programs_objs)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(libraries)
-
-#ifneq "$(MAKECMDGOALS)" "clean"
-#include $(dependencies)
-#endif
 
 $(programs) : $(program_main_obj) $(programs_objs)
 	$(CXX) $(LDFLAGS) -o $@ $^ $(libraries)
@@ -124,3 +144,5 @@ $(BINARY_OUT)/%.o : %.cpp
 $(BINARY_OUT)/%.o : %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<  -o $@
 
+test_make:
+	@echo $(include_dirs)/*.d
