@@ -7,8 +7,8 @@
 
 namespace AST {
 
-  // Check local variable duplication and 
-  // link between Variable defintion and Variable use.
+  // Check duplication of local variable and 
+  // linkage between Variable defintion and Variable instace.
   class LocalVarChecker : public ASTVisitor {
     Declarations* decls_;
     Scope* scope_;
