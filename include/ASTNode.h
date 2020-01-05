@@ -2,9 +2,9 @@
 #define _ast_node_h_
 
 #include <cstring>
-#include "ast_type.h"
-#include "common.h"
-#include "visitor_base.h"
+#include "ASTType.h"
+#include "Common.h"
+#include "VisitorBase.h"
 
 
 namespace AST {

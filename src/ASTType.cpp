@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 #include <assert.h>
-#include "ast_type.h"
-#include "astcontext.h"
+#include "ASTType.h"
+#include "ASTContext.h"
 
 using namespace std;
 

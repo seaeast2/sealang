@@ -1,7 +1,7 @@
 #ifndef _ast_visitor_h_
 #define _ast_visitor_h_
 
-#include "visitor_base.h"
+#include "VisitorBase.h"
 
 namespace AST {
   // Iterate AST

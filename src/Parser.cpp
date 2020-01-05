@@ -1,6 +1,6 @@
 #include <assert.h>
-#include "parser.h"
 #include <stdlib.h>
+#include "Parser.h"
 
 namespace Parser {
   SyntaxAnalyzer::SyntaxAnalyzer(AST::ASTContext* ac, Lexer::Tokenizer* tk, 

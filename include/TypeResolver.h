@@ -1,9 +1,9 @@
 #ifndef _type_resolver_h_
 #define _type_resolver_h_
 
-#include "common.h"
-#include "ast_node.h"
-#include "astcontext.h"
+#include "Common.h"
+#include "ASTNode.h"
+#include "ASTContext.h"
 #include "core/hash_int.h"
 
 

@@ -1,8 +1,8 @@
 #ifndef _ast_printer_h_
 #define _ast_printer_h_
 
-#include "ast_node.h"
-#include "ast_visitor.h"
+#include "ASTNode.h"
+#include "ASTVisitor.h"
 
 namespace AST {
 

@@ -1,11 +1,11 @@
 #ifndef _astcontext_h_
 #define _astcontext_h_
 
-#include "common.h"
-#include "ast_type.h"
-#include "ast_node.h"
+#include "Common.h"
+#include "ASTType.h"
+#include "ASTNode.h"
 #include "core/hash.h"
-#include "scope.h"
+#include "Scope.h"
 
 namespace AST {
   // AST context manager

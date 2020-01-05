@@ -2,7 +2,7 @@
 #define _lexer_h_
 
 #include <vector>
-#include "error_diagnosis.h"
+#include "ErrorDiag.h"
 
 namespace Lexer {
   enum TokenType {

@@ -1,9 +1,9 @@
-#include "astcontext.h"
+#include "ASTContext.h"
 #include <iostream>
 #include <assert.h>
-#include "ast_printer.h"
-#include "local_var_checker.h"
-#include "type_resolver.h"
+#include "ASTPrinter.h"
+#include "LocalVarChecker.h"
+#include "TypeResolver.h"
 
 using namespace std;
 

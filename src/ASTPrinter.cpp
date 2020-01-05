@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "ast_printer.h"
+#include "ASTPrinter.h"
 
 using namespace std;
 using namespace AST;

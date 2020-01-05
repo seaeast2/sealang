@@ -1,6 +1,6 @@
 #include <assert.h>
 #include "core/hash_int.h"
-#include "type_resolver.h"
+#include "TypeResolver.h"
 
 using namespace AST;
 

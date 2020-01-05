@@ -5,7 +5,7 @@
 #include <string>
 #include "core/simple_vector.h"
 #include "core/hash.h"
-#include "ast_type.h"
+#include "ASTType.h"
 
 typedef std::vector<std::string> VecStr;
 

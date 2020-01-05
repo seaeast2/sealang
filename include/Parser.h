@@ -2,13 +2,13 @@
 #define _parser_h_
 
 #include <string>
-#include "common.h"
+#include "Common.h"
 #include "core/stack.h"
 #include "core/simple_vector.h"
-#include "lexer.h"
-#include "error_diagnosis.h"
-#include "astcontext.h"
-#include "ast_node.h"
+#include "Lexer.h"
+#include "ErrorDiag.h"
+#include "ASTContext.h"
+#include "ASTNode.h"
 
 namespace Parser {  
   // default 3 rusult.

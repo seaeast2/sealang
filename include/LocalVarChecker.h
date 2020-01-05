@@ -1,9 +1,9 @@
 #ifndef _local_var_checker_h_
 #define _local_var_checker_h_
 
-#include "ast_node.h"
-#include "ast_visitor.h"
-#include "scope.h"
+#include "ASTNode.h"
+#include "ASTVisitor.h"
+#include "Scope.h"
 
 namespace AST {
 

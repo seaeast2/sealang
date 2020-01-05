@@ -1,8 +1,8 @@
 #ifndef _dereference_checker_h_
 #define _dereference_checker_h_
 
-#include "ast_node.h"
-#include "ast_visitor.h"
+#include "ASTNode.h"
+#include "ASTVisitor.h"
 
 namespace AST {
   /* Check below error

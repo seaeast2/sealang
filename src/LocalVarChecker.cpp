@@ -1,6 +1,6 @@
 
 #include <assert.h>
-#include "local_var_checker.h"
+#include "LocalVarChecker.h"
 
 using namespace AST;
 

@@ -2,7 +2,7 @@
 #define _scope_h_
 
 #include "core/simple_vector.h"
-#include "ast_node.h"
+#include "ASTNode.h"
 
 namespace AST {
 

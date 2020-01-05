@@ -1,7 +1,7 @@
 #ifndef _visitor_base_h_
 #define _visitor_base_h_
 
-#include "common.h"
+#include "Common.h"
 
 namespace AST {
   class VisitorBase {

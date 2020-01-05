@@ -1,5 +1,5 @@
-#include "ast_visitor.h"
-#include "ast_node.h"
+#include "ASTVisitor.h"
+#include "ASTNode.h"
 
 using namespace AST;
 

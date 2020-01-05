@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstring>
 
-#include "lexer.h"
+#include "Lexer.h"
 
 using namespace std;
 

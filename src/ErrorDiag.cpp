@@ -1,4 +1,4 @@
-#include "error_diagnosis.h"
+#include "ErrorDiag.h"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "dereference_checker.h"
+#include "DereferenceChecker.h"
 
 using namespace AST;
 
