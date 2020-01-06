@@ -1,29 +1,29 @@
 
 #include <assert.h>
-#include "LocalVarChecker.h"
+#include "LocalVarResolver.h"
 
 using namespace AST;
 
 
-LocalVarChecker::LocalVarChecker() {
+LocalVarResolver::LocalVarResolver() {
   decls_ = nullptr;
   scope_ = nullptr;
   is_function_body_ = false;
 }
 
-LocalVarChecker::~LocalVarChecker() {
+LocalVarResolver::~LocalVarResolver() {
 }
 
-void LocalVarChecker::PushScope() {
+void LocalVarResolver::PushScope() {
   scope_ = scope_->AddChild();
 }
 
-void LocalVarChecker::PopScope() {
+void LocalVarResolver::PopScope() {
   scope_ = scope_->GetParent() == nullptr ? scope_ : scope_->GetParent();
 }
 
 
-bool LocalVarChecker::Check(Declarations* decls, Scope* scp) {
+bool LocalVarResolver::Check(Declarations* decls, Scope* scp) {
   decls_ = decls;
   scope_ = scp;
 
@@ -32,7 +32,7 @@ bool LocalVarChecker::Check(Declarations* decls, Scope* scp) {
   // Register global variable, function, cosntant
   for (int i = 0; i < decls_->GetFunctionNum(); i++) {
     name_decl = decls_->GetFunction(i);
-    if (!scope_->IsDuplicatedNameInCurScope(name_decl->GetName()))
+    if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
       assert(0&& "Error on Variable checker : Duplicate name");
@@ -40,7 +40,7 @@ bool LocalVarChecker::Check(Declarations* decls, Scope* scp) {
 
   for (int i = 0; i < decls_->GetConstantNum(); i++) {
     name_decl = decls_->GetConstant(i);
-    if (!scope_->IsDuplicatedNameInCurScope(name_decl->GetName()))
+    if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
       assert(0&& "Error on Variable checker : Duplicate name");
@@ -48,7 +48,7 @@ bool LocalVarChecker::Check(Declarations* decls, Scope* scp) {
 
   for (int i = 0; i < decls_->GetVariableNum(); i++) {
     name_decl = decls_->GetVariable(i);
-    if (!scope_->IsDuplicatedNameInCurScope(name_decl->GetName()))
+    if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
       assert(0&& "Error on Variable checker : Duplicate name");
@@ -70,7 +70,7 @@ bool LocalVarChecker::Check(Declarations* decls, Scope* scp) {
   return true;
 }
 
-bool LocalVarChecker::Visit(BlockNode* node) {
+bool LocalVarResolver::Visit(BlockNode* node) {
   bool is_function_body = is_function_body_;
   if (!is_function_body)
     PushScope();
@@ -79,7 +79,7 @@ bool LocalVarChecker::Visit(BlockNode* node) {
   NamedDecl* name_decl = nullptr;
   for (int i = 0; i < node->GetVarNum(); i++) {
     name_decl = node->GetVariable(i);
-    if (!scope_->IsDuplicatedNameInCurScope(name_decl->GetName()))
+    if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
       assert(0&& "Error on Variable checker : Duplicate name");
@@ -91,7 +91,7 @@ bool LocalVarChecker::Visit(BlockNode* node) {
   return res;
 }
 
-bool LocalVarChecker::Visit(VariableNode* node) {
+bool LocalVarResolver::Visit(VariableNode* node) {
   NamedDecl* nd = scope_->FindDecl(node->GetVarName());
   if (nd)
     node->SetNamedDecl(nd);
@@ -101,13 +101,13 @@ bool LocalVarChecker::Visit(VariableNode* node) {
   return ASTVisitor::Visit(node);
 }
 
-bool LocalVarChecker::Visit(FunctionDecl* node) {
+bool LocalVarResolver::Visit(FunctionDecl* node) {
   PushScope();
   is_function_body_ = true;
   NamedDecl* name_decl = nullptr;
   for (int i = 0; i < node->GetParamNum(); i++) {
     name_decl = node->GetParamNode(i);
-    if (!scope_->IsDuplicatedNameInCurScope(name_decl->GetName()))
+    if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
       assert(0&& "Error on Variable checker : Duplicate name");
@@ -118,20 +118,20 @@ bool LocalVarChecker::Visit(FunctionDecl* node) {
   return res;
 }
 
-bool LocalVarChecker::Visit(ClassNode* node) {
+bool LocalVarResolver::Visit(ClassNode* node) {
   PushScope();
   NamedDecl* name_decl = nullptr;
   // Register class member variable, function
   for (int i = 0; i < node->GetMemVarNum(); i++) {
     name_decl = node->GetMemVariable(i);
-    if (!scope_->IsDuplicatedNameInCurScope(name_decl->GetName()))
+    if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
       assert(0&& "Error on Variable checker : Duplicate name");
   }
   for (int i = 0; i < node->GetMemFunNum(); i++) {
     name_decl = node->GetMemFunction(i);
-    if (!scope_->IsDuplicatedNameInCurScope(name_decl->GetName()))
+    if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
       assert(0&& "Error on Variable checker : Duplicate name");

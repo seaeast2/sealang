@@ -27,7 +27,8 @@ namespace AST {
       // Decl control
       void AddNamedDecl(NamedDecl* node);
       NamedDecl* FindDecl(const char* variable_name);
-      bool IsDuplicatedNameInCurScope(const char* variable_name);
+      // Check if there is duplicated name in this scope.
+      bool HasDuplicatedName(const char* variable_name);
 
       int GetDeclNum() { return decls_.GetSize(); }
       NamedDecl* GetDecl(int index) { return decls_[index]; }

@@ -1,7 +1,7 @@
-#include "lexer.h"
-#include "parser.h"
-#include "astcontext.h"
-#include "error_diagnosis.h"
+#include "Lexer.h"
+#include "Parser.h"
+#include "ASTContext.h"
+#include "ErrorDiag.h"
 
 int main(int argc, char** argv) {
   // TODO : driver needed

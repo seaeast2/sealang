@@ -68,10 +68,10 @@ CC := gcc
 CXX := g++
 
 # define any compile-time flags
-CXXFLAGS += -Wall -g -std=c++11 -Wno-write-strings
+CXXFLAGS += -Wall -g -std=gnu++11 -Wno-write-strings
 
 # C preprocessor options
-CPPFLAGS += -D ENABLE_DEBUG
+CPPFLAGS += -D ENABLE_DEBUG -std=gnu++11
 
 # linker options
 LDFLAGS +=

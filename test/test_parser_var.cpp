@@ -1,6 +1,6 @@
-#include "lexer.h"
-#include "parser.h"
-#include "ast_printer.h"
+#include "Lexer.h"
+#include "Parser.h"
+#include "ASTPrinter.h"
 
 char* src =  
 "int a, b = 10;\0";

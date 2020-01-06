@@ -1,5 +1,5 @@
-#ifndef _local_var_checker_h_
-#define _local_var_checker_h_
+#ifndef _LocalVarResolver_h_
+#define _LocalVarResolver_h_
 
 #include "ASTNode.h"
 #include "ASTVisitor.h"
@@ -9,15 +9,15 @@ namespace AST {
 
   // Check duplication of local variable and 
   // linkage between Variable defintion and Variable instace.
-  class LocalVarChecker : public ASTVisitor {
+  class LocalVarResolver : public ASTVisitor {
     Declarations* decls_;
     Scope* scope_;
 
     bool is_function_body_;
     
     public:
-      LocalVarChecker();
-      virtual ~LocalVarChecker();
+      LocalVarResolver();
+      virtual ~LocalVarResolver();
 
       void PushScope();
       void PopScope();

@@ -1,5 +1,5 @@
 
-#include "lexer.h"
+#include "Lexer.h"
 
 
 using namespace Lexer;

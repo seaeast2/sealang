@@ -54,7 +54,7 @@ namespace AST {
     return nullptr;
   }
 
-  bool Scope::IsDuplicatedNameInCurScope(const char* variable_name) {
+  bool Scope::HasDuplicatedName(const char* variable_name) {
     for (int i = 0; i < decls_.GetSize(); i++) {
       if (!strcmp(decls_[i]->GetName(), variable_name))
         return true; 
