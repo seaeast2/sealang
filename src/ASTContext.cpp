@@ -2,7 +2,7 @@
 #include <iostream>
 #include <assert.h>
 #include "ASTPrinter.h"
-#include "LocalVarChecker.h"
+#include "LocalVarResolver.h"
 #include "TypeResolver.h"
 
 using namespace std;
@@ -67,9 +67,9 @@ namespace AST {
     return type_table_.Next();
   }
 
-  void ASTContext::CheckLocalVar() {
-    LocalVarChecker lvc;
-    lvc.Check(decls_, &top_scope_);
+  void ASTContext::ResolveLocalVariable() {
+    LocalVarResolver lvr;
+    lvr.Resolve(decls_, &top_scope_);
   }
 
   void ASTContext::MakeCompleteType() {

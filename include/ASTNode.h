@@ -2,9 +2,10 @@
 #define _ast_node_h_
 
 #include <cstring>
+#include <assert.h>
 #include "ASTType.h"
 #include "Common.h"
-#include "VisitorBase.h"
+#include "ASTVisitor.h"
 
 
 namespace AST {
@@ -90,9 +91,104 @@ namespace AST {
       NodeKind GetNodeKind() { return kind_; }
       virtual bool IsKindOf(NodeKind kind) = 0;
 
-      virtual bool Accept(VisitorBase* visitor) {
-        return visitor->Visit(this);
-      }
+      virtual bool Accept(ASTVisitor* visitor) {
+        switch (kind_) {
+          case BlockNodeTy:
+            return visitor->Visit(reinterpret_cast<BlockNode*>(this));
+          case LabelNodeTy:
+            return visitor->Visit(reinterpret_cast<LabelNode*>(this));
+          case ExprStmtNodeTy:
+            return visitor->Visit(reinterpret_cast<ExprStmtNode*>(this));
+          case IfNodeTy:
+            return visitor->Visit(reinterpret_cast<IfNode*>(this));
+          case WhileNodeTy:
+            return visitor->Visit(reinterpret_cast<WhileNode*>(this));
+          case DoWhileNodeTy:
+            return visitor->Visit(reinterpret_cast<DoWhileNode*>(this));
+          case ForNodeTy:
+            return visitor->Visit(reinterpret_cast<ForNode*>(this));
+          case CaseNodeTy:
+            return visitor->Visit(reinterpret_cast<CaseNode*>(this));
+          case SwitchNodeTy:
+            return visitor->Visit(reinterpret_cast<SwitchNode*>(this));
+          case BreakNodeTy:
+            return visitor->Visit(reinterpret_cast<BreakNode*>(this));
+          case ContinueNodeTy:
+            return visitor->Visit(reinterpret_cast<ContinueNode*>(this));
+          case GotoNodeTy:
+            return visitor->Visit(reinterpret_cast<GotoNode*>(this));
+          case ReturnNodeTy:
+            return visitor->Visit(reinterpret_cast<ReturnNode*>(this));
+
+          case AssignNodeTy:
+            return visitor->Visit(reinterpret_cast<AssignNode*>(this));
+          case OpAssignNodeTy:
+            return visitor->Visit(reinterpret_cast<OpAssignNode*>(this));
+          case AddressNodeTy:
+            return visitor->Visit(reinterpret_cast<AddressNode*>(this));
+          case BinaryOpNodeTy:
+            return visitor->Visit(reinterpret_cast<BinaryOpNode*>(this));
+          case LogicalAndNodeTy:
+            return visitor->Visit(reinterpret_cast<LogicalAndNode*>(this));
+          case LogicalOrNodeTy:
+            return visitor->Visit(reinterpret_cast<LogicalOrNode*>(this));
+          case CastNodeTy:
+            return visitor->Visit(reinterpret_cast<CastNode*>(this));
+          case CondExprNodeTy:
+            return visitor->Visit(reinterpret_cast<CondExprNode*>(this));
+          case FuncCallNodeTy:
+            return visitor->Visit(reinterpret_cast<FuncCallNode*>(this));
+          case ArrayRefNodeTy:
+            return visitor->Visit(reinterpret_cast<ArrayRefNode*>(this));
+          case DereferenceNodeTy:
+            return visitor->Visit(reinterpret_cast<DereferenceNode*>(this));
+          case MemberRefNodeTy:
+            return visitor->Visit(reinterpret_cast<MemberRefNode*>(this));
+          case PtrMemberRefNodeTy:
+            return visitor->Visit(reinterpret_cast<PtrMemberRefNode*>(this));
+          case VariableNodeTy:
+            return visitor->Visit(reinterpret_cast<VariableNode*>(this));
+          case IntegerLiteralNodeTy:
+            return visitor->Visit(reinterpret_cast<IntegerLiteralNode*>(this));
+          case RealLiteralNodeTy:
+            return visitor->Visit(reinterpret_cast<RealLiteralNode*>(this));
+          case StringLiteralNodeTy:
+            return visitor->Visit(reinterpret_cast<StringLiteralNode*>(this));
+          case SizeofExprNodeTy:
+            return visitor->Visit(reinterpret_cast<SizeofExprNode*>(this));
+          case SizeofTypeNodeTy:
+            return visitor->Visit(reinterpret_cast<SizeofTypeNode*>(this));
+          case UnaryOpNodeTy:
+            return visitor->Visit(reinterpret_cast<UnaryOpNode*>(this));
+          case PrefixOpNodeTy:
+            return visitor->Visit(reinterpret_cast<PrefixOpNode*>(this));
+          case SuffixOpNodeTy:
+            return visitor->Visit(reinterpret_cast<SuffixOpNode*>(this));
+
+          case FunctionDeclTy:
+            return visitor->Visit(reinterpret_cast<FunctionDecl*>(this));
+          case VariableDeclTy:
+            return visitor->Visit(reinterpret_cast<VariableDecl*>(this));
+          case ConstantDeclTy:
+            return visitor->Visit(reinterpret_cast<ConstantDecl*>(this));
+          case TypeNodeTy:
+            return visitor->Visit(reinterpret_cast<TypeNode*>(this));
+          case ParamNodeTy:
+            return visitor->Visit(reinterpret_cast<ParamNode*>(this));
+          case ImportNodeTy:
+            return visitor->Visit(reinterpret_cast<ImportNode*>(this));
+          case ArgsNodeTy:
+            return visitor->Visit(reinterpret_cast<ArgsNode*>(this));
+          case ClassNodeTy:
+            return visitor->Visit(reinterpret_cast<ClassNode*>(this));
+          case TypedefNodeTy:
+            return visitor->Visit(reinterpret_cast<TypedefNode*>(this));
+
+          default:
+            assert(0&& "Error on Variable checker : Duplicate name");
+            break;
+        }
+     }
   };
 
   class TypeNode : public BaseNode {
@@ -117,7 +213,7 @@ namespace AST {
       void SetType(Type* ty) { type_ = ty; }
       AST::Type* GetType() { return type_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -146,7 +242,7 @@ namespace AST {
       const char* GetImportPath();
       void Reverse() { import_paths_.Reverse(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -217,7 +313,7 @@ namespace AST {
       int GetVarNum() { return vars_.GetSize(); }
       int GetStmtNum() { return stmts_.GetSize(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -258,7 +354,7 @@ namespace AST {
       void SetStmt(StmtNode* stmt) { stmt_ = stmt; }
       StmtNode* GetStmt() { return stmt_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -292,7 +388,7 @@ namespace AST {
       void SetExpr(ExprNode* expr) { expr_ = expr; }
       ExprNode* GetExpr() { return expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -341,7 +437,7 @@ namespace AST {
       StmtNode* GetThenBody() { return then_body_; }
       StmtNode* GetElseBody() { return else_body_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -383,7 +479,7 @@ namespace AST {
       ExprNode* GetCond() { return cond_; }
       StmtNode* GetBody() { return body_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -425,7 +521,7 @@ namespace AST {
       ExprNode* GetCond() { return cond_; }
       StmtNode* GetBody() { return body_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -481,7 +577,7 @@ namespace AST {
       ExprNode* GetInc() { return inc_; }
       StmtNode* GetBody() { return body_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -528,7 +624,7 @@ namespace AST {
       StmtNode* GetBody() { return body_; }
       bool IsDefaultCase() { return values_.IsEmpty(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -574,7 +670,7 @@ namespace AST {
       int GetCaseNum() { return case_values_.GetSize(); }
       CaseNode* GetCase(int index) { return case_values_[index]; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -594,7 +690,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -614,7 +710,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -642,7 +738,7 @@ namespace AST {
       void SetTarget(const char* target) { target_ = target; }
       const char* GetTarget() { return target_.c_str(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -674,7 +770,7 @@ namespace AST {
       void SetExpr(ExprNode* expr) { expr_ = expr; }
       ExprNode* GetExpr() { return expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -729,7 +825,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -772,7 +868,7 @@ namespace AST {
 
       void SetOp(AssignOp op) { op_ = op; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -804,7 +900,7 @@ namespace AST {
       void SetExpr(ExprNode* expr) { expr_ = expr; }
       ExprNode* GetExpr() { return expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -868,7 +964,7 @@ namespace AST {
       ExprNode* GetLeft() { return left_; }
       ExprNode* GetRight() { return right_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -897,7 +993,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -924,7 +1020,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -962,7 +1058,7 @@ namespace AST {
       TypeNode* GetCastType() { return cast_type_; }
       ExprNode* GetTermExpr() { return term_expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1006,7 +1102,7 @@ namespace AST {
       ExprNode* GetThen() { return then_expr_; }
       ExprNode* GetElse() { return else_expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1041,7 +1137,7 @@ namespace AST {
         return args_[idx];
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1079,7 +1175,7 @@ namespace AST {
       ExprNode* GetFuncExpr() { return func_expr_; }
       ArgsNode* GetArgs() { return args_; }
       
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1135,7 +1231,7 @@ namespace AST {
       ExprNode* GetArrayBaseExpr() { return array_base_expr_; }
       ExprNode* GetArraySizeExpr() { return array_size_expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1166,7 +1262,7 @@ namespace AST {
 
       ExprNode* GetBaseExpr() { return base_expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1200,7 +1296,7 @@ namespace AST {
       ExprNode* GetBaseExpr() { return base_expr_; }
       const char* GetMemberName() { return member_name_.c_str(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1234,11 +1330,12 @@ namespace AST {
       ExprNode* GetBaseExpr() { return base_expr_; }
       const char* GetMemberName() { return member_name_.c_str(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
 
+  // Function or Variable can be a VariableNode.
   class VariableNode : public LHSNode {
     NamedDecl* defined_decl_;
     std::string variable_name_;
@@ -1267,7 +1364,7 @@ namespace AST {
       const char* GetVarName() { return variable_name_.c_str(); }
       NamedDecl* GetNamedDecl() { return defined_decl_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1297,7 +1394,7 @@ namespace AST {
 
       ExprNode* GetSizeExpr() { return size_expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1329,7 +1426,7 @@ namespace AST {
 
       ExprNode* GetSizeExpr() { return size_expr_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1377,7 +1474,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1397,7 +1494,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1423,7 +1520,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1449,7 +1546,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1497,7 +1594,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1525,7 +1622,7 @@ namespace AST {
       void SetValue(double v) { value_ = v; }
       long GetValue() { return value_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1552,7 +1649,7 @@ namespace AST {
 
       const char* GetStr() { return str_.c_str(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1627,7 +1724,7 @@ namespace AST {
         return false;
       }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1691,11 +1788,12 @@ namespace AST {
       BlockNode* GetBody() { return body_; }
       ClassNode* GetThisClass() { return this_class_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
   
+  // Variable declaration 
   class VariableDecl : public NamedDecl {
     bool is_static_;
     TypeNode* type_;
@@ -1731,7 +1829,7 @@ namespace AST {
       TypeNode* GetType() { return type_; }
       ExprNode* GetInitializer() { return initializer_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1766,7 +1864,7 @@ namespace AST {
       TypeNode* GetType() { return type_; }
       ExprNode* GetInitializer() { return initializer_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1803,7 +1901,7 @@ namespace AST {
       bool GetVarArgs() { return var_arg_; }
       TypeNode* GetType() { return type_; }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };
@@ -1840,7 +1938,7 @@ namespace AST {
       void ReverseVariableOrder() { member_variables_.Reverse(); }
       void ReverseFunctionOrder() { member_functions_.Reverse(); }
 
-      virtual bool Accept(VisitorBase* visitor) override {
+      virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
       }
   };

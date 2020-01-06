@@ -22,3 +22,6 @@ Git command
   git rm filename
   git commit -am "Delete filename"
   git push origin master
+
+7. Store credential
+  git config --global credential.help store

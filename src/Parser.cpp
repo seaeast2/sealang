@@ -1988,6 +1988,7 @@ namespace Parser {
       PushNode(node, RuleName::primary);
     }
     else if (top_pi.type_ == ParseInfo::Identifier) {
+      // In case type is idenfier, we decide it is a variable.
       parse_stack_.Pop();
 
       char* tmp = new char[top_pi.cstr_len_+1];

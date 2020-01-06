@@ -23,19 +23,19 @@ void LocalVarResolver::PopScope() {
 }
 
 
-bool LocalVarResolver::Check(Declarations* decls, Scope* scp) {
+bool LocalVarResolver::Resolve(Declarations* decls, Scope* scp) {
   decls_ = decls;
   scope_ = scp;
 
   NamedDecl* name_decl = nullptr;
 
-  // Register global variable, function, cosntant
+  // Collect global variables, functions, constants 
   for (int i = 0; i < decls_->GetFunctionNum(); i++) {
     name_decl = decls_->GetFunction(i);
     if (!scope_->HasDuplicatedName(name_decl->GetName()))
       scope_->AddNamedDecl(name_decl);
     else
-      assert(0&& "Error on Variable checker : Duplicate name");
+      assert(0&& "Error : There is a duplicated function name.");
   }
 
   for (int i = 0; i < decls_->GetConstantNum(); i++) {

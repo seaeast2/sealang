@@ -32,7 +32,8 @@ namespace AST {
       void ResetTypeItr(); // reset type iteration
       Type* GetTypeAndNext(); // type iteration
 
-      void CheckLocalVar();
+      // Check if local variable is in right usage.
+      void ResolveLocalVariable();
       void MakeCompleteType();
       void CheckVoidArray();
       void CheckRecursiveTypeDef();
