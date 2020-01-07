@@ -21,7 +21,7 @@ bool ASTVisitor::Visit(BlockNode* node){
   // variables
   VariableDecl* var = nullptr;
   for (int i = 0; i < node->GetVarNum(); i++) {
-    var = node->GetVariable(i);
+    var = node->GetVariableDecl(i);
     if (!Visit(var))
       return false;
   }
@@ -350,13 +350,25 @@ bool ASTVisitor::Visit(ArgsNode* node){
   return true; 
 }
 
-bool ASTVisitor::Visit(ClassNode* node){ 
-  for (int i = 0; i < node->GetMemVarNum(); i++) {
-    if(!Visit(node->GetMemVariable(i)))
+//bool ASTVisitor::Visit(ClassNode* node){ 
+//  for (int i = 0; i < node->GetMemVarNum(); i++) {
+//    if(!Visit(node->GetMemVariable(i)))
+//      return false;
+//  }
+//  for (int i = 0; i < node->GetMemFunNum(); i++) {
+//    if(!Visit(node->GetMemFunction(i)))
+//      return false;
+//  }
+//  return true; 
+//}
+
+bool ASTVisitor::Visit(RecordDecl* node) { 
+  for (int i = 0; i < node->GetMemVarDeclNum(); i++) {
+    if(!Visit(node->GetMemVariableDecl(i)))
       return false;
   }
-  for (int i = 0; i < node->GetMemFunNum(); i++) {
-    if(!Visit(node->GetMemFunction(i)))
+  for (int i = 0; i < node->GetMemFunDeclNum(); i++) {
+    if(!Visit(node->GetMemFunctionDecl(i)))
       return false;
   }
   return true; 

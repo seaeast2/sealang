@@ -100,7 +100,7 @@ namespace AST {
   }
 
   // incomplete type
-  ClassType* ClassType::Get(ASTContext* ac, const char* type_name) {
+  /*ClassType* ClassType::Get(ASTContext* ac, const char* type_name) {
     Type* ty = ac->GetType(type_name);
     if (ty) 
       return (ClassType*)ty;
@@ -109,6 +109,17 @@ namespace AST {
     ty->Incomplete(true); // set with incomplete type.
     ac->AddType(ty);
     return (ClassType*)ty;
+  }*/
+
+  RecordType* RecordType::Get(ASTContext* ac, const char* type_name) {
+    Type* ty = ac->GetType(type_name);
+    if (ty) 
+      return (RecordType*)ty;
+
+    ty = new RecordType(type_name);
+    ty->Incomplete(true); // set with incomplete type when RecordDecl is created.
+    ac->AddType(ty);
+    return (RecordType*)ty;
   }
 
   UserType* UserType::Get(ASTContext* ac, Type* original_type, const char* alias) {

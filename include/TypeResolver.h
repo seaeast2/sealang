@@ -9,7 +9,7 @@
 
 namespace AST {
 
-  // Traverse AST and adjust incomplete types
+  // Traverse AST and turn incomplete type to complete type
   class TypeResolver {
     private:
       HashInt<unsigned long, Type*, 64> recursive_type_checker_;
@@ -27,9 +27,9 @@ namespace AST {
     private:
       // Make incomplete type to complete type
       bool CompleteFunctionType(ASTContext* ac, FunctionDecl* fd);
-      bool CompleteClassType(ASTContext* ac, ClassNode* cn);
+      bool CompleteRecordType(ASTContext* ac, RecordDecl* RD);
       // Check Recursive type definition.
-      bool VisitClassType(ClassType* ct);
+      bool VisitRecordType(RecordType* ct);
   };
 };
 

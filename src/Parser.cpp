@@ -463,21 +463,23 @@ namespace Parser {
       pi = parse_stack_.Top();
       if (pi.type_ == ParseInfo::ASTNode) {
         if (pi.rule_name_ == RuleName::import_stmts)
-          decl->AddImport((AST::ImportNode*)pi.data_.node_);
+          decl->AddImportNode((AST::ImportNode*)pi.data_.node_);
         if (pi.rule_name_ == RuleName::deffunc)
-          decl->AddFunction((AST::FunctionDecl*)pi.data_.node_);
+          decl->AddFunctionDecl((AST::FunctionDecl*)pi.data_.node_);
         if (pi.rule_name_ == RuleName::defconst)
-          decl->AddConstant((AST::ConstantDecl*)pi.data_.node_);
+          decl->AddConstantDecl((AST::ConstantDecl*)pi.data_.node_);
+        /*if (pi.rule_name_ == RuleName::defclass)
+          decl->AddClass((AST::ClassNode*)pi.data_.node_);*/
         if (pi.rule_name_ == RuleName::defclass)
-          decl->AddClass((AST::ClassNode*)pi.data_.node_);
+          decl->AddRecordDecl((AST::RecordDecl*)pi.data_.node_);
         if (pi.rule_name_ == RuleName::typedef_)
-          decl->AddTypedef((AST::TypedefNode*)pi.data_.node_);
+          decl->AddTypedefNode((AST::TypedefNode*)pi.data_.node_);
       }
       else if (pi.type_ == ParseInfo::VarDeclList) {
         if (pi.rule_name_ == RuleName::defvars) {
           AST::VariableDecls *vars = pi.data_.vardecls_;
           for (int i = 0; i < vars->GetSize(); i++) {
-            decl->AddVariable((*vars)[i]);
+            decl->AddVariableDecl((*vars)[i]);
           }
           delete vars;
         }
@@ -851,13 +853,13 @@ namespace Parser {
     char* iden = new char[pi_iden.cstr_len_ + 1];
     memset(iden, 0, pi_iden.cstr_len_ + 1);
     strncpy(iden, pi_iden.data_.cstr_, pi_iden.cstr_len_);
-    AST::ClassType* cty = AST::ClassType::Get(ac_, iden);
+    AST::RecordType* RTy = AST::RecordType::Get(ac_, iden);
     delete[] iden;
-    if (!cty) {
-      assert(0 && "Failed to assign ClassType.");
+    if (!RTy) {
+      assert(0 && "Failed to assign RecordType.");
       return Error;
     }
-    PushType(cty, RuleName::seq_class_identifier);
+    PushType(RTy, RuleName::seq_class_identifier);
     return True;
   }
 
@@ -1131,7 +1133,8 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::DefClass(void) {
     ParseInfo pi_class_member, pi_brace_open, pi_class_name;
-    AST::ClassNode* class_node = new AST::ClassNode();
+    //AST::ClassNode* class_node = new AST::ClassNode();
+    AST::RecordDecl* RD = new AST::RecordDecl();
 
     pi_class_member = parse_stack_.Top();
     while(pi_class_member.rule_name_ == RuleName::seq_class_member_variable || 
@@ -1143,7 +1146,7 @@ namespace Parser {
         if (pi_class_member.type_ == ParseInfo::VarDeclList) {
           vars = pi_class_member.data_.vardecls_;
           for (int i=vars->GetSize()-1; i >= 0; i--) {
-            class_node->AddMemVariable((*vars)[i]);
+            RD->AddMemVariableDecl((*vars)[i]);
           }
           delete vars; // removes simplevector
         }
@@ -1155,7 +1158,7 @@ namespace Parser {
       else {
         if (pi_class_member.type_ == ParseInfo::ASTNode) {
           AST::FunctionDecl* fd = (AST::FunctionDecl*)pi_class_member.data_.node_;
-          class_node->AddMemFunction(fd);
+          RD->AddMemFunctionDecl(fd);
         }
         else  {
           assert(0 && "Invalid class member function list.");
@@ -1187,18 +1190,18 @@ namespace Parser {
     char* classname = new char[pi_class_name.cstr_len_ + 1];
     memset(classname, 0, pi_class_name.cstr_len_ + 1);
     strncpy(classname, pi_class_name.data_.cstr_, pi_class_name.cstr_len_);
-    class_node->SetTypeName(classname);
+    RD->SetTypeName(classname);
     // Set class type
-    AST::ClassType* clsty = AST::ClassType::Get(ac_, classname);
+    AST::RecordType* clsty = AST::RecordType::Get(ac_, classname);
     AST::TypeNode* class_ty_node = new AST::TypeNode(clsty);
-    class_node->SetType(class_ty_node);
+    RD->SetType(class_ty_node);
     delete[] classname;
 
-    // reverse order
-    class_node->ReverseVariableOrder();
-    class_node->ReverseFunctionOrder();
+    // reverse order to keep stack order
+    RD->ReverseVariableOrder();
+    RD->ReverseFunctionOrder();
 
-    PushNode(class_node, RuleName::defclass);
+    PushNode(RD, RuleName::defclass);
     return True;
   }
 

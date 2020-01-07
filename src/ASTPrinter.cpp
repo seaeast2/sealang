@@ -19,28 +19,28 @@ bool ASTPrinter::Print(Declarations* decls) {
     return false;
   }
 
-  for (int i = 0; i < decls->GetFunctionNum(); i++) {
-    if(!Visit(decls->GetFunction(i)))
+  for (int i = 0; i < decls->GetFunctionDeclNum(); i++) {
+    if(!Visit(decls->GetFunctionDecl(i)))
       return false;
   }
-  for (int i = 0; i < decls->GetConstantNum(); i++) {
-    if(!Visit(decls->GetConstant(i)))
+  for (int i = 0; i < decls->GetConstantDeclNum(); i++) {
+    if(!Visit(decls->GetConstantDecl(i)))
       return false;
   }
-  for (int i = 0; i < decls->GetVariableNum(); i++) {
-    if(!Visit(decls->GetVariable(i)))
+  for (int i = 0; i < decls->GetVariableDeclNum(); i++) {
+    if(!Visit(decls->GetVariableDecl(i)))
       return false;
   }
-  for (int i = 0; i < decls->GetClassNum(); i++) {
-    if(!Visit(decls->GetClass(i)))
+  for (int i = 0; i < decls->GetRecordDeclNum(); i++) {
+    if(!Visit(decls->GetRecordDecl(i)))
       return false;
   }
-  for (int i = 0; i < decls->GetTypedefNum(); i++) {
-    if(!Visit(decls->GetTypedef(i)))
+  for (int i = 0; i < decls->GetTypedefNodeNum(); i++) {
+    if(!Visit(decls->GetTypedefNode(i)))
       return false;
   }
-  for (int i = 0; i < decls->GetImportNum(); i++) {
-    if(!Visit(decls->GetImport(i)))
+  for (int i = 0; i < decls->GetImportNodeNum(); i++) {
+    if(!Visit(decls->GetImportNode(i)))
       return false;
   }
 
@@ -573,17 +573,28 @@ bool ASTPrinter::Visit(ArgsNode* node){
   return res;
 }
         
-bool ASTPrinter::Visit(ClassNode* node){
+//bool ASTPrinter::Visit(ClassNode* node){
+//  for (int i = 0; i < depth_; i++)
+//    cout << "  ";
+//
+//  cout << "ClassNode : " << node->GetTypeName() << endl;
+//  depth_++;
+//  bool res = ASTVisitor::Visit(node);
+//  depth_--;
+//  return res;
+//}
+   
+bool ASTPrinter::Visit(RecordDecl* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "ClassNode : " << node->GetTypeName() << endl;
+  cout << "RecordDecl: " << node->GetTypeName() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;
   return res;
 }
-   
+
 bool ASTPrinter::Visit(TypedefNode* node) { 
   for (int i = 0; i < depth_; i++)
     cout << "  ";

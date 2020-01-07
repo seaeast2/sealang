@@ -16,17 +16,17 @@ bool TypeResolver::MakeCompleteType(ASTContext* ac) {
 
   // 1.convert function decl to function type.
   FunctionDecl* fd = nullptr;
-  for (int i = 0; i < decls->GetFunctionNum(); i++) {
-    fd = decls->GetFunction(i);
+  for (int i = 0; i < decls->GetFunctionDeclNum(); i++) {
+    fd = decls->GetFunctionDecl(i);
     if (!CompleteFunctionType(ac, fd))
       return false;
   }
 
-  // 2. convert classdecl to classtype.
-  ClassNode* cn = nullptr;
-  for (int i = 0; i < decls->GetClassNum(); i++) {
-    cn = decls->GetClass(i);
-    if (!CompleteClassType(ac, cn))
+  // 2. convert classdecl to RecordType
+  RecordDecl* RD = nullptr;
+  for (int i = 0; i < decls->GetRecordDeclNum(); i++) {
+    RD = decls->GetRecordDecl(i);
+    if (!CompleteRecordType(ac, RD))
       return false;
   }
 
@@ -52,21 +52,21 @@ bool TypeResolver::CheckVoidArray(ASTContext* ac) {
 }
 
 bool TypeResolver::CheckRecursiveTypeDef(ASTContext* ac) {
-  ClassNode* cn = nullptr;
-  ClassType* ct = nullptr;
+  RecordDecl* cn = nullptr;
+  RecordType* ct = nullptr;
 
   Declarations* decls = ac->GetLocalDecl();
 
-  for (int i = 0; i < decls->GetClassNum(); i++) {
-    cn = decls->GetClass(i);
-    ct = (ClassType*)cn->GetType()->GetType();
+  for (int i = 0; i < decls->GetRecordDeclNum(); i++) {
+    cn = decls->GetRecordDecl(i);
+    ct = (RecordType*)cn->GetType()->GetType();
     if (recursive_type_checker_.Find((unsigned long)ct)) {
-      assert(0 && "Error duplicated ClassType.");
+      assert(0 && "Error duplicated RecordType.");
       return false;
     }
 
     recursive_type_checker_.Insert((unsigned long)ct, ct);
-    if (!VisitClassType(ct)) {
+    if (!VisitRecordType(ct)) {
       assert(0 && "Error Recursive Type definition detected.");
       recursive_type_checker_.Clear();
       return false;
@@ -77,27 +77,27 @@ bool TypeResolver::CheckRecursiveTypeDef(ASTContext* ac) {
   return true;
 }
 
-bool TypeResolver::VisitClassType(ClassType* ct) {
+bool TypeResolver::VisitRecordType(RecordType* ct) {
   Type* cur_ty = nullptr;
   for (int i = 0; i < ct->GetMemberNum(); i++) {
     cur_ty = ct->GetMemberType(i);
     // In case UserType
     if(cur_ty->IsKindOf(Type::UserTy)) {
       Type* org_ty = ((UserType*)cur_ty)->GetOriginalType();
-      if (org_ty->IsKindOf(Type::ClassTy)) {
+      if (org_ty->IsKindOf(Type::RecordTy)) {
         cur_ty = org_ty;
       }
     }
     // TODO : need to check array type with user type or class type
 
-    if (cur_ty->IsKindOf(Type::ClassTy)) {
+    if (cur_ty->IsKindOf(Type::RecordTy)) {
       if (recursive_type_checker_.Find((unsigned long)cur_ty)) {
         assert(0 && "Error Recursive Type definition detected.");
         return false;
       }
 
       recursive_type_checker_.Insert((unsigned long)cur_ty, cur_ty);
-      if (!VisitClassType((ClassType*)cur_ty))
+      if (!VisitRecordType((RecordType*)cur_ty))
         return false;
     }
   }
@@ -117,19 +117,19 @@ bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* fd) {
 
 
 
-bool TypeResolver::CompleteClassType(ASTContext* ac, ClassNode* cn) {
+bool TypeResolver::CompleteRecordType(ASTContext* ac, RecordDecl* cn) {
   // Get class type by class name
-  ClassType* ct = ClassType::Get(ac, cn->GetTypeName());
+  RecordType* ct = RecordType::Get(ac, cn->GetTypeName());
 
   if (!ct->IsIncomplete()) {
-    assert(0 && "Already defined ClassType.");
+    assert(0 && "Already defined RecordType.");
     return false;
   }
 
   // insert class member variable type
   VariableDecl* vd = nullptr;
-  for (int i = 0; i < cn->GetMemVarNum(); i++) {
-    vd = cn->GetMemVariable(i);
+  for (int i = 0; i < cn->GetMemVarDeclNum(); i++) {
+    vd = cn->GetMemVariableDecl(i);
     if (!vd) {
       assert(0 &&"invalid class member variable");
       return false;
@@ -139,8 +139,8 @@ bool TypeResolver::CompleteClassType(ASTContext* ac, ClassNode* cn) {
   
   // insert class member function type
   FunctionDecl* fd = nullptr;
-  for (int i = 0; i < cn->GetMemFunNum(); i++) {
-    fd = cn->GetMemFunction(i);
+  for (int i = 0; i < cn->GetMemFunDeclNum(); i++) {
+    fd = cn->GetMemFunctionDecl(i);
     if (!fd) {
       assert(0 &&"invalid class member function");
       return false;

@@ -39,7 +39,7 @@ namespace AST {
     }
   }
 
-  VariableDecl* BlockNode::GetVariable(int index) { 
+  VariableDecl* BlockNode::GetVariableDecl(int index) { 
     if (index >= vars_.GetSize())
       return nullptr;
     return vars_[index]; 
@@ -55,15 +55,15 @@ namespace AST {
   FunctionDecl::FunctionDecl() {
     kind_ = FunctionDeclTy;
     is_static_ = false;
-    ret_ty_ = nullptr;
+    retType_ = nullptr;
     body_ = nullptr;
   }
 
   FunctionDecl::FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
-      ParamNodes* params, BlockNode* body, ClassNode* this_class) {
+      ParamNodes* params, BlockNode* body, RecordDecl* thisClass) {
     kind_ = FunctionDeclTy;
     is_static_ = storage;
-    ret_ty_ = retty;
+    retType_ = retty;
     name_ = fnname;
 
     for (int i = 0; i < params->GetSize(); i++) {
@@ -71,14 +71,14 @@ namespace AST {
     }
 
     body_ = body;
-    this_class_ = this_class;
+    thisClass_ = thisClass;
   }
 
   FunctionDecl::~FunctionDecl() {
     ParamNode* param_tmp = nullptr;
 
-    if (ret_ty_) 
-      delete ret_ty_;
+    if (retType_) 
+      delete retType_;
 
     if (!params_.IsEmpty()) {
       for (int i = 0; i < params_.GetSize(); i++) {
@@ -125,22 +125,21 @@ namespace AST {
     VariableDecl* var_tmp = nullptr;
     FunctionDecl* fun_tmp = nullptr;
 
-    if (!member_variables_.IsEmpty()) {
-      for (int i = 0; i < member_variables_.GetSize(); i++) {
-        var_tmp = member_variables_[i];
+    if (!memberVariableDecls_.IsEmpty()) {
+      for (int i = 0; i < memberVariableDecls_.GetSize(); i++) {
+        var_tmp = memberVariableDecls_[i];
         delete var_tmp;
       }
     }
 
-    if (!member_functions_.IsEmpty()) {
-      for (int i = 0; i < member_functions_.GetSize(); i++) {
-        fun_tmp = member_functions_[i];
+    if (!memberFunctionDecls_.IsEmpty()) {
+      for (int i = 0; i < memberFunctionDecls_.GetSize(); i++) {
+        fun_tmp = memberFunctionDecls_[i];
         delete fun_tmp;
       }
     }
   }
-  // ClassNode =============================================
-  ClassNode::ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
+  /*ClassNode::ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
       FunctionDecls* mem_func) {
     kind_ = ClassNodeTy;
 
@@ -162,41 +161,77 @@ namespace AST {
     if (index >= member_functions_.GetSize())
       return nullptr;
     return member_functions_[index]; 
-  }
+  }*/
   
+  // RecordDecl =============================================
+  RecordDecl::RecordDecl(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
+      FunctionDecls* mem_func) {
+    kind_ = RecordDeclTy;
+
+    type_name_ = type_name;
+    type_ = ty;
+
+    memberVariableDecls_ = *mem_var;
+    memberFunctionDecls_ = *mem_func;
+  }
+
+
+  VariableDecl* RecordDecl::GetMemVariableDecl(int index) { 
+    if (index >= memberVariableDecls_.GetSize())
+      return nullptr;
+    return memberVariableDecls_[index]; 
+  }
+
+  FunctionDecl* RecordDecl::GetMemFunctionDecl(int index) { 
+    if (index >= memberFunctionDecls_.GetSize())
+      return nullptr;
+    return memberFunctionDecls_[index]; 
+  }
   // Declarations =============================================
   Declarations::Declarations() {
   }
 
   Declarations::~Declarations() {
-    if (!funcs_.IsEmpty()) {
-      for (int i = 0; i < funcs_.GetSize(); i++) {
-        FunctionDecl* fd = funcs_[i];
+    if (!funcDecls_.IsEmpty()) {
+      for (int i = 0; i < funcDecls_.GetSize(); i++) {
+        FunctionDecl* fd = funcDecls_[i];
         delete fd;
       }
     }
-    if (!conss_.IsEmpty()) {
-      for (int i = 0; i < conss_.GetSize(); i++) {
-        ConstantDecl* cd = conss_[i];
+    if (!constDecls_.IsEmpty()) {
+      for (int i = 0; i < constDecls_.GetSize(); i++) {
+        ConstantDecl* cd = constDecls_[i];
         delete cd;
       }
     }
-    if (!vars_.IsEmpty()) {
-      for (int i = 0; i < vars_.GetSize(); i++) {
-        VariableDecl* vd = vars_[i];
+    if (!varDecls_.IsEmpty()) {
+      for (int i = 0; i < varDecls_.GetSize(); i++) {
+        VariableDecl* vd = varDecls_[i];
         delete vd;
       }
     }
-    if (!classes_.IsEmpty()) {
-      for (int i = 0; i < classes_.GetSize(); i++) {
-        ClassNode* cn = classes_[i];
-        delete cn;
+//    if (!classes_.IsEmpty()) {
+//      for (int i = 0; i < classes_.GetSize(); i++) {
+//        ClassNode* cn = classes_[i];
+//        delete cn;
+//      }
+//    }
+    if (!recordDecls_.IsEmpty()) {
+      for (int i = 0; i < recordDecls_.GetSize(); i++) {
+        RecordDecl* RD = recordDecls_[i];
+        delete RD;
       }
     }
-    if (!typedefs_.IsEmpty()) {
-      for (int i = 0; i < typedefs_.GetSize(); i++) {
-        TypedefNode* tn = typedefs_[i];
+    if (!typedefNodes_.IsEmpty()) {
+      for (int i = 0; i < typedefNodes_.GetSize(); i++) {
+        TypedefNode* tn = typedefNodes_[i];
         delete tn;
+      }
+    }
+    if (!importNodes_.IsEmpty()) {
+      for (int i = 0; i < importNodes_.GetSize(); i++) {
+        ImportNode* IN = importNodes_[i];
+        delete IN;
       }
     }
   }

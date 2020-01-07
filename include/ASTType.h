@@ -26,7 +26,8 @@ namespace AST {
           DoubleTy,
         NamedTy,
           CompositeTy,
-            ClassTy,
+            //ClassTy,
+            RecordTy,
           UserTy,
         ArrayTy,
         PointerTy,
@@ -379,7 +380,7 @@ namespace AST {
       static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types, Type* this_class = nullptr);
   };
 
-  class ClassType : public CompositeType {
+  /*class ClassType : public CompositeType {
     private:
       SimpleList<FunctionType*> member_func_types_;
     
@@ -422,7 +423,52 @@ namespace AST {
 
       static ClassType* Get(ASTContext* ac, const char* type_name); // create incomplete type
   };
+  */
 
+  class RecordType : public CompositeType {
+    private:
+      SimpleList<FunctionType*> member_func_types_;
+    
+    protected:
+      RecordType() {
+        kind_ = RecordTy;
+        type_name_ = "class type";
+        is_incomplete_ = false;
+      }
+
+      RecordType(const char* type_name) {
+        kind_ = RecordTy;
+        type_name_ = type_name;
+        is_incomplete_ = false;
+      }
+    public:
+      virtual ~RecordType() {
+      }
+
+      virtual bool IsKindOf(TypeKind kind) {
+        if (kind == RecordTy || kind == CompositeTy || 
+            kind == NamedTy || kind == BaseTy)
+          return true;
+        return false;
+      }
+
+      void AddMemberFuncType(FunctionType* mem_type) {
+        member_func_types_.PushBack(mem_type);
+      }
+
+      bool RemoveMemberFuncType(FunctionType* mem_type) {
+        return member_func_types_.Delete(mem_type);
+      }
+
+      Type* FindMemberFuncType(FunctionType* mem_type) { 
+        return member_func_types_.Find(mem_type); }
+
+      int GetMemberFuncNum() { return member_func_types_.GetSize(); }
+      Type* GetMemberFuncType(int index) { return member_func_types_.GetAt(index); }
+
+      static RecordType* Get(ASTContext* ac, const char* type_name); // create incomplete type
+  };
+  
   class UserType : public NamedType {
     private:
       Type* original_type_;

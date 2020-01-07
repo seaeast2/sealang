@@ -77,7 +77,8 @@ namespace AST {
           // User defined types
           TypeDefinitionTy,
             CompositeTypeDefinitionTy,
-              ClassNodeTy,
+              //ClassNodeTy,
+              RecordDeclTy,
             TypedefNodeTy,
       };
     protected:
@@ -179,8 +180,10 @@ namespace AST {
             return visitor->Visit(reinterpret_cast<ImportNode*>(this));
           case ArgsNodeTy:
             return visitor->Visit(reinterpret_cast<ArgsNode*>(this));
-          case ClassNodeTy:
-            return visitor->Visit(reinterpret_cast<ClassNode*>(this));
+          /*case ClassNodeTy:
+            return visitor->Visit(reinterpret_cast<ClassNode*>(this));*/
+          case RecordDeclTy:
+            return visitor->Visit(reinterpret_cast<RecordDecl*>(this));
           case TypedefNodeTy:
             return visitor->Visit(reinterpret_cast<TypedefNode*>(this));
 
@@ -188,6 +191,7 @@ namespace AST {
             assert(0&& "Error on Variable checker : Duplicate name");
             break;
         }
+        return false;
      }
   };
 
@@ -307,7 +311,7 @@ namespace AST {
       void SetStmts(StmtNodes* stmts) { if (stmts) stmts_ = *stmts; }
       void AddStmt(StmtNode* stmt) { stmts_.PushBack(stmt); }
 
-      VariableDecl* GetVariable(int index);
+      VariableDecl* GetVariableDecl(int index);
       StmtNode* GetStmt(int index);
 
       int GetVarNum() { return vars_.GetSize(); }
@@ -1684,8 +1688,8 @@ namespace AST {
 
   class CompositeTypeDefinition : public TypeDefinition {
     protected:
-      VariableDecls member_variables_;
-      FunctionDecls member_functions_;
+      VariableDecls memberVariableDecls_;
+      FunctionDecls memberFunctionDecls_;
 
       CompositeTypeDefinition() {
         kind_ = CompositeTypeDefinitionTy;
@@ -1756,17 +1760,18 @@ namespace AST {
 
   class FunctionDecl : public NamedDecl {
     protected:
-      ClassNode* this_class_;
-
+      //ClassNode* this_class_;
+      // parent class in case function is class member.
+      RecordDecl* thisClass_; 
       bool is_static_; // storage
-      TypeNode* ret_ty_; // return type
+      TypeNode* retType_; // return type
       ParamNodes params_; // parameters
       BlockNode* body_; // body
 
     public:
       FunctionDecl();
       FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
-          ParamNodes* params, BlockNode* body, ClassNode* cls = nullptr); 
+          ParamNodes* params, BlockNode* body, RecordDecl* thisClass = nullptr); 
       virtual ~FunctionDecl();
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1776,17 +1781,17 @@ namespace AST {
       }
 
       void SetStorage(bool st) { is_static_ = st; }
-      void SetReturnType(TypeNode* ty) { ret_ty_ = ty; }
+      void SetReturnType(TypeNode* ty) { retType_ = ty; }
       void SetParams(ParamNodes* params);
       void SetBody(BlockNode* bd) { body_ = bd; }
-      void SetThisClass(ClassNode* this_class) { this_class_ = this_class; }
+      void SetThisClass(RecordDecl* RD) { thisClass_= RD; }
 
       bool IsStatic() { return is_static_; }
-      TypeNode* GetReturnType() { return ret_ty_; }
+      TypeNode* GetReturnType() { return retType_; }
       int GetParamNum() { return params_.GetSize(); }
       ParamNode* GetParamNode(int index);
       BlockNode* GetBody() { return body_; }
-      ClassNode* GetThisClass() { return this_class_; }
+      RecordDecl* GetThisClass() { return thisClass_; }
 
       virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
@@ -1906,7 +1911,7 @@ namespace AST {
       }
   };
 
-  class ClassNode : public CompositeTypeDefinition {
+  /*class ClassNode : public CompositeTypeDefinition {
     public:
       ClassNode() {
         kind_ = ClassNodeTy;
@@ -1923,20 +1928,57 @@ namespace AST {
         return false;
       }
 
-      void AddMemVariable(VariableDecl* var) { member_variables_.PushBack(var); }
+      void AddMemVariable(VariableDecl* var) { memberVariableDecls_.PushBack(var); }
       void AddMemFunction(FunctionDecl* fun) { 
         fun->SetThisClass(this);
-        member_functions_.PushBack(fun); 
+        memberFunctionDecls_.PushBack(fun); 
       }
 
       VariableDecl* GetMemVariable(int index);
       FunctionDecl* GetMemFunction(int index);
 
-      int GetMemVarNum() { return member_variables_.GetSize(); }
-      int GetMemFunNum() { return member_functions_.GetSize(); }
+      int GetMemVarNum() { return memberVariableDecls_.GetSize(); }
+      int GetMemFunNum() { return memberFunctionDecls_.GetSize(); }
 
-      void ReverseVariableOrder() { member_variables_.Reverse(); }
-      void ReverseFunctionOrder() { member_functions_.Reverse(); }
+      void ReverseVariableOrder() { memberVariableDecls_.Reverse(); }
+      void ReverseFunctionOrder() { memberFunctionDecls_.Reverse(); }
+
+      virtual bool Accept(ASTVisitor* visitor) override {
+        return visitor->Visit(this);
+      }
+  };*/
+
+  class RecordDecl : public CompositeTypeDefinition {
+    public:
+      RecordDecl() {
+        kind_ = RecordDeclTy;
+      }
+      RecordDecl(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
+          FunctionDecls* mem_func);
+
+      virtual ~RecordDecl() {}
+
+      virtual bool IsKindOf(NodeKind kind) {
+        if (kind == RecordDeclTy || kind == CompositeTypeDefinitionTy ||
+            kind == TypeDefinitionTy|| kind == BaseNodeTy)
+          return true;
+        return false;
+      }
+
+      void AddMemVariableDecl(VariableDecl* var) { memberVariableDecls_.PushBack(var); }
+      void AddMemFunctionDecl(FunctionDecl* fun) { 
+        fun->SetThisClass(this);
+        memberFunctionDecls_.PushBack(fun); 
+      }
+
+      VariableDecl* GetMemVariableDecl(int index);
+      FunctionDecl* GetMemFunctionDecl(int index);
+
+      int GetMemVarDeclNum() { return memberVariableDecls_.GetSize(); }
+      int GetMemFunDeclNum() { return memberFunctionDecls_.GetSize(); }
+
+      void ReverseVariableOrder() { memberVariableDecls_.Reverse(); }
+      void ReverseFunctionOrder() { memberFunctionDecls_.Reverse(); }
 
       virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
@@ -1945,37 +1987,42 @@ namespace AST {
 
   class Declarations {
     private:
-      FunctionDecls funcs_;
-      ConstantDecls conss_;
-      VariableDecls vars_;
-      ClassNodes    classes_;
-      TypedefNodes  typedefs_;
-      ImportNodes   imports_;
+      // TODO : Need to add external defined function and variables from import.
+      FunctionDecls funcDecls_;
+      ConstantDecls constDecls_;
+      VariableDecls varDecls_;
+      //ClassNodes    classes_;
+      RecordDecls   recordDecls_;
+      TypedefNodes  typedefNodes_;
+      ImportNodes   importNodes_;
 
     public:
       Declarations();
       ~Declarations();
 
-      void AddFunction(FunctionDecl* node) { funcs_.PushBack(node); }
-      void AddConstant(ConstantDecl* node) { conss_.PushBack(node); }
-      void AddVariable(VariableDecl* node) { vars_.PushBack(node); }
-      void AddClass(ClassNode* node) { classes_.PushBack(node); }
-      void AddTypedef(TypedefNode* node) { typedefs_.PushBack(node); }
-      void AddImport(ImportNode* node) { imports_.PushBack(node); }
+      void AddFunctionDecl(FunctionDecl* node) { funcDecls_.PushBack(node); }
+      void AddConstantDecl(ConstantDecl* node) { constDecls_.PushBack(node); }
+      void AddVariableDecl(VariableDecl* node) { varDecls_.PushBack(node); }
+      //void AddClass(ClassNode* node) { classes_.PushBack(node); }
+      void AddRecordDecl(RecordDecl* RD) { recordDecls_.PushBack(RD); }
+      void AddTypedefNode(TypedefNode* node) { typedefNodes_.PushBack(node); }
+      void AddImportNode(ImportNode* node) { importNodes_.PushBack(node); }
 
-      int GetFunctionNum() { return funcs_.GetSize(); }
-      int GetConstantNum() { return conss_.GetSize(); }
-      int GetVariableNum() { return vars_.GetSize(); }
-      int GetClassNum() { return classes_.GetSize(); }
-      int GetTypedefNum() { return typedefs_.GetSize(); }
-      int GetImportNum() { return imports_.GetSize(); }
+      int GetFunctionDeclNum() { return funcDecls_.GetSize(); }
+      int GetConstantDeclNum() { return constDecls_.GetSize(); }
+      int GetVariableDeclNum() { return varDecls_.GetSize(); }
+      //int GetClassNum() { return classes_.GetSize(); }
+      int GetRecordDeclNum() { return recordDecls_.GetSize(); }
+      int GetTypedefNodeNum() { return typedefNodes_.GetSize(); }
+      int GetImportNodeNum() { return importNodes_.GetSize(); }
 
-      FunctionDecl* GetFunction(int index) { return funcs_[index];}
-      ConstantDecl* GetConstant(int index) { return conss_[index];}
-      VariableDecl* GetVariable(int index) { return vars_[index]; }
-      ClassNode* GetClass(int index) { return classes_[index]; }
-      TypedefNode* GetTypedef(int index) { return typedefs_[index]; }
-      ImportNode* GetImport(int index) { return imports_[index]; }
+      FunctionDecl* GetFunctionDecl(int index) { return funcDecls_[index];}
+      ConstantDecl* GetConstantDecl(int index) { return constDecls_[index];}
+      VariableDecl* GetVariableDecl(int index) { return varDecls_[index]; }
+      //ClassNode* GetClassDecl(int index) { return classes_[index]; }
+      RecordDecl* GetRecordDecl(int index) { return recordDecls_[index]; }
+      TypedefNode* GetTypedefNode(int index) { return typedefNodes_[index]; }
+      ImportNode* GetImportNode(int index) { return importNodes_[index]; }
   };
 
 

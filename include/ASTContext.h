@@ -12,7 +12,7 @@ namespace AST {
   
   class ASTContext {
     protected:
-      TypeTable type_table_;
+      TypeTable typeTable_;
       Declarations* decls_;
 
       Scope top_scope_;

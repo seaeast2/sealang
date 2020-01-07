@@ -9,8 +9,10 @@ namespace AST {
   class Scope {
     protected:
       Scope* parent_;
-      SimpleVector<Scope*> children_;
+      // Current scope's declarations.
       SimpleVector<NamedDecl*> decls_;
+      // Child scopes.
+      SimpleVector<Scope*> children_;
 
     public:
       Scope();

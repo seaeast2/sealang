@@ -26,20 +26,20 @@ namespace AST {
   }
 
   bool ASTContext::AddType(Type* ty) {
-    if (type_table_.Find(ty->GetTypeName()))
+    if (typeTable_.Find(ty->GetTypeName()))
       return false;
-    type_table_.Insert(ty->GetTypeName(), ty);
+    typeTable_.Insert(ty->GetTypeName(), ty);
     return true;
   }
 
   bool ASTContext::RemoveType(const char* type_name) {
-    if (!type_table_.Find(type_name))
+    if (!typeTable_.Find(type_name))
       return false;
-    return type_table_.Delete(type_name);
+    return typeTable_.Delete(type_name);
   }
 
   Type* ASTContext::GetType(const char* type_name) {
-    return type_table_.Find(type_name);
+    return typeTable_.Find(type_name);
   }
 
   FunctionType* ASTContext::GetFunctionTypeFromDecl(FunctionDecl* fd) {
@@ -60,11 +60,11 @@ namespace AST {
   }
 
   void ASTContext::ResetTypeItr() {
-    type_table_.ResetItr();
+    typeTable_.ResetItr();
   }
 
   Type* ASTContext::GetTypeAndNext() {
-    return type_table_.Next();
+    return typeTable_.Next();
   }
 
   void ASTContext::ResolveLocalVariable() {

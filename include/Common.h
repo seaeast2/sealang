@@ -62,7 +62,8 @@ namespace AST {
   class ParamNode;
   class ImportNode;
   class ArgsNode;
-  class ClassNode;
+  //class ClassNode;
+  class RecordDecl;
   class TypedefNode;
   class Declarations;
 
@@ -74,7 +75,8 @@ namespace AST {
   typedef SimpleVector<StmtNode*>     StmtNodes;
   typedef SimpleVector<ExprNode*>     ExprNodes;
   typedef SimpleVector<CaseNode*>     CaseNodes;
-  typedef SimpleVector<ClassNode*>    ClassNodes;
+  //typedef SimpleVector<ClassNode*>    ClassNodes;
+  typedef SimpleVector<RecordDecl*>    RecordDecls;
   typedef SimpleVector<TypedefNode*>  TypedefNodes;
   typedef SimpleVector<ImportNode*>   ImportNodes;
 

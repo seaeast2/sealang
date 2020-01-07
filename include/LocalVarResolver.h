@@ -11,11 +11,9 @@ namespace AST {
   // 2. Check linkage between Variable defintion and Variable instance.
   class LocalVarResolver : public ASTVisitor {
     Declarations* decls_;
-    Scope* scope_;
+    Scope* currentScope_;
     // TODO : Need to add ErrorHandler
 
-    bool is_function_body_;
-    
     public:
       LocalVarResolver();
       virtual ~LocalVarResolver();
@@ -24,13 +22,17 @@ namespace AST {
       void PopScope();
       bool Resolve(Declarations* decl, Scope* scp);
 
+      bool ResolveVariableInitializer();
+      bool ResolveConstantInitializer();
+      bool ResolveFunction();
+
       // Statements
       virtual bool Visit(BlockNode* node) override;
       virtual bool Visit(VariableNode* node) override;
 
       // Etc
       virtual bool Visit(FunctionDecl* node) override;
-      virtual bool Visit(ClassNode* node) override;   
+      //virtual bool Visit(ClassNode* node) override;   
   };
 };
 
