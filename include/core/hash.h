@@ -330,6 +330,7 @@ class HashTable<V*, MAX_TABLE> {
       return nullptr;
     }
 
+    // TODO : Need to implement iterator
     void ResetItr() { 
       // find first element
       for (int i = 0; i < MAX_TABLE; i++) {

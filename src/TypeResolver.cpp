@@ -105,8 +105,27 @@ bool TypeResolver::VisitRecordType(RecordType* ct) {
 }
 
 bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* fd) {
-  FunctionType* ft = ac->GetFunctionTypeFromDecl(fd);
-  if (!ft->IsIncomplete()) {
+  // Retrive function type info
+  // Get return type
+  Type* retTy = FD->GetReturnType()->GetType();
+  
+  // Get parameter types
+  Types paramTys;
+  for (int i = 0; i < FD->GetParamNum(); i++) {
+    paramTys.PushBack(FD->GetParamNode(i)->GetType()->GetType());
+  }
+
+  // Get this class type in case member function.
+  Type* thisClassType = FD->GetThisClass()->GetTypeNode()->GetType();
+
+  // Get Complete FunctionType
+  FunctionType* FT  = FunctionType::Get(ac, retTy, paramTys, thisClassType);
+  if (!FT) {
+    assert(0 && "Can't create FunctionType");
+    return false;
+  }
+
+  if (!FT->IsIncomplete()) {
     assert(0 && "Already defined FunctionType");
     return false;
   }
@@ -114,8 +133,6 @@ bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* fd) {
   ft->Incomplete(false); // mark as complete
   return true;
 }
-
-
 
 bool TypeResolver::CompleteRecordType(ASTContext* ac, RecordDecl* cn) {
   // Get class type by class name

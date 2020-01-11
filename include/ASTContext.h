@@ -6,6 +6,7 @@
 #include "ASTNode.h"
 #include "core/hash.h"
 #include "Scope.h"
+#include "TypeTable.h"
 
 namespace AST {
   // AST context manager
@@ -28,12 +29,11 @@ namespace AST {
       bool AddType(Type* ty);
       bool RemoveType(const char* type_name);
       Type* GetType(const char* type_name);
-      FunctionType* GetFunctionTypeFromDecl(FunctionDecl* fd);
       void ResetTypeItr(); // reset type iteration
       Type* GetTypeAndNext(); // type iteration
 
       // Check if local variable is in right usage.
-      void ResolveLocalVariable();
+      bool ResolveLocalVariable();
       void MakeCompleteType();
       void CheckVoidArray();
       void CheckRecursiveTypeDef();

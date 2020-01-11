@@ -1683,7 +1683,7 @@ namespace AST {
       void SetType(TypeNode* ty) { type_ = ty; }
 
       const char* GetTypeName() { return type_name_.c_str(); }
-      TypeNode* GetType() { return type_; }
+      TypeNode* GetTypeNode() { return type_; }
   };
 
   class CompositeTypeDefinition : public TypeDefinition {

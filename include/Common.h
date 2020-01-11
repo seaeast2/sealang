@@ -79,7 +79,5 @@ namespace AST {
   typedef SimpleVector<RecordDecl*>    RecordDecls;
   typedef SimpleVector<TypedefNode*>  TypedefNodes;
   typedef SimpleVector<ImportNode*>   ImportNodes;
-
-  typedef HashTable<Type*, 64> TypeTable;
 }
 #endif

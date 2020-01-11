@@ -26,37 +26,15 @@ namespace AST {
   }
 
   bool ASTContext::AddType(Type* ty) {
-    if (typeTable_.Find(ty->GetTypeName()))
-      return false;
-    typeTable_.Insert(ty->GetTypeName(), ty);
-    return true;
+    return typeTable_.Add(ty);
   }
 
-  bool ASTContext::RemoveType(const char* type_name) {
-    if (!typeTable_.Find(type_name))
-      return false;
-    return typeTable_.Delete(type_name);
+  bool ASTContext::RemoveType(const char* typeName) {
+    return typeTable_.Remove(typeName);
   }
 
   Type* ASTContext::GetType(const char* type_name) {
     return typeTable_.Find(type_name);
-  }
-
-  FunctionType* ASTContext::GetFunctionTypeFromDecl(FunctionDecl* fd) {
-    Type* retty = fd->GetReturnType()->GetType();
-    Types param_tys;
-    for (int i = 0; i < fd->GetParamNum(); i++) {
-      param_tys.PushBack(fd->GetParamNode(i)->GetType()->GetType());
-    }
-    Type* this_class_ty = fd->GetThisClass()->GetType()->GetType();
-
-    FunctionType* ft = FunctionType::Get(this, retty, param_tys, this_class_ty);
-    if (!ft) {
-      assert(0 && "Can't create FunctionType");
-      return nullptr;
-    }
-
-    return ft;
   }
 
   void ASTContext::ResetTypeItr() {
@@ -67,9 +45,9 @@ namespace AST {
     return typeTable_.Next();
   }
 
-  void ASTContext::ResolveLocalVariable() {
-    LocalVarResolver lvr;
-    lvr.Resolve(decls_, &top_scope_);
+  bool ASTContext::ResolveLocalVariable() {
+    LocalVarResolver LVR;
+    return LVR.Resolve(decls_, &top_scope_);
   }
 
   void ASTContext::MakeCompleteType() {
