@@ -1760,7 +1760,7 @@ namespace AST {
 
   class FunctionDecl : public NamedDecl {
     protected:
-      //ClassNode* this_class_;
+      // TODO: Need to implement member function
       // parent class in case function is class member.
       RecordDecl* thisClass_; 
       bool is_static_; // storage
@@ -1781,13 +1781,13 @@ namespace AST {
       }
 
       void SetStorage(bool st) { is_static_ = st; }
-      void SetReturnType(TypeNode* ty) { retType_ = ty; }
+      void SetReturnTypeNode(TypeNode* ty) { retType_ = ty; }
       void SetParams(ParamNodes* params);
       void SetBody(BlockNode* bd) { body_ = bd; }
       void SetThisClass(RecordDecl* RD) { thisClass_= RD; }
 
       bool IsStatic() { return is_static_; }
-      TypeNode* GetReturnType() { return retType_; }
+      TypeNode* GetReturnTypeNode() { return retType_; }
       int GetParamNum() { return params_.GetSize(); }
       ParamNode* GetParamNode(int index);
       BlockNode* GetBody() { return body_; }

@@ -25,3 +25,9 @@ Git command
 
 7. Store credential
   git config --global credential.help store
+
+8. Overwrite local to server branch
+$ git fetch --all
+$ git reset --hard origin/master
+
+

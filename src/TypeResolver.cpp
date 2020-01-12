@@ -52,14 +52,14 @@ bool TypeResolver::CheckVoidArray(ASTContext* ac) {
 }
 
 bool TypeResolver::CheckRecursiveTypeDef(ASTContext* ac) {
-  RecordDecl* cn = nullptr;
+  RecordDecl* RD = nullptr;
   RecordType* ct = nullptr;
 
   Declarations* decls = ac->GetLocalDecl();
 
   for (int i = 0; i < decls->GetRecordDeclNum(); i++) {
-    cn = decls->GetRecordDecl(i);
-    ct = (RecordType*)cn->GetType()->GetType();
+    RD = decls->GetRecordDecl(i);
+    ct = (RecordType*)RD->GetTypeNode()->GetType();
     if (recursive_type_checker_.Find((unsigned long)ct)) {
       assert(0 && "Error duplicated RecordType.");
       return false;
@@ -104,10 +104,10 @@ bool TypeResolver::VisitRecordType(RecordType* ct) {
   return true;
 }
 
-bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* fd) {
+bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* FD) {
   // Retrive function type info
   // Get return type
-  Type* retTy = FD->GetReturnType()->GetType();
+  Type* retTy = FD->GetReturnTypeNode()->GetType();
   
   // Get parameter types
   Types paramTys;
@@ -130,7 +130,7 @@ bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* fd) {
     return false;
   }
 
-  ft->Incomplete(false); // mark as complete
+  FT->Incomplete(false); // mark as complete
   return true;
 }
 
@@ -162,7 +162,7 @@ bool TypeResolver::CompleteRecordType(ASTContext* ac, RecordDecl* cn) {
       assert(0 &&"invalid class member function");
       return false;
     }
-    ct->AddMemberFuncType(ac->GetFunctionTypeFromDecl(fd));
+    ct->AddMemberFuncType(fd->GetTypeNode()->GetType());
   }
   return true;
 }
