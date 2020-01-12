@@ -1776,6 +1776,9 @@ namespace AST {
       ParamDecls params_; // parameters
       BlockNode* body_; // body
 
+    private:
+      TypeNode* CreateFnTypeNode(TypeNode* retTy, TypeNode* thisClass, ParamDecls* params);
+
     public:
       FunctionDecl();
       FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 

@@ -5,6 +5,8 @@
 using namespace std;
 
 namespace AST {
+
+  // ImportNode ==================================
   const char* ImportNode::GetImportPath() {
     string tmp = ".";
     for (int i = 0; i < import_paths_.GetSize(); i++) {
@@ -91,6 +93,11 @@ namespace AST {
       delete body_;
   }
 
+  // TODO : working here
+  TypeNode* FunctionDecl::CreateFnType(TypeNode* retTy, TypeNode* thisClass, ParamDecls* params) {
+
+  }
+
   void FunctionDecl::SetParams(ParamDecls* params) {
     for(int i = 0; i < params->GetSize(); i++) {
       params_.PushBack((*params)[i]);
@@ -139,29 +146,6 @@ namespace AST {
       }
     }
   }
-  /*ClassNode::ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
-      FunctionDecls* mem_func) {
-    kind_ = ClassNodeTy;
-
-    type_name_ = type_name;
-    type_ = ty;
-
-    member_variables_ = *mem_var;
-    member_functions_ = *mem_func;
-  }
-
-
-  VariableDecl* ClassNode::GetMemVariable(int index) { 
-    if (index >= member_variables_.GetSize())
-      return nullptr;
-    return member_variables_[index]; 
-  }
-
-  FunctionDecl* ClassNode::GetMemFunction(int index) { 
-    if (index >= member_functions_.GetSize())
-      return nullptr;
-    return member_functions_[index]; 
-  }*/
   
   // RecordDecl =============================================
   RecordDecl::RecordDecl(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
@@ -210,24 +194,21 @@ namespace AST {
         delete vd;
       }
     }
-//    if (!classes_.IsEmpty()) {
-//      for (int i = 0; i < classes_.GetSize(); i++) {
-//        ClassNode* cn = classes_[i];
-//        delete cn;
-//      }
-//    }
+    
     if (!recordDecls_.IsEmpty()) {
       for (int i = 0; i < recordDecls_.GetSize(); i++) {
         RecordDecl* RD = recordDecls_[i];
         delete RD;
       }
     }
+
     if (!typedefNodes_.IsEmpty()) {
       for (int i = 0; i < typedefNodes_.GetSize(); i++) {
         TypedefNode* tn = typedefNodes_[i];
         delete tn;
       }
     }
+
     if (!importNodes_.IsEmpty()) {
       for (int i = 0; i < importNodes_.GetSize(); i++) {
         ImportNode* IN = importNodes_[i];

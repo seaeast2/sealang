@@ -275,7 +275,7 @@ namespace AST {
     protected:
       NamedType() {
         kind_ = NamedTy;
-        type_name_ = "named type";
+        type_name_ = "";
         is_incomplete_ = false;
       }
     public:
