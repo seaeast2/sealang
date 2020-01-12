@@ -24,7 +24,7 @@ namespace AST {
             FunctionDeclTy,
             VariableDeclTy,
             ConstantDeclTy,
-            ParamNodeTy,
+            ParamDeclTy,
           TypeNodeTy,
           ImportNodeTy,
           ArgsNodeTy, // function call arguments
@@ -174,8 +174,8 @@ namespace AST {
             return visitor->Visit(reinterpret_cast<ConstantDecl*>(this));
           case TypeNodeTy:
             return visitor->Visit(reinterpret_cast<TypeNode*>(this));
-          case ParamNodeTy:
-            return visitor->Visit(reinterpret_cast<ParamNode*>(this));
+          case ParamDeclTy:
+            return visitor->Visit(reinterpret_cast<ParamDecl*>(this));
           case ImportNodeTy:
             return visitor->Visit(reinterpret_cast<ImportNode*>(this));
           case ArgsNodeTy:
@@ -1736,13 +1736,17 @@ namespace AST {
   class NamedDecl : public BaseNode {
     protected:
       std::string name_; // function name
+      TypeNode* typeNode_; // Type
 
       NamedDecl() {
         kind_ = NamedDeclTy;
-
+        typeNode_ = nullptr;
       }
     public:
-      virtual ~NamedDecl() {}
+      virtual ~NamedDecl() {
+        if (typeNode_)
+          delete typeNode_;
+      }
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == NamedDeclTy || kind == BaseNodeTy)
@@ -1756,6 +1760,10 @@ namespace AST {
         name_ = str;
       }
       const char* GetName() { return name_.c_str(); }
+
+      // TypeNode interface
+      void SetTypeNode(TypeNode* typeNode) { typeNode_ = typeNode; }
+      TypeNode* GetTypeNode() { return typeNode_; }
   };
 
   class FunctionDecl : public NamedDecl {
@@ -1765,13 +1773,13 @@ namespace AST {
       RecordDecl* thisClass_; 
       bool is_static_; // storage
       TypeNode* retType_; // return type
-      ParamNodes params_; // parameters
+      ParamDecls params_; // parameters
       BlockNode* body_; // body
 
     public:
       FunctionDecl();
       FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
-          ParamNodes* params, BlockNode* body, RecordDecl* thisClass = nullptr); 
+          ParamDecls* params, BlockNode* body, RecordDecl* thisClass = nullptr); 
       virtual ~FunctionDecl();
 
       virtual bool IsKindOf(NodeKind kind) {
@@ -1782,15 +1790,18 @@ namespace AST {
 
       void SetStorage(bool st) { is_static_ = st; }
       void SetReturnTypeNode(TypeNode* ty) { retType_ = ty; }
-      void SetParams(ParamNodes* params);
+      void SetParams(ParamDecls* params);
       void SetBody(BlockNode* bd) { body_ = bd; }
       void SetThisClass(RecordDecl* RD) { thisClass_= RD; }
 
       bool IsStatic() { return is_static_; }
+
       TypeNode* GetReturnTypeNode() { return retType_; }
       int GetParamNum() { return params_.GetSize(); }
-      ParamNode* GetParamNode(int index);
+      ParamDecl* GetParamNode(int index);
       BlockNode* GetBody() { return body_; }
+
+      // for parent class
       RecordDecl* GetThisClass() { return thisClass_; }
 
       virtual bool Accept(ASTVisitor* visitor) override {
@@ -1801,21 +1812,17 @@ namespace AST {
   // Variable declaration 
   class VariableDecl : public NamedDecl {
     bool is_static_;
-    TypeNode* type_;
     ExprNode* initializer_;
 
     public:
       VariableDecl() {
         kind_ = VariableDeclTy;
         is_static_ = false;
-        type_ = nullptr;
         initializer_ = nullptr;
       }
       VariableDecl(TypeNode* type, const char* name, ExprNode* init);
 
       virtual ~VariableDecl() {
-        if (type_)
-          delete type_;
         if (initializer_)
           delete initializer_;
       }
@@ -1826,12 +1833,10 @@ namespace AST {
       }
 
       void SetStorage(bool st) {is_static_ = st;}
-      void SetType(TypeNode* type) { type_ = type; }
       void SetInit(ExprNode* init) { initializer_ = init; }
 
       bool HasInitializer() { return initializer_ ? true : false; }
       bool IsStatic()  { return is_static_; }
-      TypeNode* GetType() { return type_; }
       ExprNode* GetInitializer() { return initializer_; }
 
       virtual bool Accept(ASTVisitor* visitor) override {
@@ -1840,19 +1845,15 @@ namespace AST {
   };
 
   class ConstantDecl : public NamedDecl {
-    TypeNode* type_;
     ExprNode* initializer_;
 
     public:
       ConstantDecl() {
         kind_ = ConstantDeclTy;
-        type_ = nullptr;
         initializer_ = nullptr;
       }
       ConstantDecl(TypeNode* type, const char* name, ExprNode* init);
       virtual ~ConstantDecl() {
-        if (type_)
-          delete type_;
         if (initializer_)
           delete initializer_;
       }
@@ -1863,10 +1864,8 @@ namespace AST {
         return false;
       }
 
-      void SetType(TypeNode* type) { type_ = type; }
       void SetInit(ExprNode* init) { initializer_ = init; }
 
-      TypeNode* GetType() { return type_; }
       ExprNode* GetInitializer() { return initializer_; }
 
       virtual bool Accept(ASTVisitor* visitor) override {
@@ -1874,37 +1873,31 @@ namespace AST {
       }
   };
 
-  class ParamNode : public NamedDecl {
+  class ParamDecl : public NamedDecl {
     protected:
       bool var_arg_; // variable args
-      TypeNode* type_;
     public:
-      ParamNode() {
-        kind_ = ParamNodeTy;
+      ParamDecl() {
+        kind_ = ParamDeclTy;
         var_arg_ = false;
-        type_ = nullptr;
       }
-      ParamNode(TypeNode* ty, const char* name, bool var_arg) {
-        kind_ = ParamNodeTy;
+      ParamDecl(TypeNode* ty, const char* name, bool var_arg) {
+        kind_ = ParamDeclTy;
         var_arg_ = var_arg;
-        type_ = ty;
+        typeNode_ = ty;
         name_ = name;
       }
-      virtual ~ParamNode() {
-        if (type_)
-          delete type_;
+      virtual ~ParamDecl() {
       }
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == ParamNodeTy || kind == NamedDeclTy || kind == BaseNodeTy)
+        if (kind == ParamDeclTy || kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
         return false;
       }
 
       void SetVarArgs(bool var_arg) { var_arg_ = var_arg; }
-      void SetType(TypeNode* ty) { type_ = ty;  }
 
       bool GetVarArgs() { return var_arg_; }
-      TypeNode* GetType() { return type_; }
 
       virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);

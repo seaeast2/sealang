@@ -60,7 +60,7 @@ namespace AST {
   }
 
   FunctionDecl::FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
-      ParamNodes* params, BlockNode* body, RecordDecl* thisClass) {
+      ParamDecls* params, BlockNode* body, RecordDecl* thisClass) {
     kind_ = FunctionDeclTy;
     is_static_ = storage;
     retType_ = retty;
@@ -75,7 +75,7 @@ namespace AST {
   }
 
   FunctionDecl::~FunctionDecl() {
-    ParamNode* param_tmp = nullptr;
+    ParamDecl* param_tmp = nullptr;
 
     if (retType_) 
       delete retType_;
@@ -91,13 +91,13 @@ namespace AST {
       delete body_;
   }
 
-  void FunctionDecl::SetParams(ParamNodes* params) {
+  void FunctionDecl::SetParams(ParamDecls* params) {
     for(int i = 0; i < params->GetSize(); i++) {
       params_.PushBack((*params)[i]);
     }
   }
   
-  ParamNode* FunctionDecl::GetParamNode(int index) {
+  ParamDecl* FunctionDecl::GetParamNode(int index) {
     if (index >= params_.GetSize())
       return nullptr;
     return params_[index];
@@ -107,7 +107,7 @@ namespace AST {
   // VariableDecl ====================================
   VariableDecl::VariableDecl(TypeNode* type, const char* name, ExprNode* init) {
     kind_ = VariableDeclTy;
-    type_ = type;
+    typeNode_ = type;
     name_ = name;
     initializer_ = init;
   }
@@ -115,7 +115,7 @@ namespace AST {
   // ConstantDecl =======================================
   ConstantDecl::ConstantDecl(TypeNode* type, const char* name, ExprNode* init) {
     kind_ = ConstantDeclTy;
-    type_ = type;
+    typeNode_ = type;
     name_ = name;
     initializer_ = init;
   }

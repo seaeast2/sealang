@@ -292,7 +292,7 @@ namespace Parser {
       TypeNodeList,
       StorageInfo,
       VarDeclList,
-      ParamNodeList,
+      ParamDeclList,
       ExprNodeList,
       CaseNodeList,
       StmtNodeList,
@@ -308,8 +308,8 @@ namespace Parser {
       AST::Type*            type_;      // ASTType
       Lexer::TokenType      tok_type_;  // TokenType
       AST::TypeNodes*       type_nodes_;// TypeNodeList
-      AST::VariableDecls*   vardecls_;  // VarDeclList
-      AST::ParamNodes*      param_nodes_;// ParamNodeList
+      AST::VariableDecls*   varDecls_;  // VarDeclList
+      AST::ParamDecls*      paramDecls_;// ParamDeclList
       AST::ExprNodes*       expr_nodes_;// ExprNodeList
       AST::CaseNodes*       case_nodes_;// CaseNodeList
       AST::StmtNodes*       stmt_nodes_;// StmtNodeList
@@ -548,7 +548,7 @@ namespace Parser {
       void PushNode(AST::BaseNode* node, RuleName rname = RuleName::nil);
       void PushTypeNodes(AST::TypeNodes* type_nodes, RuleName rname = RuleName::nil);
       void PushVarDecls(AST::VariableDecls* var_decls, RuleName rname = RuleName::nil);
-      void PushParamNodes(AST::ParamNodes* param_nodes, RuleName rname = RuleName::nil);
+      void PushParamDecls(AST::ParamDecls* param_nodes, RuleName rname = RuleName::nil);
       void PushExprNodes(AST::ExprNodes* expr_nodes, RuleName rname = RuleName::nil);
       void PushCaseNodes(AST::CaseNodes* case_nodes, RuleName rname = RuleName::nil);
       void PushStmtNodes(AST::StmtNodes* stmt_nodes, RuleName rname = RuleName::nil);

@@ -298,7 +298,7 @@ bool ASTVisitor::Visit(SuffixOpNode* node){
 // Etc
 bool ASTVisitor::Visit(FunctionDecl* node){ 
   // return type 
-  TypeNode* retty = node->GetReturnType();
+  TypeNode* retty = node->GetReturnTypeNode();
   if(!Visit(retty))
     return false;
   // parameters
@@ -314,7 +314,7 @@ bool ASTVisitor::Visit(FunctionDecl* node){
 }
 
 bool ASTVisitor::Visit(VariableDecl* node){ 
-  TypeNode* ty = node->GetType();
+  TypeNode* ty = node->GetTypeNode();
   if(!Visit(ty))
     return false;
   ExprNode* init = node->GetInitializer();
@@ -324,7 +324,7 @@ bool ASTVisitor::Visit(VariableDecl* node){
 }
 
 bool ASTVisitor::Visit(ConstantDecl* node){ 
-  TypeNode* ty = node->GetType();
+  TypeNode* ty = node->GetTypeNode();
   if(!Visit(ty))
     return false;
   ExprNode* init = node->GetInitializer();
@@ -333,8 +333,8 @@ bool ASTVisitor::Visit(ConstantDecl* node){
   return true; 
 }
 bool ASTVisitor::Visit(TypeNode* node){ return true; }
-bool ASTVisitor::Visit(ParamNode* node){ 
-  TypeNode* ty = node->GetType();
+bool ASTVisitor::Visit(ParamDecl* node){ 
+  TypeNode* ty = node->GetTypeNode();
   if(!Visit(ty))
     return false;
   return true; 

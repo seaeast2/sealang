@@ -109,7 +109,7 @@ typeref
   : typeref_base  ( "[""]"                    // unassigned array
                   | "["<INTEGER>"]"           // assigned array
                   | "*"                       // pointer 
-                  | "(" param_typerefs ")")*  // function pointer 
+                  | "(" param_typerefs ")")*  // function pointer // TODO : need to seperate function type
 
 param_typerefs // function pointer param type definition 
   : <VOID> 

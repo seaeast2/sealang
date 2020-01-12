@@ -1,0 +1,7 @@
+To do list
+TODO : FunctionDecl 생성시 FunctionType 생성하도록 함
+TODO : TypeRef 삭제하기. cbc 와는 달리 typeref 구조가 없으므로 불필요한 단계임.
+
+
+01/12/2020
+1. NamedDecl 에 TypeNode 를 추가할 것.

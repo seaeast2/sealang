@@ -137,27 +137,3 @@ bool LocalVarResolver::Visit(FunctionDecl* node) {
   return res;
 }
 
-/*bool LocalVarResolver::Visit(ClassNode* node) {
-  PushScope();
-  NamedDecl* name_decl = nullptr;
-  // Register class member variable, function
-  for (int i = 0; i < node->GetMemVarNum(); i++) {
-    name_decl = node->GetMemVariable(i);
-    if (!currentScope_->HasDuplicatedName(name_decl->GetName()))
-      currentScope_->AddNamedDecl(name_decl);
-    else
-      assert(0&& "Error on Variable checker : Duplicate name");
-  }
-  for (int i = 0; i < node->GetMemFunNum(); i++) {
-    name_decl = node->GetMemFunction(i);
-    if (!currentScope_->HasDuplicatedName(name_decl->GetName()))
-      currentScope_->AddNamedDecl(name_decl);
-    else
-      assert(0&& "Error on Variable checker : Duplicate name");
-  }
-
-  // Traverse function body
-  bool res = ASTVisitor::Visit(node);
-  PopScope();
-  return res;
-}*/

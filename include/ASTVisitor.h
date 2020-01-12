@@ -57,7 +57,7 @@ namespace AST {
       virtual bool Visit(VariableDecl* node);
       virtual bool Visit(ConstantDecl* node);
       virtual bool Visit(TypeNode* node);
-      virtual bool Visit(ParamNode* node);
+      virtual bool Visit(ParamDecl* node);
       virtual bool Visit(ImportNode* node);
       virtual bool Visit(ArgsNode* node);
       //virtual bool Visit(ClassNode* node);

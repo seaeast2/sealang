@@ -60,7 +60,7 @@ namespace AST {
       virtual bool Visit(VariableDecl* node) override;
       virtual bool Visit(ConstantDecl* node) override;
       virtual bool Visit(TypeNode* node) override; 
-      virtual bool Visit(ParamNode* node) override;
+      virtual bool Visit(ParamDecl* node) override;
       virtual bool Visit(ImportNode* node) override;
       virtual bool Visit(ArgsNode* node) override;        
       //virtual bool Visit(ClassNode* node) override;   

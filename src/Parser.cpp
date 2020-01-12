@@ -477,7 +477,7 @@ namespace Parser {
       }
       else if (pi.type_ == ParseInfo::VarDeclList) {
         if (pi.rule_name_ == RuleName::defvars) {
-          AST::VariableDecls *vars = pi.data_.vardecls_;
+          AST::VariableDecls *vars = pi.data_.varDecls_;
           for (int i = 0; i < vars->GetSize(); i++) {
             decl->AddVariableDecl((*vars)[i]);
           }
@@ -1015,7 +1015,7 @@ namespace Parser {
   eResult SyntaxAnalyzer::DefFunc(void) {
     ParseInfo pi_block, pi_params, pi_name, pi_type, pi_storage;
     AST::BlockNode* body = nullptr;
-    AST::ParamNodes* parms = nullptr;
+    AST::ParamDecls* parms = nullptr;
     char* fn_name = nullptr;
     AST::Type* ret_type = nullptr;
 
@@ -1031,13 +1031,13 @@ namespace Parser {
     
     // Read params
     pi_params = parse_stack_.Top();
-    if (pi_params.type_ != ParseInfo::ParamNodeList || 
+    if (pi_params.type_ != ParseInfo::ParamDeclList || 
         pi_params.rule_name_ != RuleName::params) {
       assert(0 && "Invalid function parameters. ");
       return Error;
     }
     parse_stack_.Pop();
-    parms = pi_params.data_.param_nodes_;
+    parms = pi_params.data_.paramDecls_;
 
     // Read name
     pi_name = parse_stack_.Top();
@@ -1094,10 +1094,10 @@ namespace Parser {
       parse_stack_.Pop();
 
       if (pi.type_ == ParseInfo::VarDeclList) {
-        for (int i = 0; i < pi.data_.vardecls_->GetSize(); i++) {
-          blk->AddVariable((*pi.data_.vardecls_)[i]);
+        for (int i = 0; i < pi.data_.varDecls_->GetSize(); i++) {
+          blk->AddVariable((*pi.data_.varDecls_)[i]);
         }
-        delete pi.data_.vardecls_;
+        delete pi.data_.varDecls_;
       }
       else if (pi.type_ == ParseInfo::StmtNodeList) {
         for (int i = 0; i < pi.data_.stmt_nodes_->GetSize(); i++) {
@@ -1144,7 +1144,7 @@ namespace Parser {
       if (pi_class_member.rule_name_ == RuleName::seq_class_member_variable) {
         AST::VariableDecls* vars;
         if (pi_class_member.type_ == ParseInfo::VarDeclList) {
-          vars = pi_class_member.data_.vardecls_;
+          vars = pi_class_member.data_.varDecls_;
           for (int i=vars->GetSize()-1; i >= 0; i--) {
             RD->AddMemVariableDecl((*vars)[i]);
           }
@@ -1257,11 +1257,11 @@ namespace Parser {
     char* param_name = new char[pi_name.cstr_len_+1];
     memset(param_name, 0, pi_name.cstr_len_+1);
     strncpy(param_name, pi_name.data_.cstr_, pi_name.cstr_len_);
-    AST::ParamNode* param_node = 
-      new AST::ParamNode((AST::TypeNode*)pi_type.data_.node_, param_name, false);
+    AST::ParamDecl* paramDecl = 
+      new AST::ParamDecl((AST::TypeNode*)pi_type.data_.node_, param_name, false);
     delete[] param_name;
 
-    PushNode(param_node, RuleName::param);
+    PushNode(paramDecl, RuleName::param);
     return True;
   }
 
@@ -1269,7 +1269,7 @@ namespace Parser {
     ParseInfo pi = parse_stack_.Top();
 
     // confirm param list 
-    if (pi.type_ != ParseInfo::ParamNodeList ||
+    if (pi.type_ != ParseInfo::ParamDeclList ||
        (pi.rule_name_ != RuleName::seq_param_void &&
         pi.rule_name_ != RuleName::seq_param_list)) {
       assert(0 && "Invalid param list.");
@@ -1281,21 +1281,21 @@ namespace Parser {
   }
         
   eResult SyntaxAnalyzer::Act_seq_param_void(void) {
-    AST::ParamNodes* params = new AST::ParamNodes();
+    AST::ParamDecls* params = new AST::ParamDecls();
 
     AST::VoidType* voidty = AST::VoidType::Get(ac_);
     AST::TypeNode* void_ty_node = new AST::TypeNode(voidty);
 
-    AST::ParamNode* param_void= new AST::ParamNode(void_ty_node, "", false);
+    AST::ParamDecl* param_void= new AST::ParamDecl(void_ty_node, "", false);
     params->PushBack(param_void);
-    PushParamNodes(params, RuleName::seq_param_void);
+    PushParamDecls(params, RuleName::seq_param_void);
     return True;
   }
 
   eResult SyntaxAnalyzer::Act_seq_param_list(void) {
     ParseInfo pi = parse_stack_.Top();
 
-    if (pi.type_ != ParseInfo::ParamNodeList ||
+    if (pi.type_ != ParseInfo::ParamDeclList ||
         (pi.rule_name_ != RuleName::opt_vararg &&
          pi.rule_name_ != RuleName::fixedparams)) {
       assert(0 && "Invalid parameters");
@@ -1310,26 +1310,26 @@ namespace Parser {
     ParseInfo pi = parse_stack_.Top();
 
     // read param list
-    if (pi.type_ != ParseInfo::ParamNodeList ||
+    if (pi.type_ != ParseInfo::ParamDeclList ||
         pi.rule_name_ != RuleName::fixedparams) {
       assert(0 && "Invalid fixed param list.");
       return Error;
     }
     parse_stack_.Pop();
 
-    AST::ParamNodes* params = pi.data_.param_nodes_;
-    AST::ParamNode* var_arg = new AST::ParamNode();
+    AST::ParamDecls* params = pi.data_.paramDecls_;
+    AST::ParamDecl* var_arg = new AST::ParamDecl();
     var_arg->SetVarArgs(true);
     var_arg->SetName("...");
     params->PushBack(var_arg);
     
-    PushParamNodes(params, RuleName::opt_vararg);
+    PushParamDecls(params, RuleName::opt_vararg);
     return True;
   }
   
   eResult SyntaxAnalyzer::FixedParams(void) {
     ParseInfo pi_params;
-    AST::ParamNodes* params = nullptr;
+    AST::ParamDecls* params = nullptr;
 
     pi_params = parse_stack_.Top();
     // single parameter
@@ -1337,14 +1337,14 @@ namespace Parser {
         pi_params.rule_name_ == RuleName::param) {
       parse_stack_.Pop();
       // In case node is first param
-      params = new AST::ParamNodes();
-      params->PushBack((AST::ParamNode*)pi_params.data_.node_);
-      PushParamNodes(params, RuleName::fixedparams);
+      params = new AST::ParamDecls();
+      params->PushBack((AST::ParamDecl*)pi_params.data_.node_);
+      PushParamDecls(params, RuleName::fixedparams);
       return True;
     }
 
     // multi parameters
-    if (pi_params.type_ == ParseInfo::ParamNodeList &&
+    if (pi_params.type_ == ParseInfo::ParamDeclList &&
          pi_params.rule_name_ == RuleName::rep_comma_param) {
       SetRuleNameForPI(RuleName::fixedparams);
       return True;
@@ -1356,7 +1356,7 @@ namespace Parser {
 
   eResult SyntaxAnalyzer::Act_rep_comma_param(void) {
     ParseInfo pi_paramlist_or_param, pi_param;
-    AST::ParamNodes* params = nullptr;
+    AST::ParamDecls* params = nullptr;
     
     // Read last param
     pi_param = parse_stack_.Top();
@@ -1372,21 +1372,21 @@ namespace Parser {
     if (pi_paramlist_or_param.type_ == ParseInfo::ASTNode && 
         pi_paramlist_or_param.rule_name_ == RuleName::param ) {
       // In case node is first param
-      params = new AST::ParamNodes();
-      params->PushBack((AST::ParamNode*)pi_paramlist_or_param.data_.node_);
+      params = new AST::ParamDecls();
+      params->PushBack((AST::ParamDecl*)pi_paramlist_or_param.data_.node_);
     }
-    else if (pi_paramlist_or_param.type_ == ParseInfo::ParamNodeList && 
+    else if (pi_paramlist_or_param.type_ == ParseInfo::ParamDeclList && 
         pi_paramlist_or_param.rule_name_ == RuleName::fixedparams) {
-      params = pi_paramlist_or_param.data_.param_nodes_;
+      params = pi_paramlist_or_param.data_.paramDecls_;
     }
     else {
       assert(0 && "Unidentified param.");
       return Error;
     }
     parse_stack_.Pop();
-    params->PushBack((AST::ParamNode*)pi_param.data_.node_);
+    params->PushBack((AST::ParamDecl*)pi_param.data_.node_);
 
-    PushParamNodes(params, RuleName::rep_comma_param);
+    PushParamDecls(params, RuleName::rep_comma_param);
     return True;
   }
 
@@ -1449,7 +1449,7 @@ namespace Parser {
           // In order not to share same typenode pointer, we create every single new typenode.
           AST::TypeNode* tn = new AST::TypeNode(ty->GetType());
           (*vardecls)[i]->SetStorage(is_static);
-          (*vardecls)[i]->SetType(tn);
+          (*vardecls)[i]->SetTypeNode(tn);
         }
         delete ty;
 
@@ -1516,7 +1516,7 @@ namespace Parser {
       return Error;
     }
     parse_stack_.Pop();
-    new_vars = pi_vars.data_.vardecls_;
+    new_vars = pi_vars.data_.varDecls_;
     
     pi_vars = parse_stack_.Top();
     if (pi_vars.type_ != ParseInfo::VarDeclList ||
@@ -1527,7 +1527,7 @@ namespace Parser {
     else {
       // second variable list.
       parse_stack_.Pop();
-      all_vars = pi_vars.data_.vardecls_;
+      all_vars = pi_vars.data_.varDecls_;
       for(int i = 0; i < new_vars->GetSize() ; i++) {
         all_vars->PushBack((*new_vars)[i]);
       }
@@ -3680,15 +3680,15 @@ namespace Parser {
   void SyntaxAnalyzer::PushVarDecls(AST::VariableDecls* var_list, RuleName rname) {
     ParseInfo pi;
     pi.type_ = ParseInfo::VarDeclList;
-    pi.data_.vardecls_ = var_list;
+    pi.data_.varDecls_ = var_list;
     pi.rule_name_ = rname;
     parse_stack_.Push(pi);
   }
 
-  void SyntaxAnalyzer::PushParamNodes(AST::ParamNodes* param_list, RuleName rname) {
+  void SyntaxAnalyzer::PushParamDecls(AST::ParamDecls* param_list, RuleName rname) {
     ParseInfo pi;
-    pi.type_ = ParseInfo::ParamNodeList;
-    pi.data_.param_nodes_ = param_list;
+    pi.type_ = ParseInfo::ParamDeclList;
+    pi.data_.paramDecls_ = param_list;
     pi.rule_name_ = rname;
     parse_stack_.Push(pi);
   }

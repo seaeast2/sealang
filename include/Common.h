@@ -59,7 +59,7 @@ namespace AST {
   class VariableDecl;
   class ConstantDecl;
   class TypeNode;
-  class ParamNode;
+  class ParamDecl;
   class ImportNode;
   class ArgsNode;
   //class ClassNode;
@@ -71,7 +71,7 @@ namespace AST {
   typedef SimpleVector<FunctionDecl*> FunctionDecls;
   typedef SimpleVector<ConstantDecl*> ConstantDecls;
   typedef SimpleVector<VariableDecl*> VariableDecls;
-  typedef SimpleVector<ParamNode*>    ParamNodes;
+  typedef SimpleVector<ParamDecl*>    ParamDecls;
   typedef SimpleVector<StmtNode*>     StmtNodes;
   typedef SimpleVector<ExprNode*>     ExprNodes;
   typedef SimpleVector<CaseNode*>     CaseNodes;

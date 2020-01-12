@@ -540,11 +540,11 @@ bool ASTPrinter::Visit(TypeNode* node){
   return res;
 }
  
-bool ASTPrinter::Visit(ParamNode* node){
+bool ASTPrinter::Visit(ParamDecl* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "ParamNode : " << node->GetName() << endl;
+  cout << "ParamDecl : " << node->GetName() << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;

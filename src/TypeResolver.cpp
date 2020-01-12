@@ -112,7 +112,7 @@ bool TypeResolver::CompleteFunctionType(ASTContext* ac, FunctionDecl* FD) {
   // Get parameter types
   Types paramTys;
   for (int i = 0; i < FD->GetParamNum(); i++) {
-    paramTys.PushBack(FD->GetParamNode(i)->GetType()->GetType());
+    paramTys.PushBack(FD->GetParamNode(i)->GetTypeNode()->GetType());
   }
 
   // Get this class type in case member function.
@@ -151,7 +151,7 @@ bool TypeResolver::CompleteRecordType(ASTContext* ac, RecordDecl* cn) {
       assert(0 &&"invalid class member variable");
       return false;
     }
-    ct->AddMemberType(vd->GetType()->GetType());
+    ct->AddMemberType(vd->GetTypeNode()->GetType());
   }
   
   // insert class member function type
@@ -162,7 +162,7 @@ bool TypeResolver::CompleteRecordType(ASTContext* ac, RecordDecl* cn) {
       assert(0 &&"invalid class member function");
       return false;
     }
-    ct->AddMemberFuncType(fd->GetTypeNode()->GetType());
+    ct->AddMemberFuncType(static_cast<FunctionType*>(fd->GetTypeNode()->GetType()));
   }
   return true;
 }
