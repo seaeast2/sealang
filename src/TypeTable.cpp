@@ -1,5 +1,7 @@
 #include "TypeTable.h"
 
+using namespace AST;
+
 
 TypeTable::TypeTable() {
 }

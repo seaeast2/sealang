@@ -375,7 +375,7 @@ bool ASTVisitor::Visit(RecordDecl* node) {
 }
 
 bool ASTVisitor::Visit(TypedefNode* node){ 
-  TypeNode* ty = node->GetType();
+  TypeNode* ty = node->GetTypeNode();
   if(!Visit(ty))
     return false;
   return true; 

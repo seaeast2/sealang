@@ -2,6 +2,7 @@
 #define _TypeTable_h_
 
 #include "./core/hash.h"
+#include "ASTType.h"
 
 namespace AST {
   class TypeTable {
