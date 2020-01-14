@@ -61,13 +61,13 @@ namespace AST {
     body_ = nullptr;
   }
 
-  FunctionDecl::FunctionDecl(bool storage, TypeNode* retty, const char* fnname, 
-      ParamDecls* params, BlockNode* body, RecordDecl* thisClass) {
+  FunctionDecl::FunctionDecl(bool storage, TypeNode* retty, const char* fnname, ParamDecls* params, BlockNode* body, RecordDecl* thisClass) {
     kind_ = FunctionDeclTy;
     is_static_ = storage;
     retType_ = retty;
     name_ = fnname;
 
+    // copy params
     for (int i = 0; i < params->GetSize(); i++) {
       params_.PushBack((*params)[i]);
     }
@@ -91,11 +91,6 @@ namespace AST {
 
     if (body_)
       delete body_;
-  }
-
-  // TODO : working here
-  TypeNode* FunctionDecl::CreateFnType(TypeNode* retTy, TypeNode* thisClass, ParamDecls* params) {
-
   }
 
   void FunctionDecl::SetParams(ParamDecls* params) {

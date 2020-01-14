@@ -337,7 +337,7 @@ AST Node Tree =================================================================
             CastNodeTy,
             CondExprNodeTy,
             FuncCallNodeTy,
-            LHSNodeTy,
+            LValueNodeTy,
               ArrayRefNodeTy,
               DereferenceNodeTy,
               MemberRefNodeTy,

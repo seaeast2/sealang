@@ -340,25 +340,11 @@ namespace AST {
         param_types_ = param_types;
         this_class_ = this_class;
         
-        // funciton type typename
-        // standard type : 
-        //        retty(paramty1,paramty2,paramty3,...) 
-        // class member function type : 
-        //        retty(self class_name,paramty1,paramty2,paramty3,...) 
-        std::string fn_type_name = retty->GetTypeName();
-        fn_type_name += "(";
-        if (this_class_) {
-          fn_type_name += "self ";
-          fn_type_name += this_class_->GetTypeName();
-        }
-        for (int i = 0; i < param_types.GetSize(); i++) {
-          fn_type_name += param_types[i]->GetTypeName();
-          if (i+1 < param_types.GetSize())
-            fn_type_name += ",";
-        }
-        fn_type_name += ")";
-        type_name_ = fn_type_name;
+        type_name_ = MakeFnTypeName(retty, param_types, this_class);
       }
+
+      const char* MakeFnTypeName(Type* retTy, Types const & paramTypes, Type* thisClass);
+
     public:
       virtual ~FunctionType() {}
 
@@ -379,51 +365,6 @@ namespace AST {
 
       static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types, Type* this_class = nullptr);
   };
-
-  /*class ClassType : public CompositeType {
-    private:
-      SimpleList<FunctionType*> member_func_types_;
-    
-    protected:
-      ClassType() {
-        kind_ = ClassTy;
-        type_name_ = "class type";
-        is_incomplete_ = false;
-      }
-
-      ClassType(const char* type_name) {
-        kind_ = ClassTy;
-        type_name_ = type_name;
-        is_incomplete_ = false;
-      }
-    public:
-      virtual ~ClassType() {
-      }
-
-      virtual bool IsKindOf(TypeKind kind) {
-        if (kind == ClassTy || kind == CompositeTy || 
-            kind == NamedTy || kind == BaseTy)
-          return true;
-        return false;
-      }
-
-      void AddMemberFuncType(FunctionType* mem_type) {
-        member_func_types_.PushBack(mem_type);
-      }
-
-      bool RemoveMemberFuncType(FunctionType* mem_type) {
-        return member_func_types_.Delete(mem_type);
-      }
-
-      Type* FindMemberFuncType(FunctionType* mem_type) { 
-        return member_func_types_.Find(mem_type); }
-
-      int GetMemberFuncNum() { return member_func_types_.GetSize(); }
-      Type* GetMemberFuncType(int index) { return member_func_types_.GetAt(index); }
-
-      static ClassType* Get(ASTContext* ac, const char* type_name); // create incomplete type
-  };
-  */
 
   class RecordType : public CompositeType {
     private:

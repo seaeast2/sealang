@@ -175,24 +175,8 @@ namespace AST {
 
   FunctionType* FunctionType::Get(ASTContext* ac, Type* retty, 
       SimpleVector<Type*> param_types, Type* this_class) {
-    // funciton type typename
-    // standard type : 
-    //        retty(paramty1,paramty2,paramty3,...) 
-    // class member function type : 
-    //        retty(self class_name,paramty1,paramty2,paramty3,...) 
-    std::string fn_type_name = retty->GetTypeName();
-    fn_type_name += "(";
-    if (this_class) {
-      fn_type_name += "self ";
-      fn_type_name += this_class->GetTypeName();
-    }
-    for (int i = 0; i < param_types.GetSize(); i++) {
-      fn_type_name += param_types[i]->GetTypeName();
-      if (i+1 < param_types.GetSize())
-        fn_type_name += ",";
-    }
-    fn_type_name += ")";
-    Type* ty = ac->GetType(fn_type_name.c_str());
+    
+    Type* ty = ac->GetType(MakeFnTypeName(retty, param_types, this_class);
     if (ty)
       return (FunctionType*) ty;
 
@@ -202,6 +186,32 @@ namespace AST {
     return (FunctionType*) ty;
   }
 
+  const char* FunctionType::MakeFnTypeName(Type* retTy, Types const & paramTypes, Type* thisClass) {
+    // funciton type typename
+    // standard type : 
+    //        retty(paramty1,paramty2,paramty3,...) 
+    // class member function type : 
+    //        retty(self class_name,paramty1,paramty2,paramty3,...) 
+    
+    // 1. add return type
+    static std::string funcTypeName = retTy->GetTypeName();
+    // 2. set this class
+    funcTypeName += "(";
+    if (thisClass) {
+      funcTypeName += "self ";
+      funcTypeName += thisClass->GetTypeName();
+      funcTypeName += ",";
+    }
+    // 3. add parameter type
+    for (int i = 0; i < paramTypes.GetSize(); i++) {
+      funcTypeName += paramTypes[i]->GetTypeName();
+      if (i < paramTypes.GetSize()-1)
+        funcTypeName += ",";
+    }
+    funcTypeName += ")";
+
+    return funcTypeName.c_str();
+  }
 
   VarArgType* VarArgType::Get(ASTContext* ac) {
     string vaarg = "...";

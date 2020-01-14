@@ -57,7 +57,7 @@ namespace AST {
             CastNodeTy,
             CondExprNodeTy,
             FuncCallNodeTy,
-            LHSNodeTy,
+            LValueNodeTy,
               ArrayRefNodeTy,
               DereferenceNodeTy,
               MemberRefNodeTy,
@@ -1184,23 +1184,23 @@ namespace AST {
       }
   };
 
-  class LHSNode : public ExprNode {
+  class LValueNode : public ExprNode {
     protected:
-      LHSNode() {
-        kind_ = LHSNodeTy;
+      LValueNode() {
+        kind_ = LValueNodeTy;
       }
     public:
-      virtual ~LHSNode() {}
+      virtual ~LValueNode() {}
 
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == LHSNodeTy || kind == ExprNodeTy || 
+        if (kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
       }
   };
 
-  class ArrayRefNode : public LHSNode {
+  class ArrayRefNode : public LValueNode {
     ExprNode* array_base_expr_; 
     ExprNode* array_size_expr_;
     int array_size_;
@@ -1226,7 +1226,7 @@ namespace AST {
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == ArrayRefNodeTy ||
-            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
@@ -1240,7 +1240,7 @@ namespace AST {
       }
   };
 
-  class DereferenceNode : public LHSNode {
+  class DereferenceNode : public LValueNode {
     ExprNode* base_expr_;
     public:
       DereferenceNode() {
@@ -1258,7 +1258,7 @@ namespace AST {
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == DereferenceNodeTy || 
-            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
@@ -1271,7 +1271,7 @@ namespace AST {
       }
   };
 
-  class MemberRefNode : public LHSNode {
+  class MemberRefNode : public LValueNode {
     ExprNode* base_expr_;
     std::string member_name_;
     public:
@@ -1291,7 +1291,7 @@ namespace AST {
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == MemberRefNodeTy ||
-            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
@@ -1305,7 +1305,7 @@ namespace AST {
       }
   };
 
-  class PtrMemberRefNode : public LHSNode {
+  class PtrMemberRefNode : public LValueNode {
     ExprNode* base_expr_;
     std::string member_name_;
     public:
@@ -1325,7 +1325,7 @@ namespace AST {
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == PtrMemberRefNodeTy ||
-            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
@@ -1340,7 +1340,7 @@ namespace AST {
   };
 
   // Function or Variable can be a VariableNode.
-  class VariableNode : public LHSNode {
+  class VariableNode : public LValueNode {
     NamedDecl* defined_decl_;
     std::string variable_name_;
     public:
@@ -1357,7 +1357,7 @@ namespace AST {
 
       virtual bool IsKindOf(NodeKind kind) {
         if (kind == VariableNodeTy ||
-            kind == LHSNodeTy || kind == ExprNodeTy || 
+            kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
@@ -1735,7 +1735,7 @@ namespace AST {
 
   class NamedDecl : public BaseNode {
     protected:
-      std::string name_; // function name
+      std::string name_; // Value name
       TypeNode* typeNode_; // Type
 
       NamedDecl() {
@@ -1775,9 +1775,6 @@ namespace AST {
       TypeNode* retType_; // return type
       ParamDecls params_; // parameters
       BlockNode* body_; // body
-
-    private:
-      TypeNode* CreateFnTypeNode(TypeNode* retTy, TypeNode* thisClass, ParamDecls* params);
 
     public:
       FunctionDecl();
