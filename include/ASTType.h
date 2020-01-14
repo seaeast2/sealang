@@ -343,7 +343,7 @@ namespace AST {
         type_name_ = MakeFnTypeName(retty, param_types, this_class);
       }
 
-      const char* MakeFnTypeName(Type* retTy, Types const & paramTypes, Type* thisClass);
+      static const char* MakeFnTypeName(Type* retTy, Types const & paramTypes, Type* thisClass);
 
     public:
       virtual ~FunctionType() {}
@@ -363,7 +363,7 @@ namespace AST {
       }
       Type* GetThisClassType() { return this_class_; }
 
-      static FunctionType* Get(ASTContext* ac, Type* retty, Types param_types, Type* this_class = nullptr);
+      static FunctionType* Get(ASTContext* ac, Type* retty, Types const & param_types, Type* this_class = nullptr);
   };
 
   class RecordType : public CompositeType {

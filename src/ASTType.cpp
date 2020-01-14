@@ -173,10 +173,9 @@ namespace AST {
     return (PointerType*) ty;
   }
 
-  FunctionType* FunctionType::Get(ASTContext* ac, Type* retty, 
-      SimpleVector<Type*> param_types, Type* this_class) {
+  FunctionType* FunctionType::Get(ASTContext* ac, Type* retty, Types const & param_types, Type* this_class) {
     
-    Type* ty = ac->GetType(MakeFnTypeName(retty, param_types, this_class);
+    Type* ty = ac->GetType(FunctionType::MakeFnTypeName(retty, param_types, this_class));
     if (ty)
       return (FunctionType*) ty;
 
