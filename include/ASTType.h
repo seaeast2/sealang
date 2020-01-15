@@ -38,12 +38,12 @@ namespace AST {
     protected:
       TypeKind      kind_;
       std::string   type_name_;
-      bool          is_incomplete_; // let us know if current is incomplete type.
+      bool          isComplete_; // let us know if current is incomplete type.
 
       Type() {
         kind_ = BaseTy;
         type_name_ = "";
-        is_incomplete_ = false;
+        isComplete_ = true;
       };
 
     public:
@@ -55,8 +55,8 @@ namespace AST {
       virtual bool IsKindOf(TypeKind kind) = 0;
 
       const char* GetTypeName() { return type_name_.c_str(); }
-      bool IsIncomplete() { return is_incomplete_; }
-      void Incomplete(bool ic) { is_incomplete_ = ic; }
+      bool IsComplete() { return isComplete_; }
+      void Complete(bool ic) { isComplete_ = ic; }
 
       virtual void Print();
   };
@@ -68,7 +68,6 @@ namespace AST {
       VoidType() {
         kind_ = VoidTy;
         type_name_ = "void";
-        is_incomplete_ = false;
       }
     public:
       virtual ~VoidType() {}
@@ -94,7 +93,6 @@ namespace AST {
 
       IntegerType() {
         sign_ = Signed;
-        is_incomplete_ = false;
       }
 
       IntegerType(eSign sign) {
@@ -130,7 +128,6 @@ namespace AST {
           type_name_ = "char";
         else
           type_name_ = "unsigned char";
-        is_incomplete_ = false;
       }
     public:
       virtual ~CharType() {}
@@ -154,7 +151,6 @@ namespace AST {
           type_name_ = "short";
         else
           type_name_ = "unsigned short";
-        is_incomplete_ = false;
       }
     public:
       virtual ~ShortType() {}
@@ -178,7 +174,6 @@ namespace AST {
           type_name_ = "int";
         else
           type_name_ = "unsigned int";
-        is_incomplete_ = false;
       }
     public:
       virtual ~IntType() {}
@@ -202,7 +197,6 @@ namespace AST {
           type_name_ = "long";
         else
           type_name_ = "unsigned long";
-        is_incomplete_ = false;
       }
     public:
       virtual ~LongType() {}
@@ -221,7 +215,6 @@ namespace AST {
       RealType() {
         kind_ = RealTy;
         type_name_ = "real";
-        is_incomplete_ = false;
       }
     public:
       virtual ~RealType() {}
@@ -238,7 +231,6 @@ namespace AST {
       FloatType() {
         kind_ = FloatTy;
         type_name_ = "float";
-        is_incomplete_ = false;
       }
     public:
       virtual ~FloatType() {}
@@ -257,7 +249,6 @@ namespace AST {
       DoubleType() {
         kind_ = DoubleTy;
         type_name_ = "double";
-        is_incomplete_ = false;
       }
     public:
       virtual ~DoubleType() {}
@@ -276,7 +267,6 @@ namespace AST {
       NamedType() {
         kind_ = NamedTy;
         type_name_ = "";
-        is_incomplete_ = false;
       }
     public:
       virtual ~NamedType() {}
@@ -294,7 +284,6 @@ namespace AST {
     
       CompositeType() {
         kind_ = CompositeTy;
-        is_incomplete_ = false;
       }
     public:
       virtual ~CompositeType() {}
@@ -328,13 +317,11 @@ namespace AST {
     protected:
       FunctionType() {
         kind_ = FunctionTy;
-        is_incomplete_ = false;
         this_class_ = nullptr;
       }
 
       FunctionType(Type* retty, Types const & param_types, Type* this_class = nullptr) {
         kind_ = FunctionTy;
-        is_incomplete_ = false;
 
         return_type_ = retty;
         param_types_ = param_types;
@@ -374,13 +361,11 @@ namespace AST {
       RecordType() {
         kind_ = RecordTy;
         type_name_ = "class type";
-        is_incomplete_ = false;
       }
 
       RecordType(const char* type_name) {
         kind_ = RecordTy;
         type_name_ = type_name;
-        is_incomplete_ = false;
       }
     public:
       virtual ~RecordType() {
@@ -417,14 +402,12 @@ namespace AST {
     protected:
       UserType() {
         kind_ = UserTy;
-        is_incomplete_ = false;
 
         original_type_ = nullptr;
       }
 
       UserType(Type* ori_ty, const char* new_ty_name) {
         kind_ = UserTy;
-        is_incomplete_ = false;
 
         original_type_ = ori_ty;
         type_name_ = new_ty_name;
@@ -451,11 +434,9 @@ namespace AST {
     protected:
       ArrayType() {
         kind_ = ArrayTy;
-        is_incomplete_ = false;
       }
       ArrayType(Type* basety) {
         kind_ = ArrayTy;
-        is_incomplete_ = false;
         
         base_type_ = basety;
         type_name_ = basety->GetTypeName(); 
@@ -463,7 +444,6 @@ namespace AST {
       }
       ArrayType(Type* basety, unsigned int size) {
         kind_ = ArrayTy;
-        is_incomplete_ = false;
 
         base_type_ = basety;
         array_size_= size;
@@ -491,11 +471,9 @@ namespace AST {
       PointerType() {
         base_type_ = nullptr;
         kind_ = PointerTy;
-        is_incomplete_ = false;
       }
       PointerType(Type* basety) {
         kind_ = PointerTy;
-        is_incomplete_ = false;
 
         base_type_ = basety;
         type_name_ = basety->GetTypeName();
@@ -519,7 +497,6 @@ namespace AST {
       VarArgType() {
         type_name_ = "...";
         kind_ = VarArgTy;
-        is_incomplete_ = false;
       }
     public:
       virtual ~VarArgType() {}

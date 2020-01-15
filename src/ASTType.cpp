@@ -99,25 +99,13 @@ namespace AST {
     return (DoubleType*)ty;
   }
 
-  // incomplete type
-  /*ClassType* ClassType::Get(ASTContext* ac, const char* type_name) {
-    Type* ty = ac->GetType(type_name);
-    if (ty) 
-      return (ClassType*)ty;
-
-    ty = new ClassType(type_name);
-    ty->Incomplete(true); // set with incomplete type.
-    ac->AddType(ty);
-    return (ClassType*)ty;
-  }*/
-
   RecordType* RecordType::Get(ASTContext* ac, const char* type_name) {
     Type* ty = ac->GetType(type_name);
     if (ty) 
       return (RecordType*)ty;
 
     ty = new RecordType(type_name);
-    ty->Incomplete(true); // set with incomplete type when RecordDecl is created.
+    ty->Complete(false); // set as incomplete
     ac->AddType(ty);
     return (RecordType*)ty;
   }
@@ -180,7 +168,7 @@ namespace AST {
       return (FunctionType*) ty;
 
     ty = new FunctionType(retty, param_types);
-    ty->Incomplete(true);
+    ty->Complete(false); // set as incomplete
     ac->AddType(ty);
     return (FunctionType*) ty;
   }

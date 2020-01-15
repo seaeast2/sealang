@@ -180,8 +180,6 @@ namespace AST {
             return visitor->Visit(reinterpret_cast<ImportNode*>(this));
           case ArgsNodeTy:
             return visitor->Visit(reinterpret_cast<ArgsNode*>(this));
-          /*case ClassNodeTy:
-            return visitor->Visit(reinterpret_cast<ClassNode*>(this));*/
           case RecordDeclTy:
             return visitor->Visit(reinterpret_cast<RecordDecl*>(this));
           case TypedefNodeTy:
@@ -1698,8 +1696,7 @@ namespace AST {
       virtual ~CompositeTypeDefinition();
 
       virtual bool IsKindOf(NodeKind kind) {
-        if (kind == CompositeTypeDefinitionTy|| kind == TypeDefinitionTy ||
-            kind == BaseNodeTy)
+        if (kind == CompositeTypeDefinitionTy|| kind == TypeDefinitionTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -1904,50 +1901,12 @@ namespace AST {
       }
   };
 
-  /*class ClassNode : public CompositeTypeDefinition {
-    public:
-      ClassNode() {
-        kind_ = ClassNodeTy;
-      }
-      ClassNode(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
-          FunctionDecls* mem_func);
-
-      virtual ~ClassNode() {}
-
-      virtual bool IsKindOf(NodeKind kind) {
-        if (kind == ClassNodeTy || kind == CompositeTypeDefinitionTy ||
-            kind == TypeDefinitionTy|| kind == BaseNodeTy)
-          return true;
-        return false;
-      }
-
-      void AddMemVariable(VariableDecl* var) { memberVariableDecls_.PushBack(var); }
-      void AddMemFunction(FunctionDecl* fun) { 
-        fun->SetThisClass(this);
-        memberFunctionDecls_.PushBack(fun); 
-      }
-
-      VariableDecl* GetMemVariable(int index);
-      FunctionDecl* GetMemFunction(int index);
-
-      int GetMemVarNum() { return memberVariableDecls_.GetSize(); }
-      int GetMemFunNum() { return memberFunctionDecls_.GetSize(); }
-
-      void ReverseVariableOrder() { memberVariableDecls_.Reverse(); }
-      void ReverseFunctionOrder() { memberFunctionDecls_.Reverse(); }
-
-      virtual bool Accept(ASTVisitor* visitor) override {
-        return visitor->Visit(this);
-      }
-  };*/
-
   class RecordDecl : public CompositeTypeDefinition {
     public:
       RecordDecl() {
         kind_ = RecordDeclTy;
       }
-      RecordDecl(const char* type_name, TypeNode* ty, VariableDecls* mem_var, 
-          FunctionDecls* mem_func);
+      RecordDecl(const char* type_name, TypeNode* ty, VariableDecls* mem_var, FunctionDecls* mem_func);
 
       virtual ~RecordDecl() {}
 

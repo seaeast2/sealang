@@ -1191,7 +1191,7 @@ namespace Parser {
     memset(classname, 0, pi_class_name.cstr_len_ + 1);
     strncpy(classname, pi_class_name.data_.cstr_, pi_class_name.cstr_len_);
     RD->SetTypeName(classname);
-    // Set class type
+    // Set record type
     AST::RecordType* clsty = AST::RecordType::Get(ac_, classname);
     AST::TypeNode* class_ty_node = new AST::TypeNode(clsty);
     RD->SetType(class_ty_node);
