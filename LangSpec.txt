@@ -303,8 +303,8 @@ AST Node Tree =================================================================
           NamedDeclTy,
             FunctionDeclTy,
             VariableDeclTy,
+              ParamNodeTy,
             ConstantDeclTy,
-            ParamNodeTy,
           TypeNodeTy,
           ImportNodeTy,
           ArgsNodeTy, // function call arguments

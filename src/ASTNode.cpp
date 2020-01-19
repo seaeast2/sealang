@@ -5,7 +5,107 @@
 using namespace std;
 
 namespace AST {
+  // BaseNode ==================================
+  bool BaseNode::Accept(ASTVisitor* visitor) {
+    switch (kind_) {
+      case BlockNodeTy:
+        return visitor->Visit(reinterpret_cast<BlockNode*>(this));
+      case LabelNodeTy:
+        return visitor->Visit(reinterpret_cast<LabelNode*>(this));
+      case ExprStmtNodeTy:
+        return visitor->Visit(reinterpret_cast<ExprStmtNode*>(this));
+      case IfNodeTy:
+        return visitor->Visit(reinterpret_cast<IfNode*>(this));
+      case WhileNodeTy:
+        return visitor->Visit(reinterpret_cast<WhileNode*>(this));
+      case DoWhileNodeTy:
+        return visitor->Visit(reinterpret_cast<DoWhileNode*>(this));
+      case ForNodeTy:
+        return visitor->Visit(reinterpret_cast<ForNode*>(this));
+      case CaseNodeTy:
+        return visitor->Visit(reinterpret_cast<CaseNode*>(this));
+      case SwitchNodeTy:
+        return visitor->Visit(reinterpret_cast<SwitchNode*>(this));
+      case BreakNodeTy:
+        return visitor->Visit(reinterpret_cast<BreakNode*>(this));
+      case ContinueNodeTy:
+        return visitor->Visit(reinterpret_cast<ContinueNode*>(this));
+      case GotoNodeTy:
+        return visitor->Visit(reinterpret_cast<GotoNode*>(this));
+      case ReturnNodeTy:
+        return visitor->Visit(reinterpret_cast<ReturnNode*>(this));
 
+      case AssignNodeTy:
+        return visitor->Visit(reinterpret_cast<AssignNode*>(this));
+      case OpAssignNodeTy:
+        return visitor->Visit(reinterpret_cast<OpAssignNode*>(this));
+      case AddressNodeTy:
+        return visitor->Visit(reinterpret_cast<AddressNode*>(this));
+      case BinaryOpNodeTy:
+        return visitor->Visit(reinterpret_cast<BinaryOpNode*>(this));
+      case LogicalAndNodeTy:
+        return visitor->Visit(reinterpret_cast<LogicalAndNode*>(this));
+      case LogicalOrNodeTy:
+        return visitor->Visit(reinterpret_cast<LogicalOrNode*>(this));
+      case CastNodeTy:
+        return visitor->Visit(reinterpret_cast<CastNode*>(this));
+      case CondExprNodeTy:
+        return visitor->Visit(reinterpret_cast<CondExprNode*>(this));
+      case FuncCallNodeTy:
+        return visitor->Visit(reinterpret_cast<FuncCallNode*>(this));
+      case ArrayRefNodeTy:
+        return visitor->Visit(reinterpret_cast<ArrayRefNode*>(this));
+      case DereferenceNodeTy:
+        return visitor->Visit(reinterpret_cast<DereferenceNode*>(this));
+      case MemberRefNodeTy:
+        return visitor->Visit(reinterpret_cast<MemberRefNode*>(this));
+      case PtrMemberRefNodeTy:
+        return visitor->Visit(reinterpret_cast<PtrMemberRefNode*>(this));
+      case VariableNodeTy:
+        return visitor->Visit(reinterpret_cast<VariableNode*>(this));
+      case IntegerLiteralNodeTy:
+        return visitor->Visit(reinterpret_cast<IntegerLiteralNode*>(this));
+      case RealLiteralNodeTy:
+        return visitor->Visit(reinterpret_cast<RealLiteralNode*>(this));
+      case StringLiteralNodeTy:
+        return visitor->Visit(reinterpret_cast<StringLiteralNode*>(this));
+      case SizeofExprNodeTy:
+        return visitor->Visit(reinterpret_cast<SizeofExprNode*>(this));
+      case SizeofTypeNodeTy:
+        return visitor->Visit(reinterpret_cast<SizeofTypeNode*>(this));
+      case UnaryOpNodeTy:
+        return visitor->Visit(reinterpret_cast<UnaryOpNode*>(this));
+      case PrefixOpNodeTy:
+        return visitor->Visit(reinterpret_cast<PrefixOpNode*>(this));
+      case SuffixOpNodeTy:
+        return visitor->Visit(reinterpret_cast<SuffixOpNode*>(this));
+
+      case FunctionDeclTy:
+        return visitor->Visit(reinterpret_cast<FunctionDecl*>(this));
+      case VariableDeclTy:
+        return visitor->Visit(reinterpret_cast<VariableDecl*>(this));
+      case ConstantDeclTy:
+        return visitor->Visit(reinterpret_cast<ConstantDecl*>(this));
+      case TypeNodeTy:
+        return visitor->Visit(reinterpret_cast<TypeNode*>(this));
+      case ParamDeclTy:
+        return visitor->Visit(reinterpret_cast<ParamDecl*>(this));
+      case ImportNodeTy:
+        return visitor->Visit(reinterpret_cast<ImportNode*>(this));
+      case ArgsNodeTy:
+        return visitor->Visit(reinterpret_cast<ArgsNode*>(this));
+      case RecordDeclTy:
+        return visitor->Visit(reinterpret_cast<RecordDecl*>(this));
+      case TypedefNodeTy:
+        return visitor->Visit(reinterpret_cast<TypedefNode*>(this));
+
+      default:
+        assert(0&& "Error on Variable checker : Duplicate name");
+        break;
+    }
+    return false;
+  }
+  
   // ImportNode ==================================
   const char* ImportNode::GetImportPath() {
     string tmp = ".";

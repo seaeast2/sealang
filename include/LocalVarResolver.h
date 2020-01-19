@@ -10,9 +10,10 @@ namespace AST {
   // 1. Check duplication of local variable.
   // 2. Check linkage between Variable defintion and Variable instance.
   class LocalVarResolver : public ASTVisitor {
-    Declarations* decls_;
-    Scope* currentScope_;
-    // TODO : Need to add ErrorHandler
+    private:
+      Declarations* decls_;
+      Scope* currentScope_;
+      // TODO : Need to add ErrorHandler
 
     public:
       LocalVarResolver();

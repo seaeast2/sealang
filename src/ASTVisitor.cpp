@@ -297,15 +297,22 @@ bool ASTVisitor::Visit(SuffixOpNode* node){
 
 // Etc
 bool ASTVisitor::Visit(FunctionDecl* node){ 
+  // FunctionType itself
+  TypeNode* fnType = node->GetTypeNode();
+  if(!Visit(fnType))
+    return false;
+
   // return type 
   TypeNode* retty = node->GetReturnTypeNode();
   if(!Visit(retty))
     return false;
+
   // parameters
   for (int i = 0; i < node->GetParamNum(); i++) {
     if(!Visit(node->GetParamNode(i)))
       return false;
   }
+
   // body
   BlockNode* body = node->GetBody();
   if(!Visit(body))

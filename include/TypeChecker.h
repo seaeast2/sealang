@@ -5,26 +5,29 @@
 #include "ASTVisitor.h"
 
 namespace AST {
-  /* Check below error
-   * 1. Assign RValue : 1 = 2 + 3
-   * 2. Invalid Function Call. Check function pointer : "string"("%d\n", i)
-   * 3. Invalid Array reference : 1[0]
-   * 4. Invalid member reference : 10.memb
-   * 5. Invalid member pointer reference : 10->memb
-   * 6. Invalid pointer reference : *1
-   * 7. Invalid RValue reference : &1
-   * 8. Invalid RValue increase : ++1, 1++
-   */
   class TypeChecker : public ASTVisitor {
     private:
+      // Check 
+      bool CheckInvalidVariable(VariableDecl* VD);
+
+      // 1. check void type record type, array
+      //   ex) void a; // void variable
+      //   ex) void[10] b; // void array
+      //   ex) class { void c; } // void member
+      bool CheckInvalidVariableType(Type* t);
+
+      bool CheckDuplicatedMemberName(RecordDecl* r);
+      // TODO : Need to add ErrorHandler
 
     public:
       TypeChecker();
       virtual ~TypeChecker();
 
-      /*
+      bool Check(Declarations* decls);
+
+      
       // Statements
-      virtual bool Visit(BlockNode* node) override;
+      /*virtual bool Visit(BlockNode* node) override;
       virtual bool Visit(LabelNode* node) override;
       virtual bool Visit(ExprStmtNode* node) override;
       virtual bool Visit(IfNode* node) override;    
@@ -63,12 +66,12 @@ namespace AST {
       virtual bool Visit(SuffixOpNode* node) override;
 
       // Etc
-      virtual bool Visit(FunctionDecl* node) override;
+      virtual bool Visit(FunctionDecl* node) override;*/
       virtual bool Visit(VariableDecl* node) override;
-      virtual bool Visit(ConstantDecl* node) override;
-      virtual bool Visit(TypeNode* node) override; 
+      /*virtual bool Visit(ConstantDecl* node) override;
+      virtual bool Visit(TypeNode* node) override; */
       virtual bool Visit(ParamDecl* node) override;
-      virtual bool Visit(ImportNode* node) override;
+      /*virtual bool Visit(ImportNode* node) override;
       virtual bool Visit(ArgsNode* node) override;        
       virtual bool Visit(ClassNode* node) override;   
       virtual bool Visit(TypedefNode* node) override;  
