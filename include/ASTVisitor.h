@@ -60,7 +60,6 @@ namespace AST {
       virtual bool Visit(ParamDecl* node);
       virtual bool Visit(ImportNode* node);
       virtual bool Visit(ArgsNode* node);
-      //virtual bool Visit(ClassNode* node);
       virtual bool Visit(RecordDecl* node);
       virtual bool Visit(TypedefNode* node);
   };

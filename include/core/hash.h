@@ -8,7 +8,7 @@
 using namespace std;
 
 // string key hash table
-template <class V, int MAX_TABLE>
+template <typename V, int MAX_TABLE>
 class HashTable {
   struct Element {
     char* key_;

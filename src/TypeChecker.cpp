@@ -1,3 +1,5 @@
+#include "core/hash.h"
+
 #include "TypeChecker.h"
 
 using namespace AST;
@@ -46,7 +48,24 @@ bool TypeChecker::CheckInvalidVariableType(Type* t) {
 }
 
 bool TypeChecker::CheckDuplicatedMemberName(RecordDecl* r) {
-  // TODO : working here
+  // Check variable name.
+  // TODO : need to add set container
+  HashTable<int, 20> names; // we just need key duplication check.
+
+  for (int i = 0; i < r->GetMemVarDeclNum(); i++) {
+    VariableDecl* VD = r->GetMemVariableDecl(i);
+    if (names.Find(VD->GetName()) == nullptr) {
+      // no matching
+      names.Insert(VD->GetName(), i);
+    }
+    else {
+      assert(0&&"Error : Duplicated member variable name.");
+      return false;  
+    }
+  }
+
+  // TODO : need to check member function as well.
+
   return true;
 }
 
@@ -60,5 +79,10 @@ bool TypeChecker::Visit(VariableDecl* node) {
 
 bool TypeChecker::Visit(ParamDecl* node) {
   CheckInvalidVariable(node);
+  return ASTVisitor::Visit(node);
+}
+
+bool TypeChecker::Visit(RecordDecl* node) {
+  CheckDuplicatedMemberName(node);
   return ASTVisitor::Visit(node);
 }
