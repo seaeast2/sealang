@@ -1,4 +1,7 @@
+
+#include <assert.h>
 #include "TypeTable.h"
+
 
 using namespace AST;
 
@@ -41,9 +44,10 @@ bool TypeTable::CheckSemanticError() {
 
   // check recursive record type definition
   while(Type* ty = table_.Next()) {
-    if (ty->IsKindOf(RecordTy)) {
-      for (int i = 0; i < ty->GetMemberNum(); i++) {
-        Type* memTy = ty->GetMemberType(i);
+    if (ty->IsKindOf(Type::RecordTy)) {
+      RecordType* RT = (RecordType*)ty;
+      for (int i = 0; i < RT->GetMemberNum(); i++) {
+        Type* memTy = RT->GetMemberType(i);
         if (!CheckRecursiveTypeDef(ty, memTy)) {
           assert(0 && "Recursive record type definition found.");
           return false;
@@ -54,11 +58,11 @@ bool TypeTable::CheckSemanticError() {
   return true;
 }
 
-bool TypeTable::CheckRecursiveTypeDef(Type const* originTy, Type* targetTy) {
+bool TypeTable::CheckRecursiveTypeDef(Type const* originTy, Type const * targetTy) {
   // check user type
-  if (targetTy->IsKindOf(UserTy)) {
-    Type* userBaseTy= ((UserType*)targetTy)->GetBaseType();
-    if (*originTy == *userBaseTy) {
+  if (targetTy->IsKindOf(Type::UserTy)) {
+    const Type* userBaseTy= ((UserType*)targetTy)->GetBaseType();
+    if ((*originTy) == (*userBaseTy)) {
       assert(0&&"Error : recursive type defintion found");
       return false;
     }
@@ -66,9 +70,9 @@ bool TypeTable::CheckRecursiveTypeDef(Type const* originTy, Type* targetTy) {
   }
 
   // check array type
-  if (targetTy->IsKindOf(ArrayTy)) {
-    Type* arrBaseTy= ((ArrayType*)targetTy)->GetBaseType();
-    if (*originTy == *arrBaseTy) {
+  if (targetTy->IsKindOf(Type::ArrayTy)) {
+    const Type* arrBaseTy= ((ArrayType*)targetTy)->GetBaseType();
+    if ((*originTy) == (*arrBaseTy)) {
       assert(0&&"Error : recursive type defintion found");
       return false;
     }
@@ -76,14 +80,16 @@ bool TypeTable::CheckRecursiveTypeDef(Type const* originTy, Type* targetTy) {
   }
 
   // check record type
-  if (targetTy->IsKindOf(RecordTy)) {
-    if (*originTy == *targetTy) {
+  if (targetTy->IsKindOf(Type::RecordTy)) {
+    if ((*originTy) == (*targetTy)) {
       assert(0&&"Error : recursive type defintion found");
       return false;
     }
+
+    RecordType* RT = (RecordType*)targetTy;
     // step into member type
-    for (int i = 0; i < targetTy->GetMemberNum(); i++) {
-      Type* memTy = targetTy->GetMemberType(i);
+    for (int i = 0; i < RT->GetMemberNum(); i++) {
+      Type* memTy = RT->GetMemberType(i);
       return CheckRecursiveTypeDef(originTy, memTy);
     }
   }

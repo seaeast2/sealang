@@ -35,8 +35,7 @@ namespace AST {
       // Check if local variable is in right usage.
       bool ResolveLocalVariable();
       void MakeCompleteType();
-      void CheckVoidArray();
-      void CheckRecursiveTypeDef();
+
       void PrintAST();
   };
 

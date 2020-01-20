@@ -7,8 +7,19 @@
 
 namespace AST {
 
-  // 1. Check duplication of local variable.
-  // 2. Check linkage between Variable defintion and Variable instance.
+  // 1. Check duplication of local variable in same scope.
+  //    ex) {
+  //           int aa;
+  //           short aa;
+  //        }
+  // 2. Set VariableNode's declaration.
+  //  ex)
+  //  {
+  //     int aa = 10; 
+  //     {
+  //        funcAA(aa); // set identifier aa's declaration to 'int a = 10'.
+  //     }
+  //  }
   class LocalVarResolver : public ASTVisitor {
     private:
       Declarations* decls_;
@@ -30,7 +41,6 @@ namespace AST {
       // Statements
       virtual bool Visit(BlockNode* node) override;
       virtual bool Visit(VariableNode* node) override;
-
       // Etc
       virtual bool Visit(FunctionDecl* node) override;
       //virtual bool Visit(ClassNode* node) override;   

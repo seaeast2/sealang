@@ -10,6 +10,14 @@ namespace AST {
       // same as Map<std::string, Type*>
       HashTable<Type*, 64> table_;
 
+      // Check recursive type definition.
+      // ex) class AA { BB b; }
+      //     class BB { AA a; }
+      //     
+      // ex) class AA { BB b; }
+      //     typedef class AA CC;
+      //     class BB { CC c; }
+      bool CheckRecursiveTypeDef(Type const* originTy, Type const * targetTy);
     public:
       TypeTable();
       ~TypeTable();
@@ -25,16 +33,6 @@ namespace AST {
       
       // Check Semantic type error
       bool CheckSemanticError();
-
-    private:
-      // Check recursive type definition.
-      // ex) class AA { BB b; }
-      //     class BB { AA a; }
-      //     
-      // ex) class AA { BB b; }
-      //     typedef class AA CC;
-      //     class BB { CC c; }
-      bool CheckRecursiveTypeDef();
   };
 };
 

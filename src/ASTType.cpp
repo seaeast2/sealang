@@ -12,6 +12,11 @@ namespace AST {
     cout << "Base Type" << endl;
   }
 
+  bool operator==(const Type & lhs, const Type & rhs) {
+    return (lhs.GetKind() == rhs.GetKind() && 
+        !strcmp(lhs.GetTypeName(), rhs.GetTypeName())); 
+  }
+
   VoidType* VoidType::Get(ASTContext* ac) {
     Type* ty = ac->GetType("void");
     if (ty) 

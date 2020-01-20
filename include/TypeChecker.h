@@ -3,10 +3,13 @@
 
 #include "ASTNode.h"
 #include "ASTVisitor.h"
+#include "TypeTable.h"
 
 namespace AST {
   class TypeChecker : public ASTVisitor {
     private:
+      TypeTable* typeTable_;
+
       // Check 
       bool CheckInvalidVariable(VariableDecl* VD);
 
@@ -16,13 +19,16 @@ namespace AST {
       //   ex) class { void c; } // void member
       bool CheckInvalidVariableType(Type* t);
       // 2. check Duplicated member variable
-      // ex ) class { int aa; short aa};
+      //   ex) class { int aa; short aa};
       bool CheckDuplicatedMemberName(RecordDecl* r);
+      // 3. Check Void Array
+      //   ex)  void[10] aaa;
+      bool CheckVoidArray();
 
       // TODO : Need to add ErrorHandler
-
     public:
-      TypeChecker();
+      TypeChecker() { typeTable_ = nullptr; }
+      TypeChecker(TypeTable* tt) : typeTable_(tt) {}
       virtual ~TypeChecker();
 
       bool Check(Declarations* decls);

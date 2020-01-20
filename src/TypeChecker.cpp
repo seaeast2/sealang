@@ -4,8 +4,6 @@
 
 using namespace AST;
 
-TypeChecker::TypeChecker() {
-}
 
 TypeChecker::~TypeChecker() {
 }
@@ -64,6 +62,24 @@ bool TypeChecker::CheckDuplicatedMemberName(RecordDecl* r) {
   }
 
   // TODO : need to check member function as well.
+
+  return true;
+}
+
+bool TypeChecker::CheckVoidArray() {
+  if (!typeTable_)
+    return false;
+
+  typeTable_->ResetItr();
+  while(Type* ty = typeTable_->Next()) {
+    if(ty->IsKindOf(Type::ArrayTy)) {
+      Type* basety = ((ArrayType*)ty)->GetBaseType();
+      if (basety && basety->IsKindOf(Type::VoidTy)) {
+        assert(0 && "Error : void type can't be a base type of array.");
+        return false;
+      }
+    }
+  }
 
   return true;
 }

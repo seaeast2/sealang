@@ -19,18 +19,12 @@ namespace AST {
       virtual ~TypeResolver();
 
       bool MakeCompleteType(ASTContext* ac);
-      // Check Void Array
-      bool CheckVoidArray(ASTContext* ac);
-      // Check Recursive type definition.
-      bool CheckRecursiveTypeDef(ASTContext* ac);
 
     private:
       // Make incomplete type to complete type
       bool CompleteFunctionType(ASTContext* ac, FunctionDecl* fd);
       
       bool CompleteRecordType(ASTContext* ac, RecordDecl* RD);
-      // Check Recursive type definition.
-      bool VisitRecordType(RecordType* ct);
   };
 };
 

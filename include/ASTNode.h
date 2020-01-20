@@ -1655,7 +1655,7 @@ namespace AST {
         std::string str(name, len);
         name_ = str;
       }
-      const char* GetName() { return name_.c_str(); }
+      const char* GetName() const { return name_.c_str(); }
 
       // TypeNode interface
       void SetTypeNode(TypeNode* typeNode) { typeNode_ = typeNode; }

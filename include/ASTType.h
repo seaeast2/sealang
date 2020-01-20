@@ -2,6 +2,7 @@
 #define _ast_type_h_
 
 #include <string>
+#include <string.h>
 #include "core/simple_vector.h"
 #include "core/list.h"
 
@@ -51,13 +52,13 @@ namespace AST {
 
     public:
       virtual ~Type() {};
-      TypeKind GetKind() {
+      TypeKind GetKind() const {
         return kind_;
       }
 
-      virtual bool IsKindOf(TypeKind kind) = 0;
+      virtual bool IsKindOf(TypeKind kind) const = 0;
 
-      const char* GetTypeName() { return type_name_.c_str(); }
+      const char* GetTypeName() const { return type_name_.c_str(); }
       bool IsComplete() { return isComplete_; }
       void Complete(bool ic) { isComplete_ = ic; }
 
@@ -74,10 +75,9 @@ namespace AST {
 
       virtual void Print();
       
-      bool operator==(const Type & rhs) {
-        return (this->kind_ == rhs.GetKind() && !strcmp(this->GetTypeName(), rhs.GetTypeName())); 
-      }
   };
+
+  bool operator==(const Type & lhs, const Type & rhs);
 
   typedef SimpleVector<Type*> Types;
 
@@ -92,7 +92,7 @@ namespace AST {
 
       static VoidType* Get(ASTContext* ac); // Type creator
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == VoidTy || kind == BaseTy)
           return true;
         return false;
@@ -125,7 +125,7 @@ namespace AST {
 
       virtual ~IntegerType() {}
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == IntegerTy || kind == BaseTy)
           return true;
         return false;
@@ -152,7 +152,7 @@ namespace AST {
 
       static CharType* Get(ASTContext* ac, IntegerType::eSign s);
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == CharTy || kind == IntegerTy || kind == BaseTy)
           return true;
         return false;
@@ -175,7 +175,7 @@ namespace AST {
 
       static ShortType* Get(ASTContext* a, IntegerType::eSign sc);
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == ShortTy || kind == IntegerTy || kind == BaseTy)
           return true;
         return false;
@@ -198,7 +198,7 @@ namespace AST {
 
       static IntType* Get(ASTContext* ac, IntegerType::eSign s);
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == IntTy || kind == IntegerTy || kind == BaseTy)
           return true;
         return false;
@@ -221,7 +221,7 @@ namespace AST {
 
       static LongType* Get(ASTContext* ac, IntegerType::eSign s);
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == LongTy || kind == IntegerTy || kind == BaseTy)
           return true;
         return false;
@@ -237,7 +237,7 @@ namespace AST {
     public:
       virtual ~RealType() {}
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == RealTy || kind == BaseTy)
           return true;
         return false;
@@ -255,7 +255,7 @@ namespace AST {
 
       static FloatType* Get(ASTContext* ac);
       
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == FloatTy || kind == RealTy || kind == BaseTy)
           return true;
         return false;
@@ -273,7 +273,7 @@ namespace AST {
 
       static DoubleType* Get(ASTContext* ac);
       
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == DoubleTy || kind == RealTy || kind == BaseTy)
           return true;
         return false;
@@ -289,7 +289,7 @@ namespace AST {
     public:
       virtual ~NamedType() {}
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == NamedTy || kind == BaseTy)
           return true;
         return false;
@@ -306,7 +306,7 @@ namespace AST {
     public:
       virtual ~CompositeType() {}
       
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == CompositeTy || kind == NamedTy || kind == BaseTy)
           return true;
         return false;
@@ -353,7 +353,7 @@ namespace AST {
     public:
       virtual ~FunctionType() {}
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == FunctionTy || kind == BaseTy)
           return true;
         return false;
@@ -389,7 +389,7 @@ namespace AST {
       virtual ~RecordType() {
       }
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == RecordTy || kind == CompositeTy || 
             kind == NamedTy || kind == BaseTy)
           return true;
@@ -434,7 +434,7 @@ namespace AST {
     public:
       virtual ~UserType() {}
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == UserTy || kind == NamedTy || kind == BaseTy)
           return true;
         return false;
@@ -472,7 +472,7 @@ namespace AST {
     public:
       virtual ~ArrayType() {}
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == ArrayTy || kind == BaseTy)
           return true;
         return false;
@@ -501,7 +501,7 @@ namespace AST {
     public:
       virtual ~PointerType() {}
 
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == PointerTy || kind == BaseTy)
           return true;
         return false;
@@ -519,7 +519,7 @@ namespace AST {
       }
     public:
       virtual ~VarArgType() {}
-      virtual bool IsKindOf(TypeKind kind) {
+      virtual bool IsKindOf(TypeKind kind) const override {
         if (kind == VarArgTy || kind == BaseTy)
           return true;
         return false;

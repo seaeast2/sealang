@@ -55,16 +55,6 @@ namespace AST {
     tr.MakeCompleteType(this);
   }
 
-  void ASTContext::CheckVoidArray() {
-    TypeResolver tr;
-    tr.CheckVoidArray(this);
-  }
-
-  void ASTContext::CheckRecursiveTypeDef() {
-    TypeResolver tr;
-    tr.CheckRecursiveTypeDef(this);
-  }
-
   void ASTContext::PrintAST() {
     ASTPrinter ast_printer;
     ast_printer.Print(GetLocalDecl());
