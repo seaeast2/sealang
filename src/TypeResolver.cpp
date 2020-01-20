@@ -83,7 +83,7 @@ bool TypeResolver::VisitRecordType(RecordType* ct) {
     cur_ty = ct->GetMemberType(i);
     // In case UserType
     if(cur_ty->IsKindOf(Type::UserTy)) {
-      Type* org_ty = ((UserType*)cur_ty)->GetOriginalType();
+      Type* org_ty = ((UserType*)cur_ty)->GetBaseType();
       if (org_ty->IsKindOf(Type::RecordTy)) {
         cur_ty = org_ty;
       }

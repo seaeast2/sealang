@@ -37,21 +37,56 @@ Type* TypeTable::Next() {
 
 // Type Error Checker ========================================
 bool TypeTable::CheckSemanticError() {
+  table_.ResetItr();
+
+  // check recursive record type definition
+  while(Type* ty = table_.Next()) {
+    if (ty->IsKindOf(RecordTy)) {
+      for (int i = 0; i < ty->GetMemberNum(); i++) {
+        Type* memTy = ty->GetMemberType(i);
+        if (!CheckRecursiveTypeDef(ty, memTy)) {
+          assert(0 && "Recursive record type definition found.");
+          return false;
+        }
+      }
+    }
+  }
   return true;
 }
 
-struct Marker {
-  bool isVisited;
-  Type* type_;
+bool TypeTable::CheckRecursiveTypeDef(Type const* originTy, Type* targetTy) {
+  // check user type
+  if (targetTy->IsKindOf(UserTy)) {
+    Type* userBaseTy= ((UserType*)targetTy)->GetBaseType();
+    if (*originTy == *userBaseTy) {
+      assert(0&&"Error : recursive type defintion found");
+      return false;
+    }
+    return CheckRecursiveTypeDef(originTy, userBaseTy);
+  }
 
-  Marker() : isVisited(false), type_(nullptr) {}
-};
+  // check array type
+  if (targetTy->IsKindOf(ArrayTy)) {
+    Type* arrBaseTy= ((ArrayType*)targetTy)->GetBaseType();
+    if (*originTy == *arrBaseTy) {
+      assert(0&&"Error : recursive type defintion found");
+      return false;
+    }
+    return CheckRecursiveTypeDef(originTy, arrBaseTy);
+  }
 
-bool CheckRecursiveTypeDef() {
-  HashTable<Marker, 64> typeMarker;
-
-  for (int i = 0; 
-
+  // check record type
+  if (targetTy->IsKindOf(RecordTy)) {
+    if (*originTy == *targetTy) {
+      assert(0&&"Error : recursive type defintion found");
+      return false;
+    }
+    // step into member type
+    for (int i = 0; i < targetTy->GetMemberNum(); i++) {
+      Type* memTy = targetTy->GetMemberType(i);
+      return CheckRecursiveTypeDef(originTy, memTy);
+    }
+  }
 
   return true;
 }

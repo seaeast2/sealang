@@ -15,6 +15,7 @@ namespace AST {
     public:
       enum TypeKind {
         BaseTy,
+          // primitive type
           VoidTy,
           IntegerTy,
             CharTy,
@@ -24,10 +25,13 @@ namespace AST {
           RealTy,
             FloatTy,
             DoubleTy,
+
+            // type that can have identifier.
           NamedTy,
             CompositeTy,
               RecordTy,
             UserTy,
+
           ArrayTy,
           PointerTy,
           FunctionTy,
@@ -57,7 +61,22 @@ namespace AST {
       bool IsComplete() { return isComplete_; }
       void Complete(bool ic) { isComplete_ = ic; }
 
+      bool IsPrimitiveType() {
+        if (IsKindOf(VoidTy) || IsKindOf(IntegerTy) || IsKindOf(RealTy))
+          return true;
+        return false;
+      }
+      bool IsRecordType() { return IsKindOf(RecordTy); }
+      bool IsUserType() { return IsKindOf(UserTy); }
+      bool IsArrayType() { return IsKindOf(ArrayTy); }
+      bool IsPointerType() { return IsKindOf(PointerTy); }
+      bool IsFunctionType() { return IsKindOf(FunctionTy); }
+
       virtual void Print();
+      
+      bool operator==(const Type & rhs) {
+        return (this->kind_ == rhs.GetKind() && !strcmp(this->GetTypeName(), rhs.GetTypeName())); 
+      }
   };
 
   typedef SimpleVector<Type*> Types;
@@ -397,19 +416,19 @@ namespace AST {
   // typedef alias type 
   class UserType : public NamedType {
     private:
-      Type* original_type_;
+      Type* baseType_;
 
     protected:
       UserType() {
         kind_ = UserTy;
 
-        original_type_ = nullptr;
+        baseType_ = nullptr;
       }
 
-      UserType(Type* ori_ty, const char* new_ty_name) {
+      UserType(Type* baseTy, const char* new_ty_name) {
         kind_ = UserTy;
 
-        original_type_ = ori_ty;
+        baseType_ = baseTy;
         type_name_ = new_ty_name;
       }
     public:
@@ -421,10 +440,10 @@ namespace AST {
         return false;
       }
 
-      void SetOritinalType(Type* ori_ty) { original_type_ = ori_ty; }
-      Type* GetOriginalType() { return original_type_; }
+      void SetBaseType(Type* baseTy) { baseType_ = baseTy; }
+      Type* GetBaseType() { return baseType_; }
 
-      static UserType* Get(ASTContext* ac, Type* original_type, const char* alias); // unassigned array
+      static UserType* Get(ASTContext* ac, Type* baseTy, const char* alias); // unassigned array
   };
 
   class ArrayType : public Type {
