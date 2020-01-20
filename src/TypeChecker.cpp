@@ -49,7 +49,6 @@ bool TypeChecker::CheckInvalidVariableType(Type* t) {
 
 bool TypeChecker::CheckDuplicatedMemberName(RecordDecl* r) {
   // Check variable name.
-  // TODO : need to add set container
   HashTable<int, 20> names; // we just need key duplication check.
 
   for (int i = 0; i < r->GetMemVarDeclNum(); i++) {
@@ -72,7 +71,6 @@ bool TypeChecker::CheckDuplicatedMemberName(RecordDecl* r) {
 // Visit Functions ==================================================
 bool TypeChecker::Visit(VariableDecl* node) {
   CheckInvalidVariable(node);
-
   return ASTVisitor::Visit(node);
 }
 

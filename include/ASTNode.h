@@ -76,7 +76,6 @@ namespace AST {
           // User defined types
           TypeDefinitionTy,
             CompositeTypeDefinitionTy,
-              //ClassNodeTy,
               RecordDeclTy,
             TypedefNodeTy,
       };

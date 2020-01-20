@@ -906,16 +906,16 @@ namespace Parser {
     parse_stack_.Pop();
 
     // create temp new typename char buff
-    char* tyname = new char[pi_id.cstr_len_ + 1];
-    memset(tyname, 0, pi_id.cstr_len_ + 1);
-    strncpy(tyname, pi_id.data_.cstr_, pi_id.cstr_len_);
+    char* typeName = new char[pi_id.cstr_len_ + 1];
+    memset(typeName, 0, pi_id.cstr_len_ + 1);
+    strncpy(typeName, pi_id.data_.cstr_, pi_id.cstr_len_);
 
     // create TypeNode
-    AST::UserType* ut = AST::UserType::Get(ac_, pi_type.data_.type_, tyname);
+    AST::UserType* ut = AST::UserType::Get(ac_, pi_type.data_.type_, typeName);
     AST::TypeNode* user_type = new AST::TypeNode(ut);
 
-    AST::TypedefNode* typedef_node = new AST::TypedefNode(user_type, tyname);
-    delete[] tyname;
+    AST::TypedefNode* typedef_node = new AST::TypedefNode(user_type, typeName);
+    delete[] typeName;
 
     PushNode(typedef_node, RuleName::typedef_);
     return True;

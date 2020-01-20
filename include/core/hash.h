@@ -21,8 +21,8 @@ class HashTable {
   int count_;
 
   // hash iterator
-  int table_iter_;
-  Element* itr_;
+  int tableIterator_; // table iterator
+  Element* bucketIterator_; // bucket iterator
   
   public:
     HashTable() {
@@ -133,29 +133,29 @@ class HashTable {
       // find first element
       for (int i = 0; i < MAX_TABLE; i++) {
         if (table_[i]) {
-          table_iter_ = i;
-          itr_ = table_[i];
+          tableIterator_ = i;
+          bucketIterator_ = table_[tableIterator_];
           break;
         }
       }
     }
     
     V* Next() {
-      if (table_iter_ == MAX_TABLE)
+      if (tableIterator_ == MAX_TABLE)
         return nullptr;
 
-      if (!itr_) {
-        for(int i = table_iter_+1; i < MAX_TABLE; i++) {
+      if (!bucketIterator_) {
+        for(int i = tableIterator_+1; i < MAX_TABLE; i++) {
           if (table_[i]) {
-            table_iter_ = i;
-            itr_ = table_[i];
+            tableIterator_ = i;
+            bucketIterator_ = table_[tableIterator_];
             break;
           }
         }
       }
 
-      Element* cur = itr_;
-      itr_ = itr_->next_;
+      Element* cur = bucketIterator_;
+      bucketIterator_ = bucketIterator_->next_;
       return &cur->value_;
     }
 
@@ -223,8 +223,8 @@ class HashTable<V*, MAX_TABLE> {
   int count_;
 
   // hash iterator
-  int table_iter_;
-  Element* itr_;
+  int tableIterator_;
+  Element* bucketIterator_;
   
   public:
     HashTable() {
@@ -335,29 +335,29 @@ class HashTable<V*, MAX_TABLE> {
       // find first element
       for (int i = 0; i < MAX_TABLE; i++) {
         if (table_[i]) {
-          table_iter_ = i;
-          itr_ = table_[i];
+          tableIterator_ = i;
+          bucketIterator_ = table_[i];
           break;
         }
       }
     }
     
     V* Next() {
-      if (table_iter_ == MAX_TABLE)
+      if (tableIterator_ == MAX_TABLE)
         return nullptr;
 
-      if (!itr_) {
-        for(int i = table_iter_+1; i < MAX_TABLE; i++) {
+      if (!bucketIterator_) {
+        for(int i = tableIterator_+1; i < MAX_TABLE; i++) {
           if (table_[i]) {
-            table_iter_ = i;
-            itr_ = table_[i];
+            tableIterator_ = i;
+            bucketIterator_ = table_[i];
             break;
           }
         }
       }
 
-      Element* cur = itr_;
-      itr_ = itr_->next_;
+      Element* cur = bucketIterator_;
+      bucketIterator_ = bucketIterator_->next_;
       return cur->value_;
     }
 

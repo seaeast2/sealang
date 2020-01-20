@@ -15,24 +15,23 @@ namespace AST {
     public:
       enum TypeKind {
         BaseTy,
-        VoidTy,
-        IntegerTy,
-          CharTy,
-          ShortTy,
-          IntTy,
-          LongTy,
-        RealTy,
-          FloatTy,
-          DoubleTy,
-        NamedTy,
-          CompositeTy,
-            //ClassTy,
-            RecordTy,
-          UserTy,
-        ArrayTy,
-        PointerTy,
-        FunctionTy,
-        VarArgTy,
+          VoidTy,
+          IntegerTy,
+            CharTy,
+            ShortTy,
+            IntTy,
+            LongTy,
+          RealTy,
+            FloatTy,
+            DoubleTy,
+          NamedTy,
+            CompositeTy,
+              RecordTy,
+            UserTy,
+          ArrayTy,
+          PointerTy,
+          FunctionTy,
+          VarArgTy,
       };
 
     protected:
@@ -395,6 +394,7 @@ namespace AST {
       static RecordType* Get(ASTContext* ac, const char* type_name); // create incomplete type
   };
   
+  // typedef alias type 
   class UserType : public NamedType {
     private:
       Type* original_type_;

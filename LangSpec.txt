@@ -105,6 +105,7 @@ typedef // ex) typedef int i32;
 type 
   : typeref 
 
+// TODO : need to merge type and typeref. typeref is not needed.
 typeref 
   : typeref_base  ( "[""]"                    // unassigned array
                   | "["<INTEGER>"]"           // assigned array
@@ -357,5 +358,5 @@ AST Node Tree =================================================================
           // User defined types
           TypeDefinitionTy,
             CompositeTypeDefinitionTy,
-              ClassNodeTy,
+              RecordDeclTy,
             TypedefNodeTy,

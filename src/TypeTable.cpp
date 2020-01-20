@@ -33,3 +33,25 @@ void TypeTable::ResetItr() {
 Type* TypeTable::Next() {
   return table_.Next();
 }
+
+
+// Type Error Checker ========================================
+bool TypeTable::CheckSemanticError() {
+  return true;
+}
+
+struct Marker {
+  bool isVisited;
+  Type* type_;
+
+  Marker() : isVisited(false), type_(nullptr) {}
+};
+
+bool CheckRecursiveTypeDef() {
+  HashTable<Marker, 64> typeMarker;
+
+  for (int i = 0; 
+
+
+  return true;
+}

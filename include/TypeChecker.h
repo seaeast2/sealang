@@ -15,8 +15,10 @@ namespace AST {
       //   ex) void[10] b; // void array
       //   ex) class { void c; } // void member
       bool CheckInvalidVariableType(Type* t);
-
+      // 2. check Duplicated member variable
+      // ex ) class { int aa; short aa};
       bool CheckDuplicatedMemberName(RecordDecl* r);
+
       // TODO : Need to add ErrorHandler
 
     public:
