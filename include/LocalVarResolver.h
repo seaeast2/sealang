@@ -12,7 +12,7 @@ namespace AST {
   //           int aa;
   //           short aa;
   //        }
-  // 2. Set VariableNode's declaration.
+  // 2. Link VariableNode with its declaration.
   //  ex)
   //  {
   //     int aa = 10; 

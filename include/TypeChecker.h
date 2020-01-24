@@ -6,6 +6,7 @@
 #include "TypeTable.h"
 
 namespace AST {
+  // Check Type related errors
   class TypeChecker : public ASTVisitor {
     private:
       TypeTable* typeTable_;
