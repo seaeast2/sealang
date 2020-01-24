@@ -15,8 +15,7 @@ namespace AST {
     protected:
       TypeTable typeTable_;
       Declarations* decls_;
-
-      Scope top_scope_;
+      Scope topScope_;
 
     public:
       ASTContext();

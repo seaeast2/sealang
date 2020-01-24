@@ -5,6 +5,9 @@
 #include "ASTVisitor.h"
 
 namespace AST {
+
+  // Semantic Analisys class
+  
   /* Check below error
    * 1. Assign RValue : 1 = 2 + 3
    * 2. Invalid Function Call. Check function pointer : "string"("%d\n", i)
@@ -15,12 +18,13 @@ namespace AST {
    * 7. Invalid RValue reference : &1
    * 8. Invalid RValue increase : ++1, 1++
    */
-  class DereferenceChecker : public ASTVisitor {
-    private:
-
+  class Sema : public ASTVisitor {
     public:
-      DereferenceChecker();
-      virtual ~DereferenceChecker();
+      Sema();
+      virtual ~Sema();
+
+      // Check entry point
+      bool Check(Declarations* decls);
 
       /*
       // Statements
@@ -36,12 +40,12 @@ namespace AST {
       virtual bool Visit(BreakNode* node) override;
       virtual bool Visit(ContinueNode* node) override;
       virtual bool Visit(GotoNode* node) override;
-      virtual bool Visit(ReturnNode* node) override;
+      virtual bool Visit(ReturnNode* node) override;*/
 
       // Expression
       virtual bool Visit(AssignNode* node) override;
       virtual bool Visit(OpAssignNode* node) override;
-      virtual bool Visit(AddressNode* node) override;
+      /*virtual bool Visit(AddressNode* node) override;
       virtual bool Visit(BinaryOpNode* node) override;
       virtual bool Visit(LogicalAndNode* node) override;
       virtual bool Visit(LogicalOrNode* node) override;
@@ -70,9 +74,12 @@ namespace AST {
       virtual bool Visit(ParamDecl* node) override;
       virtual bool Visit(ImportNode* node) override;
       virtual bool Visit(ArgsNode* node) override;        
-      virtual bool Visit(ClassNode* node) override;   
+      virtual bool Visit(RecordDecl* node) override;   
       virtual bool Visit(TypedefNode* node) override;  
       */
+    private:
+      // Check functions
+
   };
 };
 

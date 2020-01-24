@@ -1841,13 +1841,13 @@ namespace AST {
   class Declarations {
     private:
       // TODO : Need to add external defined function and variables from import.
-      FunctionDecls funcDecls_;
+      ImportNodes   importNodes_;
+      TypedefNodes  typedefNodes_;
+
       ConstantDecls constDecls_;
       VariableDecls varDecls_;
-      //ClassNodes    classes_;
       RecordDecls   recordDecls_;
-      TypedefNodes  typedefNodes_;
-      ImportNodes   importNodes_;
+      FunctionDecls funcDecls_;
 
     public:
       Declarations();
@@ -1864,7 +1864,6 @@ namespace AST {
       int GetFunctionDeclNum() { return funcDecls_.GetSize(); }
       int GetConstantDeclNum() { return constDecls_.GetSize(); }
       int GetVariableDeclNum() { return varDecls_.GetSize(); }
-      //int GetClassNum() { return classes_.GetSize(); }
       int GetRecordDeclNum() { return recordDecls_.GetSize(); }
       int GetTypedefNodeNum() { return typedefNodes_.GetSize(); }
       int GetImportNodeNum() { return importNodes_.GetSize(); }
@@ -1872,7 +1871,6 @@ namespace AST {
       FunctionDecl* GetFunctionDecl(int index) { return funcDecls_[index];}
       ConstantDecl* GetConstantDecl(int index) { return constDecls_[index];}
       VariableDecl* GetVariableDecl(int index) { return varDecls_[index]; }
-      //ClassNode* GetClassDecl(int index) { return classes_[index]; }
       RecordDecl* GetRecordDecl(int index) { return recordDecls_[index]; }
       TypedefNode* GetTypedefNode(int index) { return typedefNodes_[index]; }
       ImportNode* GetImportNode(int index) { return importNodes_[index]; }

@@ -47,7 +47,7 @@ namespace AST {
 
   bool ASTContext::ResolveLocalVariable() {
     LocalVarResolver LVR;
-    return LVR.Resolve(decls_, &top_scope_);
+    return LVR.Resolve(decls_, &topScope_);
   }
 
   void ASTContext::MakeCompleteType() {

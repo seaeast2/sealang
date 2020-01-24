@@ -2,7 +2,6 @@
 #define _ast_type_h_
 
 #include <string>
-#include <string.h>
 #include "core/simple_vector.h"
 #include "core/list.h"
 

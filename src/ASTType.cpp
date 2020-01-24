@@ -14,7 +14,7 @@ namespace AST {
 
   bool operator==(const Type & lhs, const Type & rhs) {
     return (lhs.GetKind() == rhs.GetKind() && 
-        !strcmp(lhs.GetTypeName(), rhs.GetTypeName())); 
+        !std::strcmp(lhs.GetTypeName(), rhs.GetTypeName())); 
   }
 
   VoidType* VoidType::Get(ASTContext* ac) {

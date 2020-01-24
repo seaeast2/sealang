@@ -1,9 +1,53 @@
-#include "DereferenceChecker.h"
+#include "Sema.h"
 
 using namespace AST;
 
-DereferenceChecker::DereferenceChecker() {
+Sema::Sema() {
 }
 
-DereferenceChecker::~DereferenceChecker() {
+Sema::~Sema() {
+}
+
+bool Sema::Check(Declarations* decls) {
+  // ConstantDecl
+  for (int i = 0; i < decls->GetConstantDeclNum(); i++) {
+    ConstantDecl* constDecl = decls->GetConstantDecl(i);
+    ASTVisitor::Visit(constDecl);
+  }
+  // VariableDecl
+  for (int i = 0; i < decls->GetVariableDeclNum(); i++) {
+    VariableDecl* varDecl = decls->GetVariableDecl(i);
+    ASTVisitor::Visit(varDecl);
+  }
+  // RecordDecl
+  for (int i = 0; i < decls->GetRecordDeclNum(); i++) {
+    RecordDecl* recDecl = decls->GetRecordDecl(i);
+    ASTVisitor::Visit(recDecl);
+  }
+  // FunctionDecl
+  for (int i = 0; i < decls->GetFunctionDeclNum(); i++) {
+    FunctionDecl* funDecl = decls->GetFunctionDecl(i);
+    ASTVisitor::Visit(funDecl);
+  }
+  
+  return true;
+}
+
+bool Sema::Visit(AssignNode* node) {
+  ExprNode* lhs = node->GetLHS();
+  if (!CheckAssignableLValue(lhs)) {
+    assert(0 && "Error : wrong lvalue");
+    return false;
+  }
+
+  return ASTVisitor::Visit(node);
+}
+
+bool Sema::Visit(OpAssignNode* node) {
+
+  return true;
+}
+
+// Semantic error check functions ============================================
+bool Sema::CheckAssignableLValue() {
 }
