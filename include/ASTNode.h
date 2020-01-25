@@ -88,7 +88,7 @@ namespace AST {
       virtual ~BaseNode() {}
 
       NodeKind GetNodeKind() { return kind_; }
-      virtual bool IsKindOf(NodeKind kind) = 0;
+      virtual bool IsKindOf(NodeKind kind) const = 0;
       virtual bool Accept(ASTVisitor* visitor);
   };
 
@@ -105,7 +105,7 @@ namespace AST {
       }
 
       virtual ~TypeNode() {}
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == TypeNodeTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -133,7 +133,7 @@ namespace AST {
       virtual ~ImportNode() {
         delete[] complete_path_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ImportNodeTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -155,7 +155,7 @@ namespace AST {
       }
     public:
       virtual ~StmtNode() {}
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == StmtNodeTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -165,15 +165,20 @@ namespace AST {
   class ExprNode : public BaseNode {
     protected:
       ExprNode() {
+
         kind_ = ExprNodeTy;
       }
     public:
       virtual ~ExprNode() {}
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ExprNodeTy|| 
             kind == BaseNodeTy)
           return true;
         return false;
+      }
+
+      bool IsAssignable() const {
+        return IsKindOf(LValueNodeTy);
       }
   };
 
@@ -196,7 +201,7 @@ namespace AST {
       }
 
       virtual ~BlockNode();
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == BlockNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -240,7 +245,7 @@ namespace AST {
         if (stmt_ != nullptr)
           delete stmt_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == LabelNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -279,7 +284,7 @@ namespace AST {
         if (expr_ != nullptr)
           delete expr_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ExprStmtNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -323,7 +328,7 @@ namespace AST {
         if (else_body_)
           delete else_body_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == IfNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -367,7 +372,7 @@ namespace AST {
         if (body_)
           delete body_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == WhileNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -409,7 +414,7 @@ namespace AST {
         if (body_)
           delete body_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == DoWhileNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -461,7 +466,7 @@ namespace AST {
         if (body_)
           delete body_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ForNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -510,7 +515,7 @@ namespace AST {
         if (body_)
           delete body_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == CaseNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -557,7 +562,7 @@ namespace AST {
           }
         }
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == SwitchNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -584,7 +589,7 @@ namespace AST {
       }
       virtual ~BreakNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == BreakNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -604,7 +609,7 @@ namespace AST {
       }
       virtual ~ContinueNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ContinueNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -629,7 +634,7 @@ namespace AST {
       }
       virtual ~GotoNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == GotoNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -661,7 +666,7 @@ namespace AST {
           delete expr_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ReturnNodeTy || kind == StmtNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -693,7 +698,7 @@ namespace AST {
           delete rhs_;
       }
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == AbstractAssignNodeTy|| kind == ExprNodeTy ||
             kind == BaseNodeTy)
           return true;
@@ -719,7 +724,7 @@ namespace AST {
       }
       virtual ~AssignNode() {}
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == AssignNodeTy || kind == AbstractAssignNodeTy|| 
             kind == ExprNodeTy || kind == BaseNodeTy)
           return true;
@@ -760,7 +765,7 @@ namespace AST {
       }
       virtual ~OpAssignNode() {}
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == OpAssignNodeTy || kind == AbstractAssignNodeTy|| 
             kind == ExprNodeTy || kind == BaseNodeTy)
           return true;
@@ -790,7 +795,7 @@ namespace AST {
           delete expr_;
       }
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == AddressNodeTy || 
             kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -850,7 +855,7 @@ namespace AST {
           delete right_;
       }
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == BinaryOpNodeTy || kind == ExprNodeTy ||
             kind == BaseNodeTy)
           return true;
@@ -886,7 +891,7 @@ namespace AST {
       }
       virtual ~LogicalAndNode() {}
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == LogicalAndNodeTy ||
             kind == BinaryOpNodeTy || kind == ExprNodeTy ||
             kind == BaseNodeTy)
@@ -913,7 +918,7 @@ namespace AST {
       }
       virtual ~LogicalOrNode() {}
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == LogicalOrNodeTy ||
             kind == BinaryOpNodeTy || kind == ExprNodeTy ||
             kind == BaseNodeTy)
@@ -949,7 +954,7 @@ namespace AST {
           delete term_expr_;
       }
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == CastNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -988,7 +993,7 @@ namespace AST {
           delete else_expr_;
       }
       
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == CondExprNodeTy|| kind == ExprNodeTy ||
             kind == BaseNodeTy)
           return true;
@@ -1019,7 +1024,7 @@ namespace AST {
           delete args_[i];
         }
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ArgsNodeTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -1066,14 +1071,14 @@ namespace AST {
           delete args_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == FuncCallNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
         return false;
       }
 
-      ExprNode* GetFuncExpr() { return func_expr_; }
+      const ExprNode* GetFuncExpr() const { return func_expr_; }
       ArgsNode* GetArgs() { return args_; }
       
       virtual bool Accept(ASTVisitor* visitor) override {
@@ -1089,7 +1094,7 @@ namespace AST {
     public:
       virtual ~LValueNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -1121,7 +1126,7 @@ namespace AST {
           delete array_size_expr_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ArrayRefNodeTy ||
             kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1153,7 +1158,7 @@ namespace AST {
           delete base_expr_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == DereferenceNodeTy || 
             kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1186,7 +1191,7 @@ namespace AST {
           delete base_expr_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == MemberRefNodeTy ||
             kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1220,7 +1225,7 @@ namespace AST {
           delete base_expr_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == PtrMemberRefNodeTy ||
             kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1252,10 +1257,9 @@ namespace AST {
       }
       virtual ~VariableNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
-        if (kind == VariableNodeTy ||
-            kind == LValueNodeTy || kind == ExprNodeTy || 
-            kind == BaseNodeTy)
+      virtual bool IsKindOf(NodeKind kind) const {
+        if (kind == VariableNodeTy || kind == LValueNodeTy || 
+            kind == ExprNodeTy || kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -1286,7 +1290,7 @@ namespace AST {
           delete size_expr_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == SizeofExprNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -1318,7 +1322,7 @@ namespace AST {
           delete size_expr_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == SizeofTypeNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -1368,7 +1372,7 @@ namespace AST {
       ExprNode* GetBaseExpr() { return base_expr_; }
       UnaryOp GetOp() { return op_; }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == UnaryOpNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -1387,7 +1391,7 @@ namespace AST {
       }
       virtual ~UnaryArithmeticOpNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == UnaryArithmeticOpNodeTy ||
             kind == UnaryOpNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1412,7 +1416,7 @@ namespace AST {
       }
       virtual ~PrefixOpNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == PrefixOpNodeTy ||
             kind == UnaryArithmeticOpNodeTy ||
             kind == UnaryOpNodeTy || kind == ExprNodeTy || 
@@ -1438,7 +1442,7 @@ namespace AST {
       }
       virtual ~SuffixOpNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == SuffixOpNodeTy ||
             kind == UnaryArithmeticOpNodeTy ||
             kind == UnaryOpNodeTy || kind == ExprNodeTy || 
@@ -1459,7 +1463,7 @@ namespace AST {
       }
     public:
       virtual ~LiteralNode() {}
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == LiteralNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
@@ -1487,7 +1491,7 @@ namespace AST {
       virtual ~IntegerLiteralNode() {}
       long GetValue() { return value_; }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == IntegerLiteralNodeTy ||
             kind == LiteralNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1512,7 +1516,7 @@ namespace AST {
       }
       virtual ~RealLiteralNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == RealLiteralNodeTy ||
             kind == LiteralNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1540,7 +1544,7 @@ namespace AST {
       }
       virtual ~StringLiteralNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == StringLiteralNodeTy ||
             kind == LiteralNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
@@ -1570,7 +1574,7 @@ namespace AST {
           delete type_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == TypeDefinitionTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -1594,7 +1598,7 @@ namespace AST {
     public:
       virtual ~CompositeTypeDefinition();
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == CompositeTypeDefinitionTy|| kind == TypeDefinitionTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -1617,7 +1621,7 @@ namespace AST {
 
       virtual ~TypedefNode() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == TypedefNodeTy || kind == TypeDefinitionTy ||
             kind == BaseNodeTy)
           return true;
@@ -1644,7 +1648,7 @@ namespace AST {
           delete typeNode_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -1678,7 +1682,7 @@ namespace AST {
           ParamDecls* params, BlockNode* body, RecordDecl* thisClass = nullptr); 
       virtual ~FunctionDecl();
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == FunctionDeclTy || kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -1722,8 +1726,9 @@ namespace AST {
         if (initializer_)
           delete initializer_;
       }
-      virtual bool IsKindOf(NodeKind kind) {
-        if (kind == VariableDeclTy || kind == NamedDeclTy || kind == BaseNodeTy)
+      virtual bool IsKindOf(NodeKind kind) const {
+        if (kind == VariableDeclTy || kind == NamedDeclTy || 
+            kind == BaseNodeTy)
           return true;
         return false;
       }
@@ -1756,7 +1761,7 @@ namespace AST {
       }
       virtual ~ParamDecl() {
       }
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ParamDeclTy || kind == VariableDeclTy || 
             kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
@@ -1786,7 +1791,7 @@ namespace AST {
           delete initializer_;
       }
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == ConstantDeclTy || kind == NamedDeclTy || kind == BaseNodeTy)
           return true;
         return false;
@@ -1811,7 +1816,7 @@ namespace AST {
 
       virtual ~RecordDecl() {}
 
-      virtual bool IsKindOf(NodeKind kind) {
+      virtual bool IsKindOf(NodeKind kind) const {
         if (kind == RecordDeclTy || kind == CompositeTypeDefinitionTy ||
             kind == TypeDefinitionTy|| kind == BaseNodeTy)
           return true;

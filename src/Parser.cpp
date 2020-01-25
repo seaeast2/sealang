@@ -1941,7 +1941,7 @@ namespace Parser {
       assert(0 && "Invalid function call argument");
       return Error;
     }
-    // get function 
+    // get function name
     ParseInfo pi_func = parse_stack_.Top();
     parse_stack_.Pop();
     if (pi_func.type_ != ParseInfo::ASTNode) {

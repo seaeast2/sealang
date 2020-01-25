@@ -50,9 +50,9 @@ namespace AST {
       virtual bool Visit(LogicalAndNode* node) override;
       virtual bool Visit(LogicalOrNode* node) override;
       virtual bool Visit(CastNode* node) override;
-      virtual bool Visit(CondExprNode* node) override;
+      virtual bool Visit(CondExprNode* node) override;*/
       virtual bool Visit(FuncCallNode* node) override;
-      virtual bool Visit(ArrayRefNode* node) override;
+      /*virtual bool Visit(ArrayRefNode* node) override;
       virtual bool Visit(DereferenceNode* node) override;
       virtual bool Visit(MemberRefNode* node) override;
       virtual bool Visit(PtrMemberRefNode* node) override;
@@ -79,7 +79,12 @@ namespace AST {
       */
     private:
       // Check functions
-
+      // 1. Invalid LValue Assign : 
+      // ex) 1 = 2 + 3, 1 += 3
+      bool CheckAssignment(const ExprNode* EN);
+      // 2. Invalid Function Call. Check function pointer : 
+      // ex) "string"("%d\n", i)
+      bool CheckInvalidFunCall(const FuncCallNode* FN;
   };
 };
 
