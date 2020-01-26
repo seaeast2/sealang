@@ -1952,10 +1952,13 @@ namespace Parser {
       assert(0 && "Invalid function function call");
       return Error;
     }
+    // set as function variable node
+    AST::ExprNode* funcVarNode = (AST::ExprNode*)pi_func.data_.node_;
+    funcVarNode->SetFuncVarNode(true);
 
     // create new pi
     AST::FuncCallNode* fcall= 
-      new AST::FuncCallNode((AST::ExprNode*)pi_func.data_.node_, 
+      new AST::FuncCallNode((AST::ExprNode*)funcVarNode,
           (AST::ArgsNode*)pi_args.data_.node_);
     PushNode(fcall, RuleName::seq_fncall);
     return True;

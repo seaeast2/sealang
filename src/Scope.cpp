@@ -22,6 +22,14 @@ namespace AST {
     return parent_; 
   }
 
+  Scope* Scope::GetTop() {
+    Scope* cur = this;
+    while (cur->parent_ != nullptr) {
+      cur = cur->parent_;
+    }
+    return cur;
+  }
+
   Scope* Scope::GetChild(int index) { 
     if (index > 0 && index < children_.GetSize())
       return children_[index]; 
@@ -48,7 +56,23 @@ namespace AST {
           return cur->GetDecl(i); 
         }
       }
-      cur = cur->GetParent();
+      cur = cur->parent_;
+    }
+
+    return nullptr;
+  }
+
+  NamedDecl* Scope::FindFuncDecl(const char* funcName) {
+    Scope* cur = this;
+    while(cur) {
+      for (int i = 0; i < cur->GetDeclNum(); i++) {
+        NamedDecl* ND = cur->GetDecl(i);
+        if (!strcmp(ND->GetName(), funcName) && 
+            ND->IsKindOf(AST::BaseNode::FunctionDeclTy)) {
+          return cur->GetDecl(i); 
+        }
+      }
+      cur = cur->parent_;
     }
 
     return nullptr;

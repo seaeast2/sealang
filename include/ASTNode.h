@@ -164,8 +164,10 @@ namespace AST {
 
   class ExprNode : public BaseNode {
     protected:
-      ExprNode() {
+      bool isFuncVarNode;
 
+      ExprNode() {
+        isFuncVarNode = false;
         kind_ = ExprNodeTy;
       }
     public:
@@ -177,9 +179,12 @@ namespace AST {
         return false;
       }
 
-      bool IsAssignable() const {
-        return IsKindOf(LValueNodeTy);
-      }
+      // Check assignable value
+      bool IsAssignable() const { return IsKindOf(LValueNodeTy); }
+
+      // check if function name variable node
+      void SetFuncVarNode(bool fv) { isFuncVarNode = fv; }
+      bool IsFuncVarNode() { return isFuncVarNode; }
   };
 
   class BlockNode : public StmtNode {
@@ -1078,7 +1083,7 @@ namespace AST {
         return false;
       }
 
-      const ExprNode* GetFuncExpr() const { return func_expr_; }
+      ExprNode* GetFuncExpr() const { return func_expr_; }
       ArgsNode* GetArgs() { return args_; }
       
       virtual bool Accept(ASTVisitor* visitor) override {

@@ -109,7 +109,17 @@ bool LocalVarResolver::Visit(BlockNode* node) {
 }
 
 bool LocalVarResolver::Visit(VariableNode* node) {
-  NamedDecl* nd = currentScope_->FindDecl(node->GetVarName());
+  NamedDecl* nd = nullptr;
+  if (node->IsFuncVarNode()) {
+    // in case node is function name variable node
+    // find Decl in function name's
+    nd = currentScope_->FindFuncDecl(node->GetVarName());
+  }
+  else {
+    // in case node is just variable node
+    nd = currentScope_->FindDecl(node->GetVarName());
+  }
+
   if (nd)
     node->SetNamedDecl(nd);
   else {

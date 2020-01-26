@@ -84,7 +84,7 @@ namespace AST {
       bool CheckAssignment(const ExprNode* EN);
       // 2. Invalid Function Call. Check function pointer : 
       // ex) "string"("%d\n", i)
-      bool CheckInvalidFunCall(const FuncCallNode* FN;
+      bool CheckInvalidFunCall(const FuncCallNode* FN);
   };
 };
 

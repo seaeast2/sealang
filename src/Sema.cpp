@@ -54,7 +54,11 @@ bool Sema::Visit(OpAssignNode* node) {
 }
 
 bool Sema::Visit(FuncCallNode* node) {
-  return true;
+  if (!CheckInvalidFunCall(node)) {
+    assert(0 && "Error : wrong function name");
+    return false;
+  }
+  return ASTVisitor::Visit(node);
 }
 
 // Semantic error check functions =======================================
@@ -64,9 +68,7 @@ bool Sema::CheckAssignment(const ExprNode* EN) {
       
 bool Sema::CheckInvalidFunCall(const FuncCallNode* FN) {
   const ExprNode* EN = FN->GetFuncExpr();
-  if (
-
-
-  
-  return true;
+  if (EN->IsKindOf(BaseNode::VariableNodeTy))
+    return true;
+  return false;
 }

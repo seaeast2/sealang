@@ -23,12 +23,14 @@ namespace AST {
       // Scope control
       Scope* AddChild();
       Scope* GetParent();
+      Scope* GetTop(); // Get Top scope 
       Scope* GetChild(int index);
       int GetChildNum() { return children_.GetSize(); }
 
       // Decl control
       void AddNamedDecl(NamedDecl* node);
       NamedDecl* FindDecl(const char* variable_name);
+      NamedDecl* FindFuncDecl(const char* funcName);
       // Check if there is duplicated name in this scope.
       bool HasDuplicatedName(const char* variable_name);
 
