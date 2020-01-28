@@ -52,8 +52,8 @@ namespace AST {
       virtual bool Visit(CastNode* node) override;
       virtual bool Visit(CondExprNode* node) override;*/
       virtual bool Visit(FuncCallNode* node) override;
-      /*virtual bool Visit(ArrayRefNode* node) override;
-      virtual bool Visit(DereferenceNode* node) override;
+      virtual bool Visit(ArrayRefNode* node) override;
+      /*virtual bool Visit(DereferenceNode* node) override;
       virtual bool Visit(MemberRefNode* node) override;
       virtual bool Visit(PtrMemberRefNode* node) override;
       virtual bool Visit(VariableNode* node) override;
@@ -85,6 +85,8 @@ namespace AST {
       // 2. Invalid Function Call. Check function pointer : 
       // ex) "string"("%d\n", i)
       bool CheckInvalidFunCall(const FuncCallNode* FN);
+      // 3. Invalid Array reference : 1[0]
+      bool CheckInvalidArrRef(const ArrayRefNode* arrNode);
   };
 };
 

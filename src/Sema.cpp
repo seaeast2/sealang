@@ -61,6 +61,11 @@ bool Sema::Visit(FuncCallNode* node) {
   return ASTVisitor::Visit(node);
 }
 
+bool Sema::Visit(ArrayRefNode* node) {
+  // DOING : working here
+  return true;
+}
+
 // Semantic error check functions =======================================
 bool Sema::CheckAssignment(const ExprNode* EN) {
   return EN->IsAssignable();
@@ -72,3 +77,12 @@ bool Sema::CheckInvalidFunCall(const FuncCallNode* FN) {
     return true;
   return false;
 }
+
+
+bool Sema::CheckInvalidArrRef(const ArrayRefNode* arrNode) {
+
+  ExprNode* arrBase = arrNode->GetArrayBaseExpr();
+
+  return true;
+}
+

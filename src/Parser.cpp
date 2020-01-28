@@ -1990,7 +1990,8 @@ namespace Parser {
       parse_stack_.Pop();
 
       AST::StringLiteralNode* node = 
-        new AST::StringLiteralNode(top_pi.data_.cstr_, top_pi.cstr_len_);
+        new AST::StringLiteralNode(top_pi.data_.cstr_, 
+            top_pi.cstr_len_, new AST::TypeNode(AST::PointerType::Get(ac_, AST::CharType::Get(ac_, AST::IntegerType::Signed))));
       PushNode(node, RuleName::primary);
     }
     else if (top_pi.type_ == ParseInfo::Identifier) {

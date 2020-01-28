@@ -182,6 +182,7 @@ namespace AST {
       // Check assignable value
       bool IsAssignable() const { return IsKindOf(LValueNodeTy); }
 
+
       // check if function name variable node
       void SetFuncVarNode(bool fv) { isFuncVarNode = fv; }
       bool IsFuncVarNode() { return isFuncVarNode; }
@@ -1539,15 +1540,21 @@ namespace AST {
 
   class StringLiteralNode : public LiteralNode {
     private:
+      TypeNode* ptrType_;
       std::string str_;
     
     public:
-      StringLiteralNode() { kind_ = StringLiteralNodeTy; }
-      StringLiteralNode(const char* str, int str_len) { 
+      StringLiteralNode() { 
+        ptrType_ = nullptr;
+        kind_ = StringLiteralNodeTy; 
+      }
+      StringLiteralNode(const char* str, int str_len, TypeNode* ptrNode) { 
+        ptrType_ = ptrNode;
         kind_ = StringLiteralNodeTy; 
         str_ = std::string(str, str_len);
       }
-      virtual ~StringLiteralNode() {}
+      virtual ~StringLiteralNode() {
+      }
 
       virtual bool IsKindOf(NodeKind kind) const {
         if (kind == StringLiteralNodeTy ||
