@@ -43,7 +43,7 @@ namespace AST {
   class CondExprNode;
   class FuncCallNode;
   class ArrayRefNode;
-  class DereferenceNode;
+  class PtrDereferenceNode;
   class MemberRefNode;
   class PtrMemberRefNode;
   class VariableNode;

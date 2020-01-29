@@ -239,7 +239,7 @@ bool ASTVisitor::Visit(ArrayRefNode* node){
   return true; 
 }
 
-bool ASTVisitor::Visit(DereferenceNode* node){ 
+bool ASTVisitor::Visit(PtrDereferenceNode* node){ 
   ExprNode* base_expr = node->GetBaseExpr();
   if (!VisitExpr(base_expr))
     return false;

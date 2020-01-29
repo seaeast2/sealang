@@ -70,20 +70,20 @@ bool Sema::Visit(ArrayRefNode* node) {
 }
 
 // Semantic error check functions =======================================
-bool Sema::CheckAssignment(const ExprNode* EN) {
-  return EN->IsAssignable();
+bool Sema::CheckAssignment(const ExprNode* node) {
+  return node->IsAssignable();
 }
       
-bool Sema::CheckInvalidFunCall(const FuncCallNode* FN) {
-  const ExprNode* EN = FN->GetFuncExpr();
+bool Sema::CheckInvalidFunCall(const FuncCallNode* node) {
+  const ExprNode* EN = node->GetFuncExpr();
   if (EN->IsKindOf(BaseNode::VariableNodeTy))
     return true;
   return false;
 }
 
 
-bool Sema::CheckInvalidArrRef(const ArrayRefNode* arrNode) {
-  const ExprNode* arrBase = arrNode->GetArrayBaseExpr();
+bool Sema::CheckInvalidArrRef(const ArrayRefNode* node) {
+  const ExprNode* arrBase = node->GetArrayBaseExpr();
   if (arrBase->IsKindOf(BaseNode::VariableNodeTy)) {
     // Array base should be Variable Node.
     const VariableNode* VN = (VariableNode*)arrBase;
@@ -94,3 +94,12 @@ bool Sema::CheckInvalidArrRef(const ArrayRefNode* arrNode) {
   return false;
 }
 
+bool Sema::CheckInvalidMemRef(const MemberRefNode* node) {
+  // TODO : need to complete
+  return true;
+}
+
+bool Sema::CheckInvalidPtrMemRef(const PtrMemberRefNode* node) {
+  // TODO : need to complete
+  return true;
+}

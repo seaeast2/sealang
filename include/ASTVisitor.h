@@ -39,7 +39,7 @@ namespace AST {
       virtual bool Visit(CondExprNode* node);
       virtual bool Visit(FuncCallNode* node);
       virtual bool Visit(ArrayRefNode* node);
-      virtual bool Visit(DereferenceNode* node);
+      virtual bool Visit(PtrDereferenceNode* node);
       virtual bool Visit(MemberRefNode* node);
       virtual bool Visit(PtrMemberRefNode* node);
       virtual bool Visit(VariableNode* node);

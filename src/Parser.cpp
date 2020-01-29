@@ -1723,8 +1723,8 @@ namespace Parser {
       return Error;
     }
 
-    AST::DereferenceNode* node = 
-      new AST::DereferenceNode((AST::ExprNode*)pi_expr.data_.node_);
+    AST::PtrDereferenceNode* node = 
+      new AST::PtrDereferenceNode((AST::ExprNode*)pi_expr.data_.node_);
 
     PushNode(node, RuleName::seq_ptr_term);
     return True;

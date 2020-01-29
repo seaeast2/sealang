@@ -358,11 +358,11 @@ bool ASTPrinter::Visit(ArrayRefNode* node){
   return res;
 }
 
-bool ASTPrinter::Visit(DereferenceNode* node){
+bool ASTPrinter::Visit(PtrDereferenceNode* node){
   for (int i = 0; i < depth_; i++)
     cout << "  ";
 
-  cout << "DereferenceNode" << endl;
+  cout << "PtrDereferenceNode" << endl;
   depth_++;
   bool res = ASTVisitor::Visit(node);
   depth_--;

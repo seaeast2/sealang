@@ -272,8 +272,8 @@ unary
   | "+" term                   // unary +, positive 
   | "-" term                   // unary -, negative 
   | "!" term                   // Logical negation 
-  | "*" term                   // Pointer reference 
-  | "&" term                   // adress operator 
+  | "*" term                   // Pointer dereference 
+  | "&" term                   // address operator 
   | <SIZEOF> "(" type ")"      // sizeof(type) 
   | <SIZEOF> unary             // sizeof unary 
   | postfix                    // postfix  

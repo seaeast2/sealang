@@ -53,7 +53,7 @@ namespace AST {
       virtual bool Visit(CondExprNode* node) override;*/
       virtual bool Visit(FuncCallNode* node) override;
       virtual bool Visit(ArrayRefNode* node) override;
-      /*virtual bool Visit(DereferenceNode* node) override;
+      /*virtual bool Visit(PtrDereferenceNode* node) override;
       virtual bool Visit(MemberRefNode* node) override;
       virtual bool Visit(PtrMemberRefNode* node) override;
       virtual bool Visit(VariableNode* node) override;
@@ -81,12 +81,22 @@ namespace AST {
       // Check functions
       // 1. Invalid LValue Assign : 
       // ex) 1 = 2 + 3, 1 += 3
-      bool CheckAssignment(const ExprNode* EN);
+      bool CheckAssignment(const ExprNode* node);
       // 2. Invalid Function Call. Check function pointer : 
       // ex) "string"("%d\n", i)
-      bool CheckInvalidFunCall(const FuncCallNode* FN);
+      bool CheckInvalidFunCall(const FuncCallNode* node);
       // 3. Invalid Array reference : 1[0]
-      bool CheckInvalidArrRef(const ArrayRefNode* arrNode);
+      bool CheckInvalidArrRef(const ArrayRefNode* node);
+      // 4. Invalid member reference : 10.memb
+      bool CheckInvalidMemRef(const MemberRefNode* node);
+      // 5. Invalid member pointer reference : 10->memb
+      bool CheckInvalidPtrMemRef(const PtrMemberRefNode* node);
+      // 6. Invalid pointer reference : *1
+      // TODO : Need to complete
+      // 7. Invalid RValue reference : &1
+      // TODO : Need to complete
+      // 8. Invalid RValue increase : ++1, 1++
+      // TODO : Need to complete
   };
 };
 

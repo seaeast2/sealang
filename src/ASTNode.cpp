@@ -55,8 +55,8 @@ namespace AST {
         return visitor->Visit(reinterpret_cast<FuncCallNode*>(this));
       case ArrayRefNodeTy:
         return visitor->Visit(reinterpret_cast<ArrayRefNode*>(this));
-      case DereferenceNodeTy:
-        return visitor->Visit(reinterpret_cast<DereferenceNode*>(this));
+      case PtrDereferenceNodeTy:
+        return visitor->Visit(reinterpret_cast<PtrDereferenceNode*>(this));
       case MemberRefNodeTy:
         return visitor->Visit(reinterpret_cast<MemberRefNode*>(this));
       case PtrMemberRefNodeTy:

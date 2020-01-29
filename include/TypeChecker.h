@@ -61,7 +61,7 @@ namespace AST {
       virtual bool Visit(CondExprNode* node) override;
       virtual bool Visit(FuncCallNode* node) override;
       virtual bool Visit(ArrayRefNode* node) override;
-      virtual bool Visit(DereferenceNode* node) override;
+      virtual bool Visit(PtrDereferenceNode* node) override;
       virtual bool Visit(MemberRefNode* node) override;
       virtual bool Visit(PtrMemberRefNode* node) override;
       virtual bool Visit(VariableNode* node) override;

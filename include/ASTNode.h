@@ -58,7 +58,7 @@ namespace AST {
             FuncCallNodeTy,
             LValueNodeTy,
               ArrayRefNodeTy,
-              DereferenceNodeTy,
+              PtrDereferenceNodeTy,
               MemberRefNodeTy,
               PtrMemberRefNodeTy,
               VariableNodeTy,
@@ -1148,24 +1148,24 @@ namespace AST {
       }
   };
 
-  class DereferenceNode : public LValueNode {
+  class PtrDereferenceNode : public LValueNode {
     ExprNode* base_expr_;
     public:
-      DereferenceNode() {
-        kind_ = DereferenceNodeTy;
+      PtrDereferenceNode() {
+        kind_ = PtrDereferenceNodeTy;
         base_expr_ = nullptr;
       }
-      DereferenceNode(ExprNode* base_expr) {
-        kind_ = DereferenceNodeTy;
+      PtrDereferenceNode(ExprNode* base_expr) {
+        kind_ = PtrDereferenceNodeTy;
         base_expr_ = base_expr;
       }
-      virtual ~DereferenceNode() {
+      virtual ~PtrDereferenceNode() {
         if (base_expr_)
           delete base_expr_;
       }
 
       virtual bool IsKindOf(NodeKind kind) const {
-        if (kind == DereferenceNodeTy || 
+        if (kind == PtrDereferenceNodeTy || 
             kind == LValueNodeTy || kind == ExprNodeTy || 
             kind == BaseNodeTy)
           return true;
