@@ -62,8 +62,11 @@ bool Sema::Visit(FuncCallNode* node) {
 }
 
 bool Sema::Visit(ArrayRefNode* node) {
-  // DOING : working here
-  return true;
+  if (!CheckInvalidArrRef(node)) {
+    assert(0 && "Error : wrong array base");
+    return false;
+  }
+  return ASTVisitor::Visit(node);
 }
 
 // Semantic error check functions =======================================
@@ -80,9 +83,14 @@ bool Sema::CheckInvalidFunCall(const FuncCallNode* FN) {
 
 
 bool Sema::CheckInvalidArrRef(const ArrayRefNode* arrNode) {
-
-  ExprNode* arrBase = arrNode->GetArrayBaseExpr();
-
-  return true;
+  const ExprNode* arrBase = arrNode->GetArrayBaseExpr();
+  if (arrBase->IsKindOf(BaseNode::VariableNodeTy)) {
+    // Array base should be Variable Node.
+    const VariableNode* VN = (VariableNode*)arrBase;
+    // base type should be ArrayType
+    if(VN->GetNamedDecl()->GetTypeNode()->GetType()->IsArrayType())
+      return true;
+  }
+  return false;
 }
 

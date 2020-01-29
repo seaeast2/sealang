@@ -1140,8 +1140,8 @@ namespace AST {
         return false;
       }
 
-      ExprNode* GetArrayBaseExpr() { return array_base_expr_; }
-      ExprNode* GetArraySizeExpr() { return array_size_expr_; }
+      ExprNode* GetArrayBaseExpr() const { return array_base_expr_; }
+      ExprNode* GetArraySizeExpr() const { return array_size_expr_; }
 
       virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
@@ -1273,7 +1273,7 @@ namespace AST {
       void SetNamedDecl(NamedDecl* nd) { defined_decl_ = nd; }
 
       const char* GetVarName() { return variable_name_.c_str(); }
-      NamedDecl* GetNamedDecl() { return defined_decl_; }
+      NamedDecl* GetNamedDecl() const { return defined_decl_; }
 
       virtual bool Accept(ASTVisitor* visitor) override {
         return visitor->Visit(this);
